@@ -498,6 +498,7 @@ let editingUid  = null;
 let calBarrio   = "Todos";
 let calSemanaOffset = 0;
 let barrioView  = "Olmué";
+const API_URL = 'https://api.faroalasnaciones.com';
 let informeBarrioSel = "Olmué";
 let informeSubview   = "semanal"; // semanal | miembros | barrios | coord | estaca
 let filtroBarrio = "Todos";
@@ -544,18 +545,45 @@ function toast(msg, color="#2D7A2D"){
 // ═══════════════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════════════
-function doLogin(){
+async function doLogin(){
   const email = document.getElementById("login-email").value.trim();
   const pass  = document.getElementById("login-pass").value;
+  const err   = document.getElementById("login-err");
+
+  // Intentar login con API real
+  try {
+    const res  = await fetch(`${API_URL}/auth.php?action=login`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const data = await res.json();
+    if(data.ok){
+      localStorage.setItem('dona_hora_token', data.data.token);
+      currentUser = data.data.usuario;
+      err.style.display='none';
+      document.getElementById("login-screen").style.display="none";
+      document.getElementById("panel-screen").style.display="block";
+      barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
+      buildSidebar(); showView("dashboard");
+      cargarDonacionesAPI();
+      return;
+    }
+    err.textContent = "⚠ " + data.error;
+    err.style.display = "block"; return;
+  } catch(e){
+    console.warn('API no disponible, usando modo demo:', e);
+  }
+
+  // Fallback demo (cuando API no está disponible)
   const u = USUARIOS.find(u=>u.email===email);
-  const err = document.getElementById("login-err");
   if(!u||pass!=="demo1234"){
-    err.textContent="⚠ Credenciales incorrectas. Usa una cuenta demo.";
+    err.textContent="⚠ Credenciales incorrectas.";
     err.style.display="block"; return;
   }
   err.style.display="none";
   currentUser=u;
-  cargarDonacionesLS(); // ← carga donaciones del front-end
+  cargarDonacionesLS();
   document.getElementById("login-screen").style.display="none";
   document.getElementById("panel-screen").style.display="block";
   barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";

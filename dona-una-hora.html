@@ -349,6 +349,7 @@ const DAY_CFG = {
   Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
 };
 
+const API_URL = 'https://api.faroalasnaciones.com';
 let form = {nombre:'',telefono:'',modalidad:'',barrio:''};
 let selected = {}; // key: "day|HH:00|HH:00" → bool
 let semanaOffset = 0; // 0 = semana actual, 1 = próxima semana
@@ -672,36 +673,51 @@ function buildWA(list,n){
 // ── Persistencia local (puente con el panel admin) ─────────────────
 // Cuando exista la API, reemplazar el cuerpo de esta función por:
 //   await fetch('/api/donaciones', { method:'POST', body: JSON.stringify(payload) })
-function guardarDonacion(list){
-  try {
-    const KEY = 'dona_hora_donaciones';
-    const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
-    const ahora = new Date();
-    const fecha = `${pad(ahora.getDate())}/${pad(ahora.getMonth()+1)}/${ahora.getFullYear()} ${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
-
-    list.forEach((slot, i) => {
-      const id = `F${Date.now()}${i}`;
-      existing.push({
-        id,
-        nombre:    form.nombre,
-        tel:       form.telefono,
-        barrio:    form.barrio,
-        modalidad: form.modalidad,
-        notas:     form.notas || '',
-        dia:       slot.day,
-        desde:     slot.from,
-        hasta:     slot.to,
-        semana:    slot.week || 0,
-        estado:    'pendiente',
-        fecha,
-        origen:    'frontend'
+async function guardarDonacion(list){
+  // Intentar guardar en API real
+  let apiOk = false;
+  for(const slot of list){
+    try {
+      const res = await fetch(`${API_URL}/donaciones.php`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          nombre:    form.nombre,
+          telefono:  form.telefono,
+          barrio:    form.barrio,
+          modalidad: form.modalidad,
+          notas:     form.notas || '',
+          dia:       slot.day,
+          desde:     slot.from,
+          hasta:     slot.to,
+          semana:    slot.week || 0,
+        })
       });
-    });
-
-    localStorage.setItem(KEY, JSON.stringify(existing));
-    console.log(`✅ ${list.length} donación(es) guardadas en localStorage.`);
-  } catch(e) {
-    console.warn('No se pudo guardar en localStorage:', e);
+      const data = await res.json();
+      if(data.ok) apiOk = true;
+    } catch(e){
+      console.warn('API no disponible, guardando en localStorage:', e);
+    }
+  }
+  // Fallback: guardar en localStorage si la API falla
+  if(!apiOk){
+    try {
+      const KEY = 'dona_hora_donaciones';
+      const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
+      const ahora = new Date();
+      const fecha = `${pad(ahora.getDate())}/${pad(ahora.getMonth()+1)}/${ahora.getFullYear()} ${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
+      list.forEach((slot, i) => {
+        existing.push({
+          id: `F${Date.now()}${i}`,
+          nombre: form.nombre, tel: form.telefono,
+          barrio: form.barrio, modalidad: form.modalidad,
+          notas: form.notas||'', dia: slot.day,
+          desde: slot.from, hasta: slot.to,
+          semana: slot.week||0, estado: 'pendiente', fecha, origen: 'frontend'
+        });
+      });
+      localStorage.setItem(KEY, JSON.stringify(existing));
+    } catch(e){ console.warn('Error localStorage:', e); }
   }
 }
 
