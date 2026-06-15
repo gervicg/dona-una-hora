@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Panel Admin · Dona una Hora por la Obra</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
+
+@keyframes fadeUp  {from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+@keyframes slideIn {from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes notifIn {from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease both}
+
+/* ── Login ── */
+.login-wrap{min-height:100vh;background:#F0F2F4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+.login-card{background:#fff;border:1px solid #D8DCE1;border-radius:4px;width:100%;max-width:400px;box-shadow:0 2px 12px rgba(0,0,0,.08);animation:fadeUp .4s ease}
+.login-header{background:#003E6B;padding:1.8rem 2rem;text-align:center;border-radius:4px 4px 0 0}
+.login-header h1{font-family:'Source Serif 4',serif;color:#fff;font-size:1.3rem;font-weight:700;margin-top:.4rem}
+.login-header p{color:rgba(255,255,255,.6);font-size:.78rem;margin-top:.2rem}
+.login-body{padding:1.8rem}
+.demo-hint{background:#EEF5FB;border:1px solid #BFDBF7;border-radius:4px;padding:.75rem 1rem;margin-bottom:1.3rem;font-size:.78rem;color:#1A3A5C}
+.demo-hint strong{display:block;margin-bottom:.2rem;color:#003E6B}
+
+/* ── Shell ── */
+.admin-shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:240px;min-width:240px;background:#003E6B;color:#fff;display:flex;flex-direction:column;transition:width .25s;overflow:hidden}
+.sidebar.collapsed{width:60px;min-width:60px}
+.sidebar-logo{padding:1.1rem 1rem;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:.7rem}
+.logo-icon{font-size:1.3rem;flex-shrink:0}
+.logo-text{font-family:'Source Serif 4',serif;font-size:.92rem;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden}
+.logo-sub{font-size:.66rem;color:rgba(255,255,255,.45);letter-spacing:.06em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:.6rem 0;overflow-y:auto}
+.nav-section{padding:.3rem .75rem .1rem;font-size:.61rem;letter-spacing:.15em;color:rgba(255,255,255,.32);text-transform:uppercase;white-space:nowrap;overflow:hidden}
+.nav-item{display:flex;align-items:center;gap:.7rem;padding:.58rem .85rem;cursor:pointer;transition:all .14s;border-left:3px solid transparent;font-size:.83rem;color:rgba(255,255,255,.68);white-space:nowrap;margin:.08rem 0}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:#C9A84C}
+.nav-icon{font-size:1rem;flex-shrink:0;width:20px;text-align:center}
+.nav-badge{margin-left:auto;background:#C9A84C;color:#003E6B;border-radius:10px;padding:.04rem .42rem;font-size:.67rem;font-weight:700}
+.sidebar-user{padding:.8rem;border-top:1px solid rgba(255,255,255,.1)}
+.user-card{display:flex;align-items:center;gap:.6rem}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:#006EB6;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;color:#fff}
+.user-name{font-size:.8rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.user-role{font-size:.67rem;color:rgba(255,255,255,.42);text-transform:uppercase;letter-spacing:.06em}
+.barrio-row{display:flex;justify-content:space-between;align-items:center;padding:.28rem .4rem;font-size:.77rem;color:rgba(255,255,255,.62);border-radius:3px;cursor:pointer}
+.barrio-row:hover{background:rgba(255,255,255,.07);color:#fff}
+.barrio-count{background:rgba(255,255,255,.15);border-radius:10px;padding:.03rem .42rem;font-size:.67rem;font-weight:700}
+
+/* ── Main ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar-admin{background:#fff;border-bottom:1px solid #D8DCE1;padding:.68rem 1.4rem;display:flex;align-items:center;gap:.9rem;flex-shrink:0}
+.topbar-title{font-family:'Source Serif 4',serif;font-size:1.05rem;color:#003E6B;font-weight:600}
+.topbar-breadcrumb{font-size:.76rem;color:#9CA3AF}
+.page-content{flex:1;overflow-y:auto;padding:1.4rem}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.9rem;margin-bottom:1.3rem}
+.stat-card{background:#fff;border:1px solid #D8DCE1;border-radius:4px;padding:1rem 1.1rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-label{font-size:.7rem;color:#9CA3AF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem}
+.stat-value{font-family:'Source Serif 4',serif;font-size:1.9rem;font-weight:700;color:#003E6B;line-height:1}
+.stat-sub{font-size:.72rem;color:#6B7280;margin-top:.18rem}
+
+/* ── Section card ── */
+.section-card{background:#fff;border:1px solid #D8DCE1;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:1.1rem}
+.section-header{padding:.9rem 1.3rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
+.section-title{font-family:'Source Serif 4',serif;font-size:1rem;font-weight:600;color:#003E6B}
+
+/* ── Filters ── */
+.filters{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;margin-left:auto}
+.filter-select{border:1px solid #D1D5DB;border-radius:4px;padding:.32rem .65rem;font-family:'Noto Sans',sans-serif;font-size:.78rem;color:#374151;background:#fff;outline:none;cursor:pointer}
+.filter-select:focus{border-color:#006EB6}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead tr{background:#F8FAFC;border-bottom:2px solid #E5E7EB}
+th{padding:.6rem .95rem;text-align:left;font-family:'Noto Sans',sans-serif;font-size:.7rem;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+td{padding:.65rem .95rem;border-bottom:1px solid #F3F4F6;color:#374151;vertical-align:middle}
+tr:hover td{background:#FAFBFC}
+tr:last-child td{border-bottom:none}
+.td-name{font-weight:600;color:#1A1A1A}
+.td-sub{font-size:.73rem;color:#9CA3AF;margin-top:.08rem}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:.22rem;padding:.16rem .55rem;border-radius:3px;font-size:.71rem;font-weight:600;white-space:nowrap}
+.badge-pending   {background:#FEF3C7;color:#92400E}
+.badge-en-espera    {background:#DBEAFE;color:#1E40AF}
+.badge-confirm   {background:#D1FAE5;color:#065F46}
+.badge-realizada {background:#134E4A;color:#CCFBF1}
+.badge-cancel    {background:#FEE2E2;color:#991B1B}
+.badge-presencial{background:#DBEAFE;color:#1E40AF}
+.badge-online    {background:#EDE9FE;color:#5B21B6}
+.badge-admin     {background:#003E6B;color:#fff}
+.badge-misionero      {background:#006EB6;color:#fff}
+.badge-lider-misional {background:#7C3AED;color:#fff}
+.badge-enviado   {background:#D1FAE5;color:#065F46}
+.badge-error     {background:#FEE2E2;color:#991B1B}
+.badge-recordatorio{background:#FEF3C7;color:#92400E}
+.badge-cancelacion {background:#FEE2E2;color:#991B1B}
+
+/* ── Buttons ── */
+.btn-sm{padding:.3rem .7rem;border-radius:3px;font-family:'Noto Sans',sans-serif;font-size:.73rem;font-weight:600;cursor:pointer;border:none;transition:all .13s;display:inline-flex;align-items:center;gap:.28rem}
+.btn-confirm{background:#006EB6;color:#fff}
+.btn-confirm:hover{background:#005A9E}
+.btn-cancel2{background:#F3F4F6;color:#6B7280;border:1px solid #D1D5DB!important}
+.btn-cancel2:hover{background:#fee2e2;color:#991B1B;border-color:#f87171!important}
+.btn-detail{background:transparent;color:#006EB6;border:1px solid #006EB6!important}
+.btn-detail:hover{background:#EEF5FB}
+.btn-primary{background:#006EB6;color:#fff;border:none;border-radius:4px;padding:.58rem 1.3rem;font-family:'Noto Sans',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:background .14s}
+.btn-primary:hover{background:#005A9E}
+.btn-ghost{background:transparent;color:#006EB6;border:1px solid #006EB6;border-radius:4px;padding:.52rem 1.1rem;font-family:'Noto Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .14s}
+.btn-ghost:hover{background:#EEF5FB}
+.btn-danger{background:#DC2626;color:#fff;border:none;border-radius:4px;padding:.58rem 1.3rem;font-family:'Noto Sans',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer}
+.btn-wa-sm{background:#25D366;color:#fff;border:none;border-radius:4px;padding:.58rem 1.3rem;font-family:'Noto Sans',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-wa-sm:hover{background:#1DA851}
+
+/* ── Calendar ── */
+.admin-cal{overflow-x:auto}
+.admin-cal-grid{display:grid;grid-template-columns:70px repeat(7,minmax(85px,1fr));gap:2px;min-width:660px}
+.acg-head{text-align:center;font-family:'Noto Sans',sans-serif;font-size:.67rem;font-weight:700;color:#003E6B;padding:.38rem 0 .52rem;text-transform:uppercase;letter-spacing:.06em}
+.acg-head-today{background:#EEF5FB;border-radius:4px 4px 0 0}
+.acg-head-date{font-size:.72rem;font-weight:400;color:#9CA3AF;letter-spacing:0;text-transform:none;margin-top:.15rem}
+.acg-head-date-today{color:#006EB6;font-weight:600}
+.acg-label{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-right:7px;gap:1px}
+.acg-label span{font-family:'Noto Sans',sans-serif;font-size:.59rem;color:#9CA3AF}
+.acg-sep{color:#D1D5DB;font-size:.5rem}
+.acg-cell{height:36px;border:1px solid #E5E7EB;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:600;transition:all .11s;cursor:default;position:relative;user-select:none}
+.acg-free{background:#fff;color:transparent}
+.acg-confirmed{background:#006EB6;border-color:#005A9E;color:#fff;cursor:pointer}
+.acg-confirmed:hover{background:#005A9E}
+.acg-en-espera{background:#DBEAFE;border-color:#3B82F6;color:#1E40AF;cursor:pointer;font-size:.6rem}
+.acg-cita-realizada{background:#134E4A;border-color:#0F766E;color:#CCFBF1;cursor:pointer;font-size:.6rem}
+.acg-cita-realizada:hover{background:#0F766E}
+.acg-en-espera:hover{background:#BFDBFE}
+.acg-pending{background:#FEF3C7;border-color:#D4A017;color:#92400E;cursor:pointer}
+.acg-pending:hover{background:#fde68a}
+.acg-blocked{background:#F5F5F5;border-color:#E5E7EB;cursor:not-allowed;background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,.04) 4px,rgba(0,0,0,.04) 8px)}
+
+/* ── Barrio progress ── */
+.barrio-prog-row{display:flex;align-items:center;gap:1rem;padding:.55rem 0;border-bottom:1px solid #F3F4F6}
+.prog-bar{flex:1;background:#F3F4F6;border-radius:4px;height:7px;overflow:hidden}
+.prog-fill{height:100%;background:#006EB6;border-radius:4px;transition:width .4s}
+
+/* ── Drawer ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;animation:fadeIn .2s ease}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:400px;max-width:95vw;background:#fff;z-index:101;box-shadow:-4px 0 24px rgba(0,0,0,.12);display:flex;flex-direction:column;animation:slideIn .25s ease}
+.drawer-header{background:#003E6B;color:#fff;padding:1rem 1.3rem;display:flex;align-items:center;gap:.65rem}
+.drawer-header h3{font-family:'Source Serif 4',serif;font-size:1rem;font-weight:600;flex:1}
+.drawer-close{background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:1.2rem;padding:.2rem;line-height:1}
+.drawer-close:hover{color:#fff}
+.drawer-body{flex:1;overflow-y:auto;padding:1.3rem}
+.drawer-footer{padding:.9rem 1.3rem;border-top:1px solid #E5E7EB;display:flex;gap:.65rem;justify-content:flex-end}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.52rem 0;border-bottom:1px solid #F3F4F6;font-size:.85rem}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#9CA3AF;font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;margin-right:1rem}
+.detail-value{color:#1A1A1A;text-align:right}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.modal{background:#fff;border-radius:6px;width:440px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18);animation:fadeUp .25s ease}
+.modal-header{background:#003E6B;color:#fff;padding:.95rem 1.3rem;border-radius:6px 6px 0 0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-family:'Source Serif 4',serif;font-size:.98rem;font-weight:600}
+.modal-body{padding:1.3rem}
+.modal-footer{padding:.95rem 1.3rem;border-top:1px solid #E5E7EB;display:flex;gap:.65rem;justify-content:flex-end}
+.form-field{margin-bottom:1rem}
+.form-label{display:block;font-size:.74rem;font-weight:600;color:#374151;margin-bottom:.32rem}
+.form-input{width:100%;padding:.58rem .82rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .14s}
+.form-input:focus{border-color:#006EB6;box-shadow:0 0 0 3px rgba(0,110,182,.11)}
+.form-select{width:100%;padding:.58rem .82rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.9rem;outline:none;background:#fff}
+
+/* ── Toast ── */
+.notif-toast{position:fixed;top:1.2rem;right:1.5rem;z-index:500;padding:.7rem 1.1rem;border-radius:4px;color:#fff;font-family:'Noto Sans',sans-serif;font-size:.83rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:notifIn .3s ease;max-width:360px}
+
+/* ── Empty state ── */
+.empty-state{padding:2.5rem 1.5rem;text-align:center;color:#9CA3AF}
+.empty-icon{font-size:2.2rem;margin-bottom:.6rem}
+
+/* ── Misc ── */
+.divider{height:1px;background:#E5E7EB;margin:1.1rem 0}
+.page{display:none}.page.active{display:block}
+.alert-banner{background:#FEF3C7;border:1px solid #FCD34D;border-radius:4px;padding:.55rem 1rem;font-size:.8rem;color:#92400E;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;margin-left:auto}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#9CA3AF;border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+@media(max-width:768px){
+  .layout{flex-direction:column}
+  #sidebar-toggle-btn{display:block!important}
+  .sidebar{width:100%;height:auto;max-height:60px;overflow:hidden;position:relative;transition:max-height .3s ease;border-right:none;border-bottom:1px solid #D8DCE1;z-index:10}
+  .sidebar.open{max-height:100vh;overflow-y:auto}
+  .sidebar-toggle{display:flex}
+  .page-content{padding:1rem .75rem;min-height:auto}
+  .topbar{padding:.5rem .9rem}
+  .topbar-title{font-size:.88rem}
+  .section-header{flex-wrap:wrap;gap:.4rem;padding:.75rem 1rem}
+  .filters{flex-wrap:wrap;gap:.35rem}
+  .filter-select{font-size:.76rem;padding:.3rem .55rem}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .stat-value{font-size:1.5rem}
+  .table-wrap{font-size:.8rem}
+  th,td{padding:.4rem .5rem}
+  .btn-primary{font-size:.82rem;padding:.55rem .9rem}
+  .btn-ghost{font-size:.82rem;padding:.5rem .85rem}
+  .btn-sm{font-size:.72rem;padding:.28rem .55rem}
+  .drawer{width:100%!important;right:0}
+  .section-card{margin-bottom:.8rem}
+  .admin-cal-grid{min-width:540px}
+  .nav-section{font-size:.68rem}
+  .nav-item{font-size:.8rem;padding:.55rem .8rem}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stat-card{padding:.7rem .8rem}
+  .stat-value{font-size:1.3rem}
+  .topbar-breadcrumb{display:none}
+  .section-header .section-title{font-size:.92rem}
+  .filters{width:100%}
+  .filter-select{flex:1;min-width:120px}
+  .page-content{padding:.75rem .5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════════════ -->
+<div id="toast" class="notif-toast" style="display:none"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN
+═══════════════════════════════════════════════════════ -->
+<div id="login-screen">
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <div style="font-size:1.8rem;color:rgba(255,255,255,.8)">✦</div>
+      <h1>Panel de Administración</h1>
+      <p>Dona una Hora por la Obra · Estaca de Villa Alemana</p>
+    </div>
+    <div class="login-body">
+      <div class="demo-hint">
+        <strong>Cuentas de demostración:</strong>
+        Admin: <b>presidente@misionvina.cl</b><br>
+        Misionero: <b>elder.smith@misionvina.cl</b><br>
+        Líder misional: <b>lider@misionvina.cl</b><br>
+        Contraseña: <b>demo1234</b>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" type="email" id="login-email" placeholder="correo@misionvina.cl" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <p id="login-err" style="color:#DC2626;font-size:.78rem;margin-bottom:.8rem;display:none"></p>
+      <button class="btn-primary" style="width:100%" onclick="doLogin()">Ingresar →</button>
+    </div>
+  </div>
+  <p style="margin-top:1.1rem;font-size:.73rem;color:#9CA3AF">
+    © 2026 Misión Viña del Mar
+  </p>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PANEL
+═══════════════════════════════════════════════════════ -->
+<div id="panel-screen" style="display:none">
+<div class="admin-shell">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">✦</span>
+      <div id="logo-text-wrap">
+        <div class="logo-text">Dona una Hora</div>
+        <div class="logo-sub">por la Obra</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-user">
+      <div class="user-card">
+        <div class="user-avatar" id="user-avatar"></div>
+        <div id="user-info-wrap">
+          <div class="user-name" id="user-name"></div>
+          <div class="user-role" id="user-role"></div>
+        </div>
+      </div>
+      <div id="logout-wrap">
+        <button onclick="doLogout()" style="margin-top:.6rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-area">
+    <div class="topbar-admin">
+      <button onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#6B7280;padding:.18rem .38rem;border-radius:3px">☰</button>
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-breadcrumb" id="topbar-breadcrumb" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px"></div>
+      </div>
+      <div id="pending-alert" style="display:none" class="alert-banner" onclick="showView('solicitudes')">
+        🔔 <span id="pending-count"></span>
+      </div>
+      <button onclick="cargarDonacionesLS();buildSidebar();renderView();toast('🔄 Sincronizado con el front-end.');"
+        title="Recargar donaciones del front-end"
+        style="margin-left:.5rem;background:#EEF5FB;border:1px solid #BFDBF7;color:#006EB6;border-radius:4px;padding:.4rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;display:flex;align-items:center;gap:.3rem">
+        🔄 Sincronizar
+      </button>
+    </div>
+    <div class="page-content" id="page-content"></div>
+  </div>
+</div>
+</div>
+
+<!-- Drawer detalle -->
+<div id="drawer-overlay" class="drawer-overlay" style="display:none" onclick="closeDrawer()"></div>
+<div id="drawer" class="drawer" style="display:none">
+  <div class="drawer-header">
+    <span style="font-size:1rem">📋</span>
+    <h3 id="drawer-title">Detalle de donación</h3>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-footer" id="drawer-footer"></div>
+</div>
+
+<!-- Modal usuario -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modal-title">Nuevo usuario</h3>
+      <button class="drawer-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="m-nombre" placeholder="Ej. Elder Smith Johnson"/></div>
+      <div class="form-field"><label class="form-label">Correo electrónico</label><input type="email" class="form-input" id="m-email" type="email" placeholder="correo@misionvina.cl"/></div>
+      <div class="form-field"><label class="form-label">Contraseña</label><input type="password" class="form-input" id="m-pass" type="password" placeholder="••••••••"/></div>
+      <div class="form-field" id="m-tel-wrap">
+        <label class="form-label">📱 Teléfono WhatsApp de la pareja misionera</label>
+        <input type="tel" class="form-input" id="m-tel" type="tel" placeholder="+56 9 1234 5678"/>
+        <p style="font-size:.73rem;color:#6B7280;margin-top:.25rem">Este número recibirá las notificaciones de donación de su barrio.</p>
+      </div>
+      <div class="form-field"><label class="form-label">Rol</label>
+        <select class="form-select" id="m-rol" onchange="toggleTelField(this.value)">
+          <option value="misionero">⛪ Misionero</option>
+          <option value="lider-misional">📊 Líder Misional</option>
+          <option value="admin">🛡 Administrador</option>
+        </select>
+      </div>
+      <div class="form-field"><label class="form-label">Barrio asignado</label>
+        <select class="form-select" id="m-barrio">
+          <option>Todos</option><option>Olmué</option><option>Limache</option>
+          <option>Peñablanca 1</option><option>Peñablanca 2</option><option>Villa Alemana</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATOS
+// ═══════════════════════════════════════════════════════════════
+const BARRIOS = ["Todos","Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
+const DIAS    = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+
+const DAY_CFG = {
+  Lunes:     {start:10, end:22, blocked:[10,11,12,13,14,15]},
+  Martes:    {start:10, end:22, blocked:[]},
+  Miércoles: {start:10, end:22, blocked:[]},
+  Jueves:    {start:10, end:22, blocked:[]},
+  Viernes:   {start:10, end:22, blocked:[]},
+  Sábado:    {start:10, end:22, blocked:[]},
+  Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
+};
+
+let DONACIONES = [
+  {id:"D001",nombre:"María González Pérez",    tel:"+56 9 1234 5678",barrio:"Olmué",       modalidad:"presencial",dia:"Lunes",    desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 09:12"},
+  {id:"D002",nombre:"Carlos Muñoz Soto",        tel:"+56 9 2345 6789",barrio:"Limache",     modalidad:"online",    dia:"Martes",   desde:"18:00",hasta:"19:00",estado:"en-espera",fecha:"05/06/2026 14:30"},
+  {id:"D003",nombre:"Ana Rodríguez López",      tel:"+56 9 3456 7890",barrio:"Villa Alemana",modalidad:"presencial",dia:"Miércoles",desde:"17:00",hasta:"18:00",estado:"pendiente", fecha:"06/06/2026 10:05"},
+  {id:"D004",nombre:"Pedro Fuentes Araya",      tel:"+56 9 4567 8901",barrio:"Peñablanca 1",modalidad:"presencial",dia:"Jueves",   desde:"19:00",hasta:"20:00",estado:"cita-confirmada",fecha:"04/06/2026 16:22"},
+  {id:"D005",nombre:"Sofía Herrera Vidal",      tel:"+56 9 5678 9012",barrio:"Peñablanca 2",modalidad:"online",    dia:"Viernes",  desde:"20:00",hasta:"21:00",estado:"pendiente", fecha:"06/06/2026 11:47"},
+  {id:"D006",nombre:"Luis Castillo Mora",       tel:"+56 9 6789 0123",barrio:"Olmué",       modalidad:"presencial",dia:"Lunes",    desde:"17:00",hasta:"18:00",estado:"en-espera",fecha:"03/06/2026 08:15"},
+  {id:"D007",nombre:"Isabel Vargas Pinto",      tel:"+56 9 7890 1234",barrio:"Limache",     modalidad:"presencial",dia:"Sábado",   desde:"10:00",hasta:"11:00",estado:"cita-realizada",fecha:"02/06/2026 19:03"},
+  {id:"D008",nombre:"Roberto Díaz Flores",      tel:"+56 9 8901 2345",barrio:"Villa Alemana",modalidad:"online",   dia:"Martes",   desde:"20:00",hasta:"21:00",estado:"cita-cancelada",fecha:"01/06/2026 12:00"},
+  {id:"D009",nombre:"Claudia Ríos Espinoza",    tel:"+56 9 9012 3456",barrio:"Peñablanca 1",modalidad:"presencial",dia:"Miércoles",desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 13:20"},
+  {id:"D010",nombre:"Fernando Morales Leiva",   tel:"+56 9 0123 4567",barrio:"Peñablanca 2",modalidad:"online",    dia:"Jueves",   desde:"18:00",hasta:"19:00",estado:"en-espera",fecha:"05/06/2026 07:55"},
+  {id:"D011",nombre:"Valentina Sepúlveda Cruz", tel:"+56 9 1122 3344",barrio:"Olmué",       modalidad:"presencial",dia:"Viernes",  desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 15:10"},
+  {id:"D012",nombre:"Andrés Contreras Núñez",   tel:"+56 9 2233 4455",barrio:"Limache",     modalidad:"online",    dia:"Domingo",  desde:"16:00",hasta:"17:00",estado:"cita-realizada",fecha:"04/06/2026 11:30"},
+];
+
+let USUARIOS = [
+  {id:"U001",nombre:"Elder Smith Johnson",  email:"elder.smith@misionvina.cl",  rol:"misionero",barrio:"Olmué",        tel:"+56 9 1111 2222",activo:true,ultimo:"06/06/2026 08:00"},
+  {id:"U002",nombre:"Elder García Pérez",   email:"elder.garcia@misionvina.cl", rol:"misionero",barrio:"Limache",      tel:"+56 9 2222 3333",activo:true,ultimo:"06/06/2026 09:15"},
+  {id:"U003",nombre:"Elder Kim Park",       email:"elder.kim@misionvina.cl",    rol:"misionero",barrio:"Villa Alemana",tel:"+56 9 3333 4444",activo:true,ultimo:"05/06/2026 17:00"},
+  {id:"U004",nombre:"Elder Morales Reyes",  email:"elder.morales@misionvina.cl",rol:"misionero",barrio:"Peñablanca 1", tel:"+56 9 4444 5555",activo:true,ultimo:"06/06/2026 07:30"},
+  {id:"U005",nombre:"Elder Torres Díaz",    email:"elder.torres@misionvina.cl", rol:"misionero",barrio:"Peñablanca 2", tel:"+56 9 5555 6666",activo:true,ultimo:"06/06/2026 10:45"},
+  {id:"U006",nombre:"Pdte. Ramón Vega",     email:"presidente@misionvina.cl",   rol:"admin",         barrio:"Todos",        tel:"",              activo:true,ultimo:"06/06/2026 10:00"},
+  {id:"U007",nombre:"Hna. Carmen Rojas",    email:"lider@misionvina.cl",        rol:"lider-misional",barrio:"Olmué",       tel:"",              activo:true,ultimo:"06/06/2026 11:00"},
+];
+
+// Mapa barrio → teléfono misionero (fuente única de verdad)
+function getMisioneroTelByBarrio(barrio){
+  const u = USUARIOS.find(u => u.rol==="misionero" && u.barrio===barrio && u.tel);
+  return u ? u.tel.replace(/\D/g,"") : null;
+}
+
+// ── Helpers de rol ──────────────────────────────────────────────
+const isAdmin  = ()=> currentUser?.rol==="admin";
+const isMision = ()=> currentUser?.rol==="misionero";
+const isLider  = ()=> currentUser?.rol==="lider-misional";
+// Puede ver todo (sin filtro de barrio) — SOLO admin
+const canViewAll = ()=> isAdmin();
+// Puede ejecutar acciones (confirmar, cancelar, etc.) — admin y misionero
+const canEdit    = ()=> isAdmin() || isMision();
+// Líder misional: solo lectura de su barrio (igual que misionero pero sin acciones)
+const canActuar  = ()=> isAdmin() || isMision();
+// Filtro de donaciones según rol — admin ve todo, resto ve solo su barrio
+const mineFilter = d =>
+  isAdmin() ? true : d.barrio === currentUser.barrio;
+
+const WA_HIST = [
+  {id:"W001",nombre:"Carlos Muñoz Soto",  tel:"+56 9 2345 6789",tipo:"aprobacion",estado:"enviado",fecha:"05/06/2026 14:35"},
+  {id:"W002",nombre:"Pedro Fuentes Araya",tel:"+56 9 4567 8901",tipo:"cita-confirmada",estado:"enviado",fecha:"04/06/2026 16:25"},
+  {id:"W003",nombre:"Luis Castillo Mora", tel:"+56 9 6789 0123",tipo:"aprobacion",estado:"enviado",fecha:"03/06/2026 08:20"},
+  {id:"W004",nombre:"Isabel Vargas Pinto",tel:"+56 9 7890 1234",tipo:"cita-confirmada",estado:"enviado",fecha:"02/06/2026 19:08"},
+  {id:"W005",nombre:"Roberto Díaz Flores",tel:"+56 9 8901 2345",tipo:"cita-cancelada",   estado:"enviado",fecha:"01/06/2026 12:05"},
+  {id:"W006",nombre:"Fernando Morales",   tel:"+56 9 0123 4567",tipo:"recordatorio",estado:"enviado",fecha:"01/06/2026 08:00"},
+];
+
+// ── Sincronización con localStorage del front-end ──────────────────
+// Lee las donaciones guardadas por dona-una-hora.html y las fusiona.
+// Cuando exista la API, reemplazar por: const res = await fetch('/api/donaciones')
+const LS_KEY = 'dona_hora_donaciones';
+
+function cargarDonacionesLS(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    if(!raw.length) return;
+    raw.forEach(d => {
+      if(!DONACIONES.find(x => x.id === d.id)){
+        // Normaliza estado legacy del front-end
+        const estado = d.estado === 'pendiente' ? 'pendiente' : d.estado;
+        DONACIONES.push({...d, estado});
+      }
+    });
+  } catch(e){ console.warn('Error leyendo localStorage:', e); }
+}
+
+function sincronizarEstadoLS(){
+  // Persiste cambios de estado (confirmaciones/cancelaciones) de vuelta al LS
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const updated = raw.map(d => {
+      const local = DONACIONES.find(x => x.id === d.id);
+      return local ? {...d, estado: local.estado} : d;
+    });
+    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+  } catch(e){}
+}
+
+function limpiarDonacionesDemo(){
+  // Borra del LS las donaciones de demo (para tener datos limpios)
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const solo_reales = raw.filter(d => d.origen === 'frontend');
+    localStorage.setItem(LS_KEY, JSON.stringify(solo_reales));
+    DONACIONES = DONACIONES.filter(d => d.origen === 'frontend');
+    toast('Datos demo eliminados. Solo se muestran donaciones reales.','#B8860B');
+    buildSidebar(); renderView();
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let currentUser = null;
+let currentView = "dashboard";
+let sideOpen    = true;
+let editingUid  = null;
+let calBarrio   = "Todos";
+let calSemanaOffset = 0;
+let barrioView  = "Olmué";
+let informeBarrioSel = "Olmué";
+let informeSubview   = "semanal"; // semanal | miembros | barrios | coord | estaca
+let filtroBarrio = "Todos";
+let filtroEstado = "todos";
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function pad(n){return String(n).padStart(2,"0")}
+function isBlocked(day,h){
+  const c=DAY_CFG[day];
+  return !c||h<c.start||h>=c.end||c.blocked.includes(h);
+}
+function getStats(){
+  return {
+    total:      DONACIONES.filter(mineFilter).length,
+    pendientes: DONACIONES.filter(d=>mineFilter(d)&&d.estado==="pendiente").length,
+    espera:     DONACIONES.filter(d=>mineFilter(d)&&d.estado==="en-espera").length,
+    confirmadas:DONACIONES.filter(d=>mineFilter(d)&&d.estado==="cita-confirmada").length,
+    realizadas: DONACIONES.filter(d=>mineFilter(d)&&d.estado==="cita-realizada").length,
+    canceladas: DONACIONES.filter(d=>mineFilter(d)&&d.estado==="cita-cancelada").length,
+    presencial: DONACIONES.filter(d=>mineFilter(d)&&d.modalidad==="presencial").length,
+  };
+}
+function badgeEstado(est){
+  if(est==="pendiente")       return `<span class="badge badge-pending">⏳ Pendiente</span>`;
+  if(est==="en-espera")       return `<span class="badge badge-en-espera">🕐 En espera de cita</span>`;
+  if(est==="cita-confirmada") return `<span class="badge badge-confirm">✅ Cita confirmada</span>`;
+  if(est==="cita-realizada")  return `<span class="badge badge-realizada">🙏 Cita realizada</span>`;
+  if(est==="cita-cancelada")  return `<span class="badge badge-cancel">❌ Cita cancelada</span>`;
+  return `<span class="badge">${est}</span>`;
+}
+function badgeModal(m){
+  return m==="presencial"
+    ? `<span class="badge badge-presencial">🏠 Presencial</span>`
+    : `<span class="badge badge-online">💻 En línea</span>`;
+}
+function toast(msg, color="#2D7A2D"){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.style.background=color; el.style.display="block";
+  setTimeout(()=>el.style.display="none",3200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════
+function doLogin(){
+  const email = document.getElementById("login-email").value.trim();
+  const pass  = document.getElementById("login-pass").value;
+  const u = USUARIOS.find(u=>u.email===email);
+  const err = document.getElementById("login-err");
+  if(!u||pass!=="demo1234"){
+    err.textContent="⚠ Credenciales incorrectas. Usa una cuenta demo.";
+    err.style.display="block"; return;
+  }
+  err.style.display="none";
+  currentUser=u;
+  cargarDonacionesLS(); // ← carga donaciones del front-end
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("panel-screen").style.display="block";
+  barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
+  buildSidebar();
+  showView("dashboard");
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById("panel-screen").style.display="none";
+  document.getElementById("login-screen").style.display="block";
+  document.getElementById("login-email").value="";
+  document.getElementById("login-pass").value="";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════════
+function buildSidebar(){
+  document.getElementById("user-avatar").textContent = currentUser.nombre[0];
+  document.getElementById("user-name").textContent   = currentUser.nombre;
+  document.getElementById("user-role").textContent = isAdmin()?"Administrador":isLider()?"Líder Misional · "+currentUser.barrio:"Misionero · "+currentUser.barrio;
+
+  const navItems = [
+    {id:"dashboard",  icon:"📊", label:"Dashboard"},
+    {id:"solicitudes",icon:"📋", label:"Solicitudes"},
+    {id:"calendario", icon:"📅", label:"Calendario"},
+    {id:"barrios",    icon:"📍", label:"Por barrio"},
+    {id:"miembros",   icon:"👥", label:"Miembros"},
+    {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
+    // Informes: admin + lider-misional + misionero (solo su barrio)
+    {id:"informes",   icon:"📈", label:"Informes"},
+    ...(isAdmin()?[
+      {id:"misioneros", icon:"⛪", label:"Misioneros"},
+      {id:"usuarios",   icon:"🔐", label:"Usuarios admin"},
+    ]:[]),
+  ];
+
+  const s = getStats();
+  let html = `<div class="nav-section">Menú principal</div>`;
+  navItems.forEach(n=>{
+    const badge = n.id==="solicitudes"&&s.pendientes>0 ? `<span class="nav-badge">${s.pendientes}</span>` : "";
+    html += `<div class="nav-item${currentView===n.id?" active":""}" onclick="showView('${n.id}')">
+      <span class="nav-icon">${n.icon}</span>
+      <span class="nav-label">${n.label}</span>${badge}
+    </div>`;
+  });
+
+  if(isAdmin()){
+    html += `<div class="nav-section" style="margin-top:.7rem">Barrios</div><div style="padding:.3rem .65rem">`;
+    BARRIOS.filter(b=>b!=="Todos").forEach(b=>{
+      const n=DONACIONES.filter(d=>d.barrio===b&&d.estado==="pendiente").length;
+      html+=`<div class="barrio-row" onclick="setBarrioView('${b}');showView('barrios')">
+        📍 ${b}${n>0?`<span class="barrio-count">${n}</span>`:""}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  document.getElementById("sidebar-nav").innerHTML=html;
+  updateAlert();
+}
+
+function updateAlert(){
+  const s=getStats();
+  const el=document.getElementById("pending-alert");
+  if(s.pendientes>0){
+    el.style.display="flex";
+    document.getElementById("pending-count").textContent=`${s.pendientes} solicitud${s.pendientes!==1?"es":""} pendiente${s.pendientes!==1?"s":""}`;
+  } else { el.style.display="none"; }
+}
+
+function toggleSidebar(){
+  sideOpen=!sideOpen;
+  const sb=document.getElementById("sidebar");
+  sb.classList.toggle("collapsed",!sideOpen);
+  ["logo-text-wrap","user-info-wrap","logout-wrap"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=sideOpen?"":"none";
+  });
+  document.querySelectorAll(".nav-label,.nav-badge,.nav-section,.barrio-row").forEach(el=>{
+    el.style.display=sideOpen?"":"none";
+  });
+}
+
+function setBarrioView(b){ barrioView=b; if(currentView==="barrios") renderView(); }
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const VIEW_TITLES = {
+  dashboard:"Dashboard", solicitudes:"Solicitudes", calendario:"Calendario semanal",
+  barrios:"Vista por barrio", miembros:"Miembros", whatsapp:"WhatsApp",
+  informes:"Informes y estadísticas",
+  misioneros:"Misioneros por barrio",
+  usuarios:"Usuarios administradores",
+};
+
+function showView(v){
+  currentView=v;
+  // Reset filters when changing views to avoid confusion
+  if(v!=='solicitudes') { filtroEstado='todos'; filtroBarrio='Todos'; }
+  document.getElementById("topbar-title").textContent=VIEW_TITLES[v]||v;
+  const rolLabel = isAdmin()?"Administrador":isLider()?"Líder Misional":"Misionero";
+  document.getElementById("topbar-breadcrumb").textContent=
+    `Estaca de Villa Alemana · ${currentUser.barrio==="Todos"?"Todos los barrios":currentUser.barrio} · ${rolLabel}`;
+  buildSidebar();
+  renderView();
+}
+
+function renderView(){
+  const pc=document.getElementById("page-content");
+  pc.className="page-content fade-up";
+  void pc.offsetWidth; // reflow para reanimar
+  switch(currentView){
+    case "dashboard":   pc.innerHTML=renderDashboard();   break;
+    case "solicitudes": pc.innerHTML=renderSolicitudes(); break;
+    case "calendario":  pc.innerHTML=renderCalendario();  break;
+    case "barrios":     pc.innerHTML=renderBarrios();     break;
+    case "miembros":    pc.innerHTML=renderMiembros();    break;
+    case "whatsapp":    pc.innerHTML=renderWhatsApp();    break;
+    case "informes":    pc.innerHTML=renderInformes();    break;
+    case "misioneros":  pc.innerHTML=renderMisioneros();  break;
+    case "usuarios":    pc.innerHTML=renderUsuarios();    break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONFIRMAR / CANCELAR
+// ═══════════════════════════════════════════════════════════════
+// Pendiente-aprobacion → Aprobada-espera
+function aceptar(id){
+  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"en-espera"}:d);
+  sincronizarEstadoLS();
+  toast("🕐 Solicitud aceptada. Queda en espera de cita.");
+  closeDrawer(); buildSidebar(); renderView();
+}
+// pendiente → cita-cancelada (sin disponibilidad)
+function sinDisponibilidad(id){
+  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-cancelada"}:d);
+  sincronizarEstadoLS();
+  toast("❌ Sin disponibilidad. Se notificó al miembro.","#DC2626");
+  closeDrawer(); buildSidebar(); renderView();
+}
+// cita-confirmada → cita-realizada
+function citaRealizada(id){
+  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-realizada"}:d);
+  sincronizarEstadoLS();
+  toast("🙏 ¡Cita realizada! Registro actualizado. ¡Gracias por enseñar el evangelio!");
+  closeDrawer(); buildSidebar(); renderView();
+}
+// en-espera → cita-confirmada
+function confirmarCita(id){
+  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-confirmada"}:d);
+  sincronizarEstadoLS();
+  toast("✅ ¡Cita confirmada! El miembro fue notificado por WhatsApp.");
+  closeDrawer(); buildSidebar(); renderView();
+}
+// en-espera / cita-confirmada → cita-cancelada (con confirmación)
+// (defined below as wrapper with confirmarAccion)
+function aceptarTodosBarrio(barrio){
+  DONACIONES=DONACIONES.map(d=>d.barrio===barrio&&d.estado==="pendiente"?{...d,estado:"en-espera"}:d);
+  sincronizarEstadoLS();
+  toast(`🕐 Solicitudes de ${barrio} aceptadas. Quedan en espera de cita.`);
+  buildSidebar(); renderView();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DRAWER
+// ═══════════════════════════════════════════════════════════════
+function openDrawer(id){
+  const d=DONACIONES.find(x=>x.id===id);
+  if(!d) return;
+  document.getElementById("drawer-title").textContent=`Donación ${d.id}`;
+  document.getElementById("drawer-body").innerHTML=`
+    <div style="margin-bottom:.9rem">${badgeEstado(d.estado)}</div>
+    ${[["Nombre",d.nombre],["Teléfono",d.tel],["Barrio",d.barrio],
+       ["Modalidad",d.modalidad==="presencial"?"🏠 Presencial":"💻 En línea"],
+       ["Día",d.dia],["Horario",`${d.desde} – ${d.hasta}`],
+       ["Recibido",`${tiempoRelativo(d.fecha)} · ${d.fecha}`],
+       ...(d.notas?[["📝 Nota del miembro",d.notas]]:[]),
+      ].map(([k,v])=>`<div class="detail-row"><span class="detail-label">${k}</span><span class="detail-value" style="max-width:220px;text-align:right;word-break:break-word">${v}</span></div>`).join("")}
+    <div style="margin-top:1.1rem">
+      <label class="form-label">Notas del misionero</label>
+      <textarea style="width:100%;padding:.55rem .8rem;border:1px solid #D1D5DB;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.83rem;min-height:75px;resize:vertical;outline:none;margin-top:.3rem" placeholder="Agrega notas internas..."></textarea>
+    </div>
+    <div style="margin-top:1.1rem;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:4px;padding:.9rem">
+      <div style="font-size:.7rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.45rem">Historial WhatsApp</div>
+      <div style="font-size:.8rem;color:#374151">📤 Registro recibido (automático)<br><span style="font-size:.73rem;color:#9CA3AF">${d.fecha}</span></div>
+    </div>
+  `;
+  let footer="";
+  const telMiembro = d.tel.replace(/\D/g,"");
+  const telMisionero = getMisioneroTelByBarrio(d.barrio);
+  if(d.estado==="pendiente"){
+    const waAprobada = encodeURIComponent(
+      `Hola *${d.nombre}* 😊\n\nMuchas gracias, hemos recibido tu solicitud para donar una hora a los misioneros.\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio}\n\nTe confirmaremos la hora exacta y el lugar ${d.modalidad==="presencial"?"(presencial)":"(en línea)"}.\n\n¡Que el Señor bendiga tu disposición! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    const waRechazada = encodeURIComponent(
+      `Hola *${d.nombre}*,\n\nEn este horario no tenemos disponibilidad para citas, muchas gracias por apoyarnos.\n\n📅 ${d.dia}: ${d.desde} – ${d.hasta}\n\nFavor de seleccionar otro horario en el sistema. ¡Tu ayuda es muy importante para nosotros! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    footer= canActuar() ? `
+      <a href="https://wa.me/${telMiembro}?text=${waRechazada}" target="_blank" style="text-decoration:none"
+         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="sinDisponibilidad('${d.id}')">❌ Sin disponibilidad</a>
+      <a href="https://wa.me/${telMiembro}?text=${waAprobada}" target="_blank" style="text-decoration:none"
+         class="btn-primary" onclick="aceptar('${d.id}')">🕐 Aceptar solicitud</a>
+    ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura — sin acciones disponibles</span>`;
+
+  } else if(d.estado==="en-espera"){
+    const waCitaAprobada = encodeURIComponent(
+      `¡Hola *${d.nombre}*! 🎉\n\nTu cita con los misioneros está confirmada:\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio}\n🖥️ Modalidad: ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\nEsta es la fecha, hora y lugar de la cita. ¡Muchas gracias por tu apoyo! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    const waCitaCancelada = encodeURIComponent(
+      `Hola *${d.nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${d.dia} ${d.desde} – ${d.hasta}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    footer= canActuar() ? `
+      <a href="https://wa.me/${telMiembro}?text=${waCitaCancelada}" target="_blank" style="text-decoration:none"
+         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="cancelarCita('${d.id}')">❌ Cancelar cita</a>
+      <a href="https://wa.me/${telMiembro}?text=${waCitaAprobada}" target="_blank" style="text-decoration:none"
+         class="btn-primary" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</a>
+    ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura</span>`;
+
+  } else if(d.estado==="cita-confirmada"){
+    const waRecordatorio = encodeURIComponent(
+      `🔔 *Recordatorio de cita*\n\nHola *${d.nombre}*, recuerda tu cita con los misioneros:\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio} · ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\n¡Te esperamos! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    const waCancelacion = encodeURIComponent(
+      `Hola *${d.nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${d.dia} ${d.desde} – ${d.hasta}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    const waRealizada = encodeURIComponent(
+      `🙏 Hola *${d.nombre}*, ¡gracias por acompañar a los misioneros hoy!\n\nFue un gusto enseñar el evangelio junto a ti. Esperamos verte pronto nuevamente en la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    footer= canActuar() ? `
+      <a href="https://wa.me/${telMiembro}?text=${waCancelacion}" target="_blank" style="text-decoration:none"
+         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="cancelarCita('${d.id}')">❌ Cancelar cita</a>
+      <a href="https://wa.me/${telMiembro}?text=${waRecordatorio}" target="_blank"
+         class="btn-wa-sm" style="text-decoration:none">📲 Recordatorio</a>
+      <a href="https://wa.me/${telMiembro}?text=${waRealizada}" target="_blank"
+         class="btn-primary" style="text-decoration:none;background:#0F766E;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1rem"
+         onclick="citaRealizada('${d.id}')">🙏 Cita realizada</a>
+    ` : `<a href="https://wa.me/${telMiembro}?text=${waRecordatorio}" target="_blank"
+         class="btn-wa-sm" style="text-decoration:none">📲 Recordatorio</a>`;
+
+  } else if(d.estado==="cita-realizada"){
+    const waGracias = encodeURIComponent(
+      `🙏 Hola *${d.nombre}*, ¡gracias por acompañar a los misioneros!\n\nFue un gusto enseñar el evangelio junto a ti. Te invitamos a seguir donando horas para la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    footer=`
+      <a href="https://wa.me/${telMiembro}?text=${waGracias}" target="_blank"
+         class="btn-wa-sm" style="text-decoration:none;background:#0F766E">📲 Mensaje de agradecimiento</a>
+      ${canActuar()?`<button class="btn-primary" style="background:#006EB6"
+        onclick="DONACIONES=DONACIONES.map(d=>d.id==='${d.id}'?{...d,estado:'pendiente'}:d);sincronizarEstadoLS();toast('↩️ Solicitud reactivada.');closeDrawer();buildSidebar();renderView();">
+        ↩️ Nueva solicitud
+      </button>`:''}
+    `;
+  } else if(d.estado==="cita-cancelada"){
+    const waReagendar = encodeURIComponent(
+      `Hola *${d.nombre}*, ¿te gustaría reagendar tu cita con los misioneros?\n\nPuedes ingresar nuevamente al sistema y seleccionar otro horario disponible. ¡Tu apoyo es muy importante para nosotros! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
+    );
+    footer=`
+      <a href="https://wa.me/${telMiembro}?text=${waReagendar}" target="_blank"
+         class="btn-ghost" style="text-decoration:none">📲 Invitar a reagendar</a>
+      ${canActuar()?`<button class="btn-primary" onclick="DONACIONES=DONACIONES.map(d=>d.id==='${d.id}'?{...d,estado:'pendiente'}:d);sincronizarEstadoLS();toast('↩️ Solicitud reactivada.');closeDrawer();buildSidebar();renderView();">
+        ↩️ Reactivar solicitud
+      </button>`:''}
+    `;
+  }
+  footer+=`<button class="btn-ghost" onclick="closeDrawer()">Cerrar</button>`;
+  document.getElementById("drawer-footer").innerHTML=footer;
+  document.getElementById("drawer-overlay").style.display="block";
+  document.getElementById("drawer").style.display="flex";
+}
+function closeDrawer(){
+  document.getElementById("drawer-overlay").style.display="none";
+  document.getElementById("drawer").style.display="none";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MODAL USUARIO
+// ═══════════════════════════════════════════════════════════════
+function toggleTelField(rol){
+  const wrap = document.getElementById("m-tel-wrap");
+  if(wrap) wrap.style.display = rol==="misionero" ? "block" : "none";
+}
+
+function openModalUsuario(uid){
+  editingUid=uid||null;
+  document.getElementById("modal-title").textContent=uid?"Editar usuario":"Nuevo usuario";
+  if(uid){
+    const u=USUARIOS.find(x=>x.id===uid);
+    document.getElementById("m-nombre").value=u.nombre;
+    document.getElementById("m-email").value=u.email;
+    document.getElementById("m-pass").value="";
+    document.getElementById("m-tel").value=u.tel||"";
+    document.getElementById("m-rol").value=u.rol;
+    document.getElementById("m-barrio").value=u.barrio;
+    toggleTelField(u.rol);
+  } else {
+    ["m-nombre","m-email","m-pass","m-tel"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("m-rol").value="misionero";
+    document.getElementById("m-barrio").value="Olmué";
+    toggleTelField("misionero");
+  }
+  document.getElementById("modal-overlay").style.display="flex";
+}
+function closeModal(){document.getElementById("modal-overlay").style.display="none";}
+function saveUsuario(){
+  const nombre=document.getElementById("m-nombre").value.trim();
+  const email =document.getElementById("m-email").value.trim();
+  const rol   =document.getElementById("m-rol").value;
+  const barrio=document.getElementById("m-barrio").value;
+  const tel   =document.getElementById("m-tel").value.trim();
+  if(!nombre||!email){toast("Completa nombre y correo.","#DC2626");return;}
+  if(rol==="misionero"&&!tel){toast("Ingresa el teléfono WhatsApp del misionero.","#DC2626");return;}
+  // lider-misional y admin no requieren teléfono
+  if(editingUid){
+    USUARIOS=USUARIOS.map(u=>u.id===editingUid?{...u,nombre,email,rol,barrio,tel}:u);
+    toast("✅ Usuario actualizado.");
+  } else {
+    USUARIOS.push({id:`U00${USUARIOS.length+1}`,nombre,email,rol,barrio,tel,activo:true,ultimo:"Ahora"});
+    toast("✅ Usuario creado.");
+  }
+  closeModal(); renderView();
+}
+function eliminarUsuario(uid){
+  if(uid===currentUser.id){toast("No puedes eliminarte a ti mismo.","#DC2626");return;}
+  USUARIOS=USUARIOS.filter(u=>u.id!==uid);
+  toast("Usuario desactivado.","#B8860B"); renderView();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VISTAS
+// ═══════════════════════════════════════════════════════════════
+function renderDashboard(){
+  const s=getStats();
+  const mine = mineFilter;
+  const pends=DONACIONES.filter(d=>mineFilter(d)&&d.estado==="pendiente");
+
+  let html=`
+  <!-- Flujo de estados -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:1.3rem;flex-wrap:wrap;font-family:'Noto Sans',sans-serif;font-size:.78rem">
+    <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:4px 0 0 4px;padding:.5rem 1rem;color:#92400E;font-weight:600">⏳ Pendiente</div>
+    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
+    <div style="background:#DBEAFE;border:1px solid #93C5FD;padding:.5rem 1rem;color:#1E40AF;font-weight:600">🕐 En espera de cita</div>
+    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
+    <div style="background:#D1FAE5;border:1px solid #6EE7B7;padding:.5rem 1rem;color:#065F46;font-weight:600">✅ Cita confirmada</div>
+    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
+    <div style="background:#CCFBF1;border:1px solid #99F6E4;padding:.5rem 1rem;color:#134E4A;font-weight:600">🙏 Cita realizada</div>
+    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">ó</div>
+    <div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:0 4px 4px 0;padding:.5rem 1rem;color:#991B1B;font-weight:600">❌ Cita cancelada</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" style="border-left:3px solid #D4A017">
+      <div class="stat-label">⏳ Pendiente</div>
+      <div class="stat-value" style="color:#92400E">${s.pendientes}</div>
+      <div class="stat-sub">Sin respuesta</div>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #3B82F6">
+      <div class="stat-label">🕐 En espera de cita</div>
+      <div class="stat-value" style="color:#1E40AF">${s.espera}</div>
+      <div class="stat-sub">En espera de cita</div>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #2D7A2D">
+      <div class="stat-label">✅ Citas confirmadas</div>
+      <div class="stat-value" style="color:#065F46">${s.confirmadas}</div>
+      <div class="stat-sub">Cita agendada</div>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #0F766E">
+      <div class="stat-label">🙏 Realizadas</div>
+      <div class="stat-value" style="color:#0F766E">${s.realizadas}</div>
+      <div class="stat-sub">Cita concretada</div>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #DC2626">
+      <div class="stat-label">❌ Canceladas/Rechaz.</div>
+      <div class="stat-value" style="color:#991B1B">${s.canceladas}</div>
+      <div class="stat-sub">No se realizó</div>
+    </div>
+  </div>`;
+
+  if(pends.length>0){
+    html+=`<div class="section-card"><div class="section-header">
+      <span style="font-size:1.05rem">🔔</span>
+      <span class="section-title">Solicitudes pendientes</span>
+      <span class="badge badge-pending" style="margin-left:auto">${pends.length} pendientes</span>
+    </div>
+    <div style="background:#FEF9C3;border-bottom:1px solid #FDE68A;padding:.65rem 1.3rem;font-size:.8rem;color:#78350F">
+      💡 Al <strong>aceptar</strong> la solicitud pasa a <em>En espera de cita</em>. Luego el misionero puede <strong>confirmar</strong> o <strong>cancelar</strong> la cita.
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Miembro</th><th>Barrio</th><th>Horario solicitado</th><th>Modalidad</th><th>Acciones</th></tr></thead>
+      <tbody>${pends.map(d=>`<tr>
+        <td><div class="td-name">${d.nombre}</div><div class="td-sub">${d.tel}</div></td>
+        <td>${d.barrio}</td>
+        <td><strong>${d.dia}</strong><br><span style="font-size:.74rem;color:#6B7280">${d.desde} – ${d.hasta}</span></td>
+        <td>${badgeModal(d.modalidad)}</td>
+        <td><div style="display:flex;gap:.35rem">
+          ${canActuar()?`
+            <button class="btn-sm btn-confirm" onclick="aceptar('${d.id}')">🕐 Aceptar</button>
+            <button class="btn-sm btn-cancel2" onclick="sinDisponibilidad('${d.id}')">❌ No disponible</button>
+          `:''}
+          <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
+        </div></td>
+      </tr>`).join("")}</tbody>
+    </table></div></div>`;
+  }
+
+  if(isAdmin()){
+    html+=`<div class="section-card"><div class="section-header">
+      <span style="font-size:1.05rem">📍</span><span class="section-title">Resumen por barrio</span>
+    </div><div style="padding:1rem 1.3rem">`;
+    BARRIOS.filter(b=>b!=="Todos").forEach(b=>{
+      const total=DONACIONES.filter(d=>d.barrio===b).length;
+      const conf =DONACIONES.filter(d=>d.barrio===b&&(d.estado==="cita-confirmada"||d.estado==="cita-realizada")).length;
+      const espe =DONACIONES.filter(d=>d.barrio===b&&d.estado==="en-espera").length;
+      const pend =DONACIONES.filter(d=>d.barrio===b&&d.estado==="pendiente").length;
+      const pct  =total?Math.round(conf/total*100):0;
+      html+=`<div class="barrio-prog-row">
+        <div style="width:120px;font-weight:600;color:#003E6B;font-size:.86rem">📍 ${b}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:.76rem;color:#6B7280;white-space:nowrap">${conf} confirm. · ${espe} espera · ${pend} pend.</div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+  return html;
+}
+
+function tiempoRelativo(fechaStr){
+  try {
+    const [fecha, hora] = fechaStr.split(' ');
+    const [d,m,y] = fecha.split('/').map(Number);
+    const [hh,mm] = hora.split(':').map(Number);
+    const then = new Date(y, m-1, d, hh, mm);
+    const mins = Math.floor((Date.now() - then) / 60000);
+    if(mins < 60) return `Hace ${mins} min`;
+    const hrs = Math.floor(mins/60);
+    if(hrs < 24) return `Hace ${hrs}h`;
+    return `Hace ${Math.floor(hrs/24)}d`;
+  } catch(e){ return fechaStr; }
+}
+
+function confirmarAccion(mensaje, callback){
+  // Diálogo de confirmación para acciones destructivas
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease';
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:6px;width:min(380px,94vw);max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.2);animation:fadeUp .2s ease;overflow:hidden">
+      <div style="background:#DC2626;padding:.9rem 1.2rem;display:flex;align-items:center;gap:.6rem">
+        <span style="font-size:1.1rem">⚠️</span>
+        <span style="font-family:'Source Serif 4',serif;color:#fff;font-weight:600;font-size:.98rem">Confirmar acción</span>
+      </div>
+      <div style="padding:1.3rem">
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.9rem;color:#374151;line-height:1.6">${mensaje}</p>
+      </div>
+      <div style="padding:.9rem 1.2rem;border-top:1px solid #E5E7EB;display:flex;gap:.6rem;justify-content:flex-end">
+        <button id="conf-no"  class="btn-ghost" style="font-size:.8rem">No, cancelar</button>
+        <button id="conf-yes" class="btn-danger" style="font-size:.8rem">Sí, confirmar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#conf-no').onclick  = () => document.body.removeChild(overlay);
+  overlay.querySelector('#conf-yes').onclick = () => { document.body.removeChild(overlay); callback(); };
+}
+
+// Cancelar cita — con confirmación
+function cancelarCita(id){
+  const d = DONACIONES.find(x=>x.id===id);
+  const label = d ? `${d.nombre} · ${d.dia} ${d.desde}–${d.hasta}` : id;
+  confirmarAccion(
+    `¿Estás seguro de que deseas cancelar la cita de <strong>${label}</strong>?<br><br>Se notificará al miembro por WhatsApp.`,
+    () => {
+      DONACIONES=DONACIONES.map(x=>x.id===id?{...x,estado:"cita-cancelada"}:x);
+      sincronizarEstadoLS();
+      toast("❌ Cita cancelada. Se notificó al miembro.","#DC2626");
+      closeDrawer(); buildSidebar(); renderView();
+    }
+  );
+}
+
+function renderSolicitudes(){
+  const mine = mineFilter;
+  let list=DONACIONES.filter(d=>mineFilter(d));
+  if(filtroBarrio!=="Todos") list=list.filter(d=>d.barrio===filtroBarrio);
+  if(filtroEstado!=="todos")  list=list.filter(d=>d.estado===filtroEstado);
+
+  // Search filter
+  const busq = (document.getElementById('sol-buscar')?.value||'').toLowerCase();
+  if(busq) list = list.filter(d=>d.nombre.toLowerCase().includes(busq)||d.tel.includes(busq)||d.barrio.toLowerCase().includes(busq));
+
+  const barrioOpts=(isAdmin()?BARRIOS:["Todos",currentUser.barrio])
+    .map(b=>`<option${filtroBarrio===b?" selected":""}>${b}</option>`).join("");
+
+  return `<div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📋</span>
+      <span class="section-title">Todas las solicitudes</span>
+      <div class="filters">
+        <input id="sol-buscar" class="filter-select" type="text" placeholder="🔍 Buscar nombre o teléfono..."
+          value="${busq}" oninput="renderView()"
+          style="min-width:200px;padding:.32rem .65rem"/>
+        <select class="filter-select" onchange="filtroBarrio=this.value;renderView()">${barrioOpts}</select>
+        <select class="filter-select" onchange="filtroEstado=this.value;renderView()">
+          <option value="todos"${filtroEstado==="todos"?" selected":""}>Todos los estados</option>
+          <option value="pendiente"${filtroEstado==="pendiente"?" selected":""}>⏳ Pendiente</option>
+          <option value="en-espera"${filtroEstado==="en-espera"?" selected":""}>🕐 En espera de cita</option>
+          <option value="cita-confirmada"${filtroEstado==="cita-confirmada"?" selected":""}>✅ Cita confirmada</option>
+          <option value="cita-realizada"${filtroEstado==="cita-realizada"?" selected":""}>🙏 Cita realizada</option>
+          <option value="cita-cancelada"${filtroEstado==="cita-cancelada"?" selected":""}>❌ Cita cancelada</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Miembro</th><th>Barrio</th><th>Horario</th><th>Modalidad</th><th>Estado</th><th>Recibido</th><th>Acciones</th></tr></thead>
+      <tbody>${list.length===0
+        ? `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div><p>No hay solicitudes que coincidan.</p></div></td></tr>`
+        : list.map(d=>`<tr>
+        <td style="color:#9CA3AF;font-size:.73rem">${d.id}</td>
+        <td>
+          <div class="td-name">${d.nombre}</div>
+          <div class="td-sub">${d.tel}</div>
+          ${d.notas?`<div style="font-size:.72rem;color:#6B7280;margin-top:.2rem;font-style:italic">📝 ${d.notas}</div>`:''}
+        </td>
+        <td>${d.barrio}</td>
+        <td><strong>${d.dia}</strong><br><span style="font-size:.74rem;color:#6B7280">${d.desde} – ${d.hasta}</span></td>
+        <td>${badgeModal(d.modalidad)}</td>
+        <td>${badgeEstado(d.estado)}</td>
+        <td style="font-size:.74rem;color:#6B7280">
+          <span title="${d.fecha}">${tiempoRelativo(d.fecha)}</span>
+        </td>
+        <td><div style="display:flex;gap:.32rem;flex-wrap:wrap">
+          ${canActuar()&&d.estado==="pendiente"?`
+            <button class="btn-sm btn-confirm" onclick="aceptar('${d.id}')">🕐 Aceptar</button>
+            <button class="btn-sm btn-cancel2" onclick="sinDisponibilidad('${d.id}')">🚫 Rechazar</button>`:""}
+          ${canActuar()&&d.estado==="en-espera"?`
+            <button class="btn-sm btn-confirm" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</button>
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
+          ${canActuar()&&d.estado==="cita-confirmada"?`
+            <button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</button>
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
+          <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
+        </div></td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+    <div style="padding:.7rem 1.3rem;font-size:.76rem;color:#9CA3AF;border-top:1px solid #F3F4F6">
+      ${list.length} solicitud${list.length!==1?'es':''} encontrada${list.length!==1?'s':''}
+    </div>
+  </div>`;
+}
+
+function renderCalendario(){
+  const opts=(isAdmin()?BARRIOS:["Todos",currentUser.barrio])
+    .map(b=>`<option${calBarrio===b?" selected":""}>${b}</option>`).join("");
+
+  // ── Calcular fechas de la semana actual ───────────────────
+  const hoy     = new Date();
+  const diaSem  = hoy.getDay(); // 0=dom … 6=sab
+  // Lunes de esta semana
+  const lunesDiff = diaSem === 0 ? -6 : 1 - diaSem;
+  const lunes   = new Date(hoy);
+  lunes.setDate(hoy.getDate() + lunesDiff + (calSemanaOffset * 7));
+
+  const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+  // Fecha de cada día de la semana
+  const fechasDia = DIAS.map((_,i)=>{
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    return d;
+  });
+
+  // Rango de semana para el título
+  const fechaIni = `${fechasDia[0].getDate()} ${MESES[fechasDia[0].getMonth()]}`;
+  const fechaFin = `${fechasDia[6].getDate()} ${MESES[fechasDia[6].getMonth()]} ${fechasDia[6].getFullYear()}`;
+
+  // ── Construir grid ────────────────────────────────────────
+  let gridHTML=`<div class="admin-cal-grid">`;
+
+  // Cabeceras con día + fecha
+  gridHTML+=`<div></div>`;
+  gridHTML+=DIAS.map((dia, i)=>{
+    const fd    = fechasDia[i];
+    const esHoy = fd.toDateString() === hoy.toDateString();
+    const dNum  = fd.getDate();
+    const mes   = MESES[fd.getMonth()];
+    return `<div class="acg-head${esHoy?" acg-head-today":""}">
+      <div>${dia.substring(0,3)}</div>
+      <div class="acg-head-date${esHoy?" acg-head-date-today":""}">${dNum} ${mes}</div>
+    </div>`;
+  }).join("");
+
+  for(let h=10;h<=21;h++){
+    const anyVis=DIAS.some(d=>{const c=DAY_CFG[d];return h>=c.start&&h<c.end;});
+    if(!anyVis) continue;
+    const from=`${pad(h)}:00`, to=`${pad(h+1)}:00`;
+    gridHTML+=`<div class="acg-label"><span>${from}</span><span class="acg-sep">│</span><span class="acg-sep">${to}</span></div>`;
+    DIAS.forEach(day=>{
+      const blk=isBlocked(day,h);
+      const don=DONACIONES.find(d=>d.dia===day&&d.desde===from&&d.estado!=="cita-cancelada"&&d.estado!=="cita-realizada"&&
+        (calBarrio==="Todos"||d.barrio===calBarrio)&&
+        (currentUser.rol==="admin"||d.barrio===currentUser.barrio));
+      let cls="acg-free", content="", click="";
+      if(blk){ cls="acg-blocked"; }
+      else if(don){
+        if(don.estado==="cita-realizada")   { cls="acg-cita-realizada"; content="🙏"; }
+        else if(don.estado==="cita-confirmada")    { cls="acg-confirmed"; content="✔"; }
+        else if(don.estado==="en-espera") { cls="acg-en-espera"; content="🕐"; }
+        else                                { cls="acg-pending";  content="?"; }
+        click=`onclick="openDrawer('${don.id}')" title="${don.nombre} · ${don.barrio} · ${don.estado}"`;
+      }
+      gridHTML+=`<div class="acg-cell ${cls}" ${click}>${content}</div>`;
+    });
+  }
+  gridHTML+=`</div>`;
+
+  return `<div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📅</span>
+      <span class="section-title">Calendario semanal</span>
+      <span style="font-size:.8rem;color:#6B7280;font-family:'Noto Sans',sans-serif;margin-left:.3rem">
+        ${fechaIni} – ${fechaFin}
+      </span>
+      <div class="filters" style="margin-left:auto">
+        <button class="filter-select" style="cursor:pointer"
+          onclick="calSemanaOffset--;renderView()">← Semana ant.</button>
+        <button class="filter-select" style="cursor:pointer;font-weight:600;color:#006EB6"
+          onclick="calSemanaOffset=0;renderView()">Hoy</button>
+        <button class="filter-select" style="cursor:pointer"
+          onclick="calSemanaOffset++;renderView()">Semana sig. →</button>
+        <select class="filter-select" onchange="calBarrio=this.value;renderView()">${opts}</select>
+      </div>
+    </div>
+
+    <div style="padding:.9rem 1.3rem .5rem;display:flex;gap:1.1rem;flex-wrap:wrap">
+      ${[
+        ["acg-cita-realizada", "🙏 Cita realizada"],
+        ["acg-confirmed","✅ Cita confirmada"],
+        ["acg-en-espera",   "🕐 En espera de cita"],
+        ["acg-pending",  "⏳ Pendiente"],
+        ["acg-free",     "Sin solicitud"],
+        ["acg-blocked",  "No disponible"],
+      ].map(([cls,lbl])=>
+        `<div style="display:flex;align-items:center;gap:.38rem">
+          <div class="acg-cell ${cls}" style="width:20px;height:14px;font-size:.5rem;border-radius:2px"></div>
+          <span style="font-size:.74rem;color:#6B7280">${lbl}</span>
+        </div>`).join("")}
+    </div>
+    <div style="padding:0 1rem 1.3rem"><div class="admin-cal">${gridHTML}</div></div>
+  </div>`;
+}
+
+function renderBarrios(){
+  const barrios=isAdmin()?BARRIOS.filter(b=>b!=="Todos"):[currentUser.barrio];
+  const btns=barrios.map(b=>`<button onclick="setBarrioView('${b}')" class="${barrioView===b?"btn-primary":"btn-ghost"}" style="padding:.42rem .95rem;font-size:.8rem">📍 ${b}</button>`).join("");
+
+  const bDons=DONACIONES.filter(d=>d.barrio===barrioView);
+  const hasPend=bDons.some(d=>d.estado==="pendiente");
+
+  const statsBar=[
+    {l:"⏳ Pendientes",v:bDons.filter(d=>d.estado==="pendiente").length,c:"#D4A017"},
+    {l:"🕐 En espera",v:bDons.filter(d=>d.estado==="en-espera").length,c:"#3B82F6"},
+    {l:"✅ Confirmadas",v:bDons.filter(d=>d.estado==="cita-confirmada").length,c:"#2D7A2D"},
+    {l:"🙏 Realizadas",v:bDons.filter(d=>d.estado==="cita-realizada").length,c:"#0F766E"},
+    {l:"❌ Canceladas",v:bDons.filter(d=>d.estado==="cita-cancelada").length,c:"#DC2626"},
+  ];
+
+  return `<div style="display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.1rem">${btns}</div>
+  <div class="stats-row" style="margin-bottom:1.1rem">
+    ${statsBar.map(({l,v,c})=>`<div class="stat-card" style="border-left:3px solid ${c}">
+      <div class="stat-label">${l}</div><div class="stat-value" style="color:${c}">${v}</div>
+    </div>`).join("")}
+  </div>
+  <div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📍</span>
+      <span class="section-title">Miembros · ${barrioView}</span>
+      ${hasPend&&canActuar()?`<button class="btn-primary" style="margin-left:auto;font-size:.76rem;padding:.42rem .95rem" onclick="aceptarTodosBarrio('${barrioView}')">🕐 Aceptar solicitudes</button>`:""}
+    </div>
+    <div style="background:#FEF9C3;border-bottom:1px solid #FDE68A;padding:.6rem 1.3rem;font-size:.78rem;color:#78350F">
+      💡 <strong>Flujo:</strong> Pendiente → Aceptar → En espera de cita → Confirmar cita → Cita confirmada
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Miembro</th><th>Horario</th><th>Modalidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${bDons.length===0
+        ? `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div><p>Sin donaciones en este barrio.</p></div></td></tr>`
+        : bDons.map(d=>`<tr>
+        <td><div class="td-name">${d.nombre}</div><div class="td-sub">${d.tel}</div></td>
+        <td><strong>${d.dia}</strong> · ${d.desde} – ${d.hasta}</td>
+        <td>${badgeModal(d.modalidad)}</td>
+        <td>${badgeEstado(d.estado)}</td>
+        <td><div style="display:flex;gap:.32rem">
+          ${canActuar()&&d.estado==="pendiente"?`
+            <button class="btn-sm btn-confirm" onclick="aceptar('${d.id}')">🕐 Aceptar</button>
+            <button class="btn-sm btn-cancel2" onclick="sinDisponibilidad('${d.id}')">❌</button>`:""}
+          ${canActuar()&&d.estado==="en-espera"?`
+            <button class="btn-sm btn-confirm" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</button>
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
+          ${canActuar()&&d.estado==="cita-confirmada"?`
+            <button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</button>
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
+          <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
+        </div></td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+  </div>`;
+}
+
+function renderMiembros(){
+  const seen=new Set(); const unicos=[];
+  DONACIONES.forEach(d=>{if(!seen.has(d.tel)){seen.add(d.tel);unicos.push(d);}});
+  const mine=isAdmin()?unicos:unicos.filter(d=>d.barrio===currentUser.barrio);
+  return `<div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">👥</span>
+      <span class="section-title">Miembros registrados</span>
+      <span style="margin-left:auto;font-size:.76rem;color:#9CA3AF">${mine.length} miembros</span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Barrio</th><th>Modalidad</th><th>Donaciones</th><th>Contacto</th></tr></thead>
+      <tbody>${mine.map(m=>{
+        const nd=DONACIONES.filter(d=>d.tel===m.tel).length;
+        const tel=m.tel.replace(/\D/g,"");
+        return `<tr>
+          <td class="td-name">${m.nombre}</td>
+          <td style="font-size:.82rem">${m.tel}</td>
+          <td>${m.barrio}</td>
+          <td>${badgeModal(m.modalidad)}</td>
+          <td><span style="font-weight:600;color:#006EB6">${nd}</span></td>
+          <td><a href="https://wa.me/${tel}" target="_blank" class="btn-sm btn-detail" style="text-decoration:none">💬 WA</a></td>
+        </tr>`;}).join("")}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+function renderWhatsApp(){
+  const plantillas=[
+    {tipo:"Disponibilidad aceptada",color:"#D1FAE5",border:"#6EE7B7",ico:"✅",
+     texto:"Hola *{nombre}* 👋\nTe confirmamos que *sí tenemos disponibilidad* para recibirte en la Obra de Salvación:\n\n📅 *{dia}: {hora_inicio} – {hora_fin}*\n📍 Barrio {barrio} · {modalidad}\n\n¡Te esperamos! Ante cualquier cambio avísanos con anticipación. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_"},
+    {tipo:"Recordatorio semanal",color:"#FEF3C7",border:"#FCD34D",ico:"🔔",
+     texto:"🔔 *Recordatorio — Dona una Hora por la Obra*\nHola *{nombre}*, recuerda que esta semana tienes hora con los misioneros:\n📅 *{dia}: {hora_inicio} – {hora_fin}*\n¡Gracias por tu fiel servicio al evangelio! 🙏"},
+    {tipo:"Horario no disponible",color:"#FEE2E2",border:"#FCA5A5",ico:"🚫",
+     texto:"Hola *{nombre}*, lamentamos informarte que *no tenemos disponibilidad* de cita misionera en el horario que seleccionaste:\n📅 {dia}: {hora_inicio} – {hora_fin}\n\nTe invitamos a registrar otro horario en que podamos acompañarte. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_"},
+  ];
+
+  const hist=WA_HIST.map(w=>`<tr>
+    <td class="td-name">${w.nombre}</td>
+    <td style="font-size:.81rem">${w.tel}</td>
+    <td><span class="badge badge-${w.tipo}">${w.tipo==="cita-confirmada"?"✅ Cita confirmada":w.tipo==="aprobacion"?"🕐 Solicitud aprobada":w.tipo==="cita-cancelada"?"🚫 Rechazada":w.tipo==="recordatorio"?"🔔 Recordatorio":"📩 "+w.tipo}</span></td>
+    <td><span class="badge badge-${w.estado}">${w.estado==="enviado"?"📤 Enviado":"⚠ Error"}</span></td>
+    <td style="font-size:.76rem;color:#6B7280">${w.fecha}</td>
+  </tr>`).join("");
+
+  return `<div class="section-card" style="margin-bottom:1.1rem">
+    <div class="section-header"><span style="font-size:1.05rem">📝</span><span class="section-title">Plantillas de mensaje</span></div>
+    <div style="padding:1.1rem 1.3rem;display:grid;gap:.9rem">
+      ${plantillas.map(p=>`<div style="background:${p.color};border:1px solid ${p.border};border-radius:4px;padding:.9rem 1.1rem">
+        <div style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:.45rem;text-transform:uppercase;letter-spacing:.06em">${p.ico} Plantilla de ${p.tipo}</div>
+        <pre style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;white-space:pre-wrap;line-height:1.6">${p.texto}</pre>
+      </div>`).join("")}
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><span style="font-size:1.05rem">📨</span><span class="section-title">Historial de mensajes enviados</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Miembro</th><th>Teléfono</th><th>Tipo</th><th>Estado</th><th>Fecha</th></tr></thead>
+      <tbody>${hist}</tbody>
+    </table></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MANTENEDOR MISIONEROS POR BARRIO
+// ═══════════════════════════════════════════════════════════════
+let editandoBarrio = null; // barrio en edición inline
+
+// ═══════════════════════════════════════════════════════════════
+// INFORMES Y ESTADÍSTICAS
+// ═══════════════════════════════════════════════════════════════
+function barrioInformeBtn(b){
+  const active = informeBarrioSel === b;
+  return `<button onclick="informeBarrioSel='${b}';renderView()"
+    class="${active?'btn-primary':'btn-ghost'}"
+    style="font-size:.76rem;padding:.35rem .85rem">📍 ${b}</button>`;
+}
+
+const C = { blue:"#006EB6", green:"#2D7A2D", red:"#DC2626", yellow:"#D4A017",
+             lblue:"#DBEAFE", lgreen:"#D1FAE5", lred:"#FEE2E2", gray:"#E5E7EB",
+             navy:"#003E6B", espera:"#3B82F6" };
+
+function barChart(items, keyFn, labelFn, colorFn, maxVal, height=160){
+  const w = 500, barW = Math.floor(w / items.length) - 8, pad = 40;
+  const scale = v => Math.round((v/maxVal)*(height-30));
+  const bars = items.map((item,i)=>{
+    const vals = keyFn(item); // [{v, color}]
+    let y = height - 5;
+    const stacks = vals.map(({v,color})=>{
+      const h = scale(v);
+      y -= h;
+      return `<rect x="${i*(barW+8)+4}" y="${y+1}" width="${barW}" height="${h}" fill="${color}" rx="2" opacity=".85"/>`;
+    }).join('');
+    const lbl = labelFn(item);
+    const tot = vals.reduce((s,{v})=>s+v,0);
+    return `
+      ${stacks}
+      <text x="${i*(barW+8)+4+barW/2}" y="${height+14}" text-anchor="middle"
+        font-size="9" fill="#6B7280" font-family="Noto Sans,sans-serif">${lbl}</text>
+      ${tot>0?`<text x="${i*(barW+8)+4+barW/2}" y="${height-scale(tot)-5}" text-anchor="middle"
+        font-size="9" fill="#374151" font-family="Noto Sans,sans-serif" font-weight="600">${tot}</text>`:''}
+    `;
+  }).join('');
+  return `<svg viewBox="-30 -10 ${w+40} ${height+35}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:200px">
+    ${[0,Math.round(maxVal/2),maxVal].map(v=>{
+      const yy = height-5-scale(v);
+      return `<line x1="-20" y1="${yy}" x2="${w+5}" y2="${yy}" stroke="#F3F4F6" stroke-width="1"/>
+              <text x="-22" y="${yy+4}" text-anchor="end" font-size="9" fill="#9CA3AF" font-family="Noto Sans,sans-serif">${v}</text>`;
+    }).join('')}
+    ${bars}
+  </svg>`;
+}
+
+function donutChart(slices, r=70){
+  const total2 = slices.reduce((s,x)=>s+x.v,0)||1;
+  let angle = -Math.PI/2;
+  const paths = slices.filter(s=>s.v>0).map(s=>{
+    const a = (s.v/total2)*2*Math.PI;
+    const x1=Math.cos(angle)*r, y1=Math.sin(angle)*r;
+    angle += a;
+    const x2=Math.cos(angle)*r, y2=Math.sin(angle)*r;
+    const large = a>Math.PI?1:0;
+    return `<path d="M0,0 L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z"
+      fill="${s.color}" opacity=".88" stroke="#fff" stroke-width="2">
+      <title>${s.label}: ${s.v}</title></path>`;
+  }).join('');
+  const cx=r+10, cy=r+10;
+  return `<svg viewBox="0 0 ${r*2+20} ${r*2+20}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:160px">
+    <g transform="translate(${cx},${cy})">${paths}</g>
+    <text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="20" font-weight="700"
+      fill="#003E6B" font-family="Source Serif 4,serif">${total2}</text>
+    <text x="${cx}" y="${cy+20}" text-anchor="middle" font-size="9" fill="#9CA3AF"
+      font-family="Noto Sans,sans-serif">total</text>
+  </svg>`;
+}
+
+function hBar(label, v, max2, color, sub=''){
+  const pct = max2 ? Math.round(v/max2*100) : 0;
+  return `<div style="margin-bottom:.65rem">
+    <div style="display:flex;justify-content:space-between;font-family:'Noto Sans',sans-serif;font-size:.8rem;margin-bottom:.25rem">
+      <span style="color:#374151">${label}</span>
+      <span style="font-weight:600;color:${color}">${v} ${sub}</span>
+    </div>
+    <div style="background:#F3F4F6;border-radius:4px;height:9px;overflow:hidden">
+      <div style="width:${pct}%;background:${color};height:100%;border-radius:4px;transition:width .4s"></div>
+    </div>
+  </div>`;
+}
+
+function legend(items){
+  return `<div style="display:flex;gap:.8rem 1.5rem;flex-wrap:wrap;margin-top:.6rem">
+    ${items.map(({color,label})=>`
+      <div style="display:flex;align-items:center;gap:.35rem;font-family:'Noto Sans',sans-serif;font-size:.75rem;color:#6B7280">
+        <div style="width:10px;height:10px;border-radius:2px;background:${color}"></div>${label}
+      </div>`).join('')}
+  </div>`;
+}
+
+
+
+
+
+
+
+function _genCoord(){
+  // Local aliases for vars normally available in renderInformes scope
+  const donacionesVis = (isMision()||isLider())
+    ? DONACIONES.filter(d=>d.barrio===currentUser.barrio)
+    : DONACIONES;
+  const BARRIOS_LISTA = ["Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
+  return `<div class="section-card" style="margin-bottom:1.1rem">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📋</span>
+      <span class="section-title">Informe coordinación misional</span>
+    </div>
+
+    ${(()=>{
+      // ── Calcular semanas ──────────────────────────────────
+      const hoy     = new Date();
+      const diaSem  = hoy.getDay();
+      const lunesDiff = diaSem===0 ? -6 : 1-diaSem;
+
+      // Lunes de la semana pasada
+      const lunesPas = new Date(hoy);
+      lunesPas.setDate(hoy.getDate() + lunesDiff - 7);
+      const domPas = new Date(lunesPas); domPas.setDate(lunesPas.getDate()+6);
+
+      // Lunes de la semana actual
+      const lunesAct = new Date(hoy);
+      lunesAct.setDate(hoy.getDate() + lunesDiff);
+      const domAct = new Date(lunesAct); domAct.setDate(lunesAct.getDate()+6);
+
+      // Lunes de la semana siguiente
+      const lunesSig = new Date(hoy);
+      lunesSig.setDate(hoy.getDate() + lunesDiff + 7);
+      const domSig = new Date(lunesSig); domSig.setDate(lunesSig.getDate()+6);
+
+      const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+      const fmtR  = d => `${d.getDate()} ${MESES[d.getMonth()]}`;
+      const fmtFull = d => `${d.getDate()} de ${["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][d.getMonth()]} de ${d.getFullYear()}`;
+
+      // Clasificar donaciones por semana usando el offset guardado en localStorage
+      // Como los datos demo no tienen fecha real ISO, usamos DIA_SEMANA para simular:
+      // - semana=0 → semana actual, semana=1 → próxima, semana=-1 (o sin semana) → pasada (demo)
+      const dPasada  = donacionesVis.filter(d=>!d.semana||d.semana<0  ||(!d.semana&&d.estado==="cita-realizada"));
+      const dActual  = donacionesVis.filter(d=>d.semana===0||(!d.semana&&d.estado!=="cita-realizada"));
+      const dSiguiente = donacionesVis.filter(d=>d.semana===1);
+
+      // Para demo, repartir todos por estado en semana actual/pasada
+      const pasadas  = donacionesVis.filter(d=>d.estado==="cita-realizada"||d.estado==="cita-cancelada");
+      const actuales = donacionesVis.filter(d=>d.estado==="cita-confirmada"||d.estado==="en-espera");
+      const siguientes = donacionesVis.filter(d=>d.estado==="pendiente"||d.estado==="en-espera");
+
+      function tablaInforme(lista, semLabel, fechaInicio, fechaFin, color, icono){
+        if(lista.length===0) return `
+          <div style="padding:1rem;text-align:center;color:var(--color-text-tertiary);font-family:'Noto Sans',sans-serif;font-size:.85rem;font-style:italic">
+            Sin citas registradas para este período.
+          </div>`;
+
+        // Agrupar por barrio
+        const porBarrio2 = {};
+        BARRIOS_LISTA.forEach(b=>{ porBarrio2[b]=[]; });
+        lista.forEach(d=>{ if(porBarrio2[d.barrio]) porBarrio2[d.barrio].push(d); });
+
+        const filas = lista.map(d=>`
+          <tr>
+            <td><div class="td-name" style="font-size:.83rem">${d.nombre}</div>
+                <div class="td-sub">${d.tel}</div></td>
+            <td style="font-size:.82rem">${d.barrio}</td>
+            <td><strong style="font-size:.82rem">${d.dia}</strong>
+                <span style="font-size:.76rem;color:var(--color-text-tertiary)"> ${d.desde}–${d.hasta}</span></td>
+            <td>${badgeModal(d.modalidad)}</td>
+            <td>${badgeEstado(d.estado)}</td>
+            <td>
+              ${canActuar()&&d.estado==="cita-confirmada"?`<button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</button>`:''}
+              <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
+            </td>
+          </tr>`).join('');
+
+        // Mini resumen por barrio
+        const resumenBarrio = BARRIOS_LISTA
+          .map(b=>({ b, n: porBarrio2[b].length }))
+          .filter(x=>x.n>0)
+          .map(({b,n})=>`<span style="background:${color}22;border:1px solid ${color}44;color:${color};border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:500;font-family:'Noto Sans',sans-serif">${b}: ${n}</span>`)
+          .join('');
+
+        return `
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding:.6rem 1.3rem;border-bottom:1px solid var(--color-border-tertiary);background:var(--color-background-primary)">
+            <span style="font-family:'Noto Sans',sans-serif;font-size:.75rem;color:var(--color-text-tertiary)">Por barrio:</span>
+            ${resumenBarrio || '<span style="font-size:.78rem;color:var(--color-text-tertiary);font-style:italic">—</span>'}
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Miembro</th><th>Barrio</th><th>Horario</th><th>Modalidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>${filas}</tbody>
+          </table></div>`;
+      }
+
+      function panelSemana(titulo, subtitulo, lista, fechaIni, fechaFin, color, icono, extra=''){
+        const total2 = lista.length;
+        const realiz = lista.filter(d=>d.estado==="cita-realizada").length;
+        const aprob  = lista.filter(d=>d.estado==="cita-confirmada").length;
+        const espera = lista.filter(d=>d.estado==="en-espera").length;
+        const pend   = lista.filter(d=>d.estado==="pendiente").length;
+        const canc   = lista.filter(d=>d.estado==="cita-cancelada").length;
+        const tasa   = total2 ? Math.round((realiz+aprob)/total2*100) : 0;
+
+        return `
+        <div style="border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.1rem">
+
+          <!-- Cabecera del período -->
+          <div style="background:${color};padding:.9rem 1.3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+            <div>
+              <div style="font-family:'Source Serif 4',serif;font-size:1rem;font-weight:600;color:#fff">
+                ${icono} ${titulo}
+              </div>
+              <div style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:rgba(255,255,255,.8);margin-top:.15rem">
+                ${fmtFull(fechaIni)} — ${fmtFull(fechaFin)}
+              </div>
+            </div>
+            <div style="display:flex;gap:1rem;align-items:center">
+              <div style="text-align:center">
+                <div style="font-family:'Source Serif 4',serif;font-size:1.6rem;font-weight:600;color:#fff">${total2}</div>
+                <div style="font-family:'Noto Sans',sans-serif;font-size:.7rem;color:rgba(255,255,255,.7)">citas totales</div>
+              </div>
+              <div style="text-align:center">
+                <div style="font-family:'Source Serif 4',serif;font-size:1.6rem;font-weight:600;color:#fff">${tasa}%</div>
+                <div style="font-family:'Noto Sans',sans-serif;font-size:.7rem;color:rgba(255,255,255,.7)">tasa éxito</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chips de estados -->
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding:.75rem 1.3rem;border-bottom:1px solid var(--color-border-tertiary);background:var(--color-background-secondary)">
+            ${realiz>0?`<span style="background:#134E4A;color:#CCFBF1;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">🙏 Realizadas: ${realiz}</span>`:''}
+            ${aprob>0 ?`<span style="background:#D1FAE5;color:#065F46;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">✅ Confirmadas: ${aprob}</span>`:''}
+            ${espera>0?`<span style="background:#DBEAFE;color:#1E40AF;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">🕐 En espera: ${espera}</span>`:''}
+            ${pend>0  ?`<span style="background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">⏳ Pendientes: ${pend}</span>`:''}
+            ${canc>0  ?`<span style="background:#FEE2E2;color:#991B1B;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">❌ Canceladas: ${canc}</span>`:''}
+            ${total2===0?`<span style="color:var(--color-text-tertiary);font-size:.8rem;font-style:italic;font-family:'Noto Sans',sans-serif">Sin registros</span>`:''}
+          </div>
+
+          ${tablaInforme(lista, titulo, fechaIni, fechaFin, color, icono)}
+          ${extra}
+        </div>`;
+      }
+
+      // ── Semana pasada ──
+      const htmlPasada = panelSemana(
+        "Semana pasada",
+        "",
+        pasadas,
+        lunesPas, domPas,
+        "#374151", "📅"
+      );
+
+      // ── Semana actual ──
+      const htmlActual = panelSemana(
+        "Semana actual",
+        "",
+        actuales,
+        lunesAct, domAct,
+        "#006EB6", "📅"
+      );
+
+      // ── Semana siguiente ──
+      const htmlSiguiente = panelSemana(
+        "Próxima semana",
+        "",
+        siguientes,
+        lunesSig, domSig,
+        "#7C3AED", "📅"
+      );
+
+      // ── Resumen comparativo ──
+      const resumen = `
+        <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.1rem 1.3rem;margin-bottom:1.1rem">
+          <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.9rem">Resumen comparativo</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;border:1px solid var(--color-border-tertiary);border-radius:6px;overflow:hidden">
+            ${[
+              {label:"Semana pasada", n:pasadas.length,   realiz:pasadas.filter(d=>d.estado==="cita-realizada").length,   color:"#374151"},
+              {label:"Semana actual", n:actuales.length,  realiz:actuales.filter(d=>d.estado==="cita-confirmada"||d.estado==="cita-realizada").length,  color:"#006EB6"},
+              {label:"Próxima semana",n:siguientes.length,realiz:siguientes.filter(d=>d.estado==="en-espera"||d.estado==="pendiente").length,color:"#7C3AED"},
+            ].map(({label,n,realiz,color},i)=>`
+              <div style="padding:.9rem 1rem;text-align:center;${i<2?'border-right:1px solid var(--color-border-tertiary)':''}">
+                <div style="font-family:'Noto Sans',sans-serif;font-size:.72rem;color:var(--color-text-tertiary);margin-bottom:.4rem">${label}</div>
+                <div style="font-family:'Source Serif 4',serif;font-size:1.8rem;font-weight:600;color:${color}">${n}</div>
+                <div style="font-family:'Noto Sans',sans-serif;font-size:.74rem;color:var(--color-text-secondary);margin-top:.15rem">
+                  ${realiz} ${label==="Semana pasada"?"realizadas":label==="Semana actual"?"confirmadas":"programadas"}
+                </div>
+                <div style="background:var(--color-background-primary);border-radius:3px;height:5px;overflow:hidden;margin-top:.5rem">
+                  <div style="width:${n?Math.round(realiz/n*100):0}%;background:${color};height:100%;border-radius:3px"></div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+
+      return resumen + htmlPasada + htmlActual + htmlSiguiente;
+    })()}
+  </div><div class="section-card" style="margin-bottom:1.1rem;border:2px solid #7C3AED20">
+    <div class="section-header" style="background:linear-gradient(135deg,#7C3AED15,#6D28D915)">
+      <span style="font-size:1.05rem">📊</span>
+      <span class="section-title" style="color:#6D28D9">Análisis extendido · Líder Misional</span>
+      <span style="margin-left:auto;background:#7C3AED;color:#fff;padding:3px 10px;border-radius:20px;font-family:'Noto Sans',sans-serif;font-size:.73rem">Solo lectura</span>
+    </div>
+    <div style="padding:1.3rem">
+
+      <!-- Tendencia semanal simulada -->
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.9rem">Tendencia semanal — últimas 4 semanas</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:1.5rem">
+        ${(()=>{
+        const rReal=donacionesVis.filter(d=>d.estado==="cita-realizada").length;
+        const rConf=donacionesVis.filter(d=>d.estado==="cita-confirmada").length;
+        const rCanc=donacionesVis.filter(d=>d.estado==="cita-cancelada").length;
+        const rPend=donacionesVis.filter(d=>d.estado!=="cita-cancelada").length;
+        const semanas=[
+          {sem:"Hace 3 sem",total:8, real:5, canc:1},
+          {sem:"Hace 2 sem",total:10,real:7, canc:2},
+          {sem:"Semana ant", total:rReal+2, real:rReal, canc:rCanc},
+          {sem:"Esta semana",total:rPend,   real:rConf, canc:0},
+        ];
+        return semanas.map(({sem,total,real,canc})=>`
+          <div style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:6px;padding:.9rem;text-align:center">
+            <div style="font-family:'Noto Sans',sans-serif;font-size:.72rem;color:var(--color-text-tertiary);margin-bottom:.5rem">${sem}</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:1.6rem;font-weight:600;color:#7C3AED">${total}</div>
+            <div style="display:flex;justify-content:center;gap:.6rem;margin-top:.4rem">
+              <span style="font-size:.73rem;color:#065F46">✅ ${real}</span>
+              <span style="font-size:.73rem;color:#991B1B">❌ ${canc}</span>
+            </div>
+          </div>`).join('');
+      })()}
+      </div>
+
+      <!-- Efectividad por barrio -->
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.8rem">Efectividad por barrio</p>
+      <div style="margin-bottom:1.5rem">
+        ${BARRIOS_LISTA.map(b=>{
+          const bDons = donacionesVis.filter(d=>d.barrio===b);
+          const bReal = bDons.filter(d=>d.estado==="cita-realizada").length;
+          const bConf = bDons.filter(d=>d.estado==="cita-confirmada").length;
+          const bPend = bDons.filter(d=>d.estado==="pendiente"||d.estado==="en-espera").length;
+          const bCanc = bDons.filter(d=>d.estado==="cita-cancelada").length;
+          const efect = bDons.length ? Math.round((bReal+bConf)/bDons.length*100) : 0;
+          return `<div style="display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--color-border-tertiary)">
+            <div style="width:110px;font-family:'Noto Sans',sans-serif;font-size:.82rem;font-weight:500;color:#003E6B">📍 ${b}</div>
+            <div style="flex:1;background:#F3F4F6;border-radius:4px;height:10px;overflow:hidden;display:flex">
+              <div style="width:${bDons.length?Math.round(bReal/bDons.length*100):0}%;background:#0F766E;height:100%"></div>
+              <div style="width:${bDons.length?Math.round(bConf/bDons.length*100):0}%;background:#006EB6;height:100%"></div>
+              <div style="width:${bDons.length?Math.round(bPend/bDons.length*100):0}%;background:#FCD34D;height:100%"></div>
+              <div style="width:${bDons.length?Math.round(bCanc/bDons.length*100):0}%;background:#FCA5A5;height:100%"></div>
+            </div>
+            <div style="font-family:'Noto Sans',sans-serif;font-size:.8rem;font-weight:600;color:${efect>=60?'#065F46':efect>=30?'#D4A017':'#991B1B'};width:34px;text-align:right">${efect}%</div>
+            <div style="font-size:.74rem;color:var(--color-text-tertiary);white-space:nowrap">
+              🙏${bReal} ✅${bConf} ⏳${bPend} ❌${bCanc}
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="display:flex;gap:1rem;margin-top:.7rem;flex-wrap:wrap">
+          ${[["#0F766E","🙏 Realizada"],["#006EB6","✅ Confirmada"],["#FCD34D","⏳ En proceso"],["#FCA5A5","❌ Cancelada"]].map(([c,l])=>`
+            <div style="display:flex;align-items:center;gap:.3rem">
+              <div style="width:10px;height:10px;background:${c};border-radius:2px"></div>
+              <span style="font-size:.74rem;color:var(--color-text-tertiary)">${l}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Análisis horario pico -->
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.8rem">Horario pico de solicitudes</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem">
+        <div>
+          <p style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:var(--color-text-secondary);margin-bottom:.6rem">Por franja horaria</p>
+          ${[
+            {label:"Tarde (12–18h)", horas:[12,13,14,15,16,17]},
+            {label:"Noche (18–22h)", horas:[18,19,20,21]},
+            {label:"Mañana (10–12h)",horas:[10,11]},
+          ].map(f=>{
+            const n = donacionesVis.filter(d=>f.horas.includes(parseInt(d.desde))).length;
+            const max2 = Math.max(donacionesVis.length,1);
+            return `<div style="margin-bottom:.55rem">
+              <div style="display:flex;justify-content:space-between;font-family:'Noto Sans',sans-serif;font-size:.78rem;margin-bottom:.2rem">
+                <span style="color:#374151">${f.label}</span>
+                <span style="font-weight:500;color:#7C3AED">${n}</span>
+              </div>
+              <div style="background:#F3F4F6;border-radius:3px;height:7px;overflow:hidden">
+                <div style="width:${Math.round(n/max2*100)}%;background:#7C3AED;height:100%;border-radius:3px"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div>
+          <p style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:var(--color-text-secondary);margin-bottom:.6rem">Días más activos</p>
+          ${["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(dia=>{
+            const n = donacionesVis.filter(d=>d.dia===dia).length;
+            const maxD = Math.max(...["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(d2=>donacionesVis.filter(x=>x.dia===d2).length),1);
+            return `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#374151;width:65px">${dia.substring(0,3)}</span>
+              <div style="flex:1;background:#F3F4F6;border-radius:3px;height:6px;overflow:hidden">
+                <div style="width:${maxD?Math.round(n/maxD*100):0}%;background:#7C3AED;height:100%"></div>
+              </div>
+              <span style="font-size:.75rem;color:var(--color-text-tertiary);width:16px;text-align:right">${n}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Resumen ejecutivo -->
+      <div style="background:#F5F3FF;border:1px solid #DDD6FE;border-radius:6px;padding:1.1rem 1.3rem">
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#6D28D9;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.7rem">Resumen ejecutivo</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem">
+          ${[
+            {l:"Tasa de éxito global", v:donacionesVis.length?Math.round((donacionesVis.filter(d=>d.estado==="cita-realizada"||d.estado==="cita-confirmada").length/donacionesVis.length)*100)+"%" :"0%", desc:"citas confirmadas + realizadas"},
+            {l:"Citas realizadas",     v:donacionesVis.filter(d=>d.estado==="cita-realizada").length, desc:"evangelio enseñado"},
+            {l:"Barrio más activo",    v:BARRIOS_LISTA.reduce((a,b)=>donacionesVis.filter(d=>d.barrio===b).length>donacionesVis.filter(d=>d.barrio===a).length?b:a,BARRIOS_LISTA[0]), desc:"por volumen de solicitudes"},
+          ].map(({l,v,desc})=>`
+            <div style="text-align:center">
+              <div style="font-family:'Source Serif 4',serif;font-size:1.5rem;font-weight:600;color:#7C3AED">${v}</div>
+              <div style="font-family:'Noto Sans',sans-serif;font-size:.76rem;font-weight:500;color:#374151;margin:.2rem 0">${l}</div>
+              <div style="font-size:.72rem;color:var(--color-text-tertiary)">${desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+
+
+function renderInformes(){
+  // admin: acceso completo · lider-misional: acceso completo + extendido · misionero: su barrio
+
+  const BARRIOS_LISTA = ["Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
+  // Filtrar datos según rol
+  const donacionesVis = (isMision()||isLider())
+    ? DONACIONES.filter(d=>d.barrio===currentUser.barrio)
+    : DONACIONES;
+  const ESTADO_LABEL = {
+    "pendiente":       "⏳ Pendiente",
+    "en-espera":       "🕐 En espera de cita",
+    "cita-confirmada": "✅ Cita confirmada",
+    "cita-realizada":  "🙏 Cita realizada",
+    "cita-cancelada":  "❌ Cita cancelada",
+  };
+  const DIAS_LABEL = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+
+  // ── Cálculos globales (sobre datos visibles) ─────────────────
+  const total     = donacionesVis.length;
+  const aprobadas = donacionesVis.filter(d=>d.estado==="cita-confirmada"||d.estado==="cita-realizada").length;
+  const canceladas= donacionesVis.filter(d=>d.estado==="cita-cancelada").length;
+  const pendientes= donacionesVis.filter(d=>d.estado==="pendiente").length;
+  const presencial= donacionesVis.filter(d=>d.modalidad==="presencial").length;
+  const online    = donacionesVis.filter(d=>d.modalidad==="online").length;
+  const tasaExito = total ? Math.round(aprobadas/total*100) : 0;
+
+  // ── Por barrio ───────────────────────────────────────────────
+  const porBarrio = BARRIOS_LISTA.map(b=>({
+    barrio: b,
+    total:      donacionesVis.filter(d=>d.barrio===b).length,
+    aprobadas:  donacionesVis.filter(d=>d.barrio===b&&(d.estado==="cita-confirmada"||d.estado==="cita-realizada")).length,
+    espera:     donacionesVis.filter(d=>d.barrio===b&&d.estado==="en-espera").length,
+    pendientes: donacionesVis.filter(d=>d.barrio===b&&d.estado==="pendiente").length,
+    canceladas: donacionesVis.filter(d=>d.barrio===b&&(d.estado==="cita-cancelada")).length,
+    presencial: donacionesVis.filter(d=>d.barrio===b&&d.modalidad==="presencial").length,
+    online:     donacionesVis.filter(d=>d.barrio===b&&d.modalidad==="online").length,
+  }));
+  const maxBarrio = Math.max(...porBarrio.map(b=>b.total), 1);
+
+  // ── Por día de semana ────────────────────────────────────────
+  const porDia = DIAS_LABEL.map(dia=>({
+    dia,
+    total:     donacionesVis.filter(d=>d.dia===dia).length,
+    aprobadas: donacionesVis.filter(d=>d.dia===dia&&d.estado==="cita-confirmada").length,
+    canceladas:donacionesVis.filter(d=>d.dia===dia&&(d.estado==="cita-cancelada")).length,
+  }));
+  const maxDia = Math.max(...porDia.map(d=>d.total), 1);
+
+  // ── Por franja horaria ───────────────────────────────────────
+  const franjas = [
+    {label:"Mañana (07–12)",  horas:[7,8,9,10,11]},
+    {label:"Tarde (12–18)",   horas:[12,13,14,15,16,17]},
+    {label:"Noche (18–22)",   horas:[18,19,20,21]},
+  ];
+  const porFranja = franjas.map(f=>({
+    label: f.label,
+    total: donacionesVis.filter(d=>f.horas.includes(parseInt(d.desde))).length,
+    aprobadas: donacionesVis.filter(d=>f.horas.includes(parseInt(d.desde))&&d.estado==="cita-confirmada").length,
+  }));
+  const maxFranja = Math.max(...porFranja.map(f=>f.total), 1);
+
+  // ── SVG helpers ──────────────────────────────────────────────
+
+
+  const _liderBanner=isLider()
+    ?'<div style="background:#7C3AED;color:#fff;padding:.55rem 1.3rem;border-radius:6px;'
+      +'margin-bottom:1rem;font-family:\'Noto Sans\',sans-serif;font-size:.81rem;'
+      +'display:flex;align-items:center;gap:.5rem">'
+      +'<span>👁️</span><strong>Líder Misional · Solo lectura</strong>'
+      +' — Datos de tu barrio asignado. Sin acciones.</div>'
+    :'';
+
+  const _sub_semanal=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem;margin-bottom:1.1rem"><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">📅</span>
+        <span class="section-title">Solicitudes por día de la semana</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${barChart(
+          porDia,
+          d=>[{v:d.aprobadas,color:C.green},{v:d.total-d.aprobadas-d.canceladas,color:C.yellow},{v:d.canceladas,color:C.red}],
+          d=>d.dia.substring(0,3),
+          ()=>'',
+          maxDia
+        )}
+        ${legend([{color:C.green,label:"Aprobadas"},{color:C.yellow,label:"En proceso"},{color:C.red,label:"Canceladas"}])}
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">🍩</span>
+        <span class="section-title">Modalidad</span>
+      </div>
+      <div style="padding:1rem 1.3rem;display:flex;flex-direction:column;align-items:center">
+        ${donutChart([
+          {v:presencial, color:C.blue,  label:"Presencial"},
+          {v:online,     color:C.espera,label:"En línea"},
+        ])}
+        <div style="display:flex;gap:1rem;margin-top:.5rem">
+          <div style="text-align:center">
+            <div style="font-family:'Source Serif 4',serif;font-size:1.4rem;font-weight:700;color:${C.blue}">${presencial}</div>
+            <div style="font-size:.74rem;color:#6B7280">🏠 Presencial</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:'Source Serif 4',serif;font-size:1.4rem;font-weight:700;color:${C.espera}">${online}</div>
+            <div style="font-size:.74rem;color:#6B7280">💻 En línea</div>
+          </div>
+        </div>
+      </div>
+    </div></div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">⏰</span>
+        <span class="section-title">Solicitudes por franja horaria</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${porFranja.map(f=>`
+          <div style="margin-bottom:1rem">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.85rem;color:#374151">${f.label}</span>
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#6B7280">${f.total} solicitudes · ${f.total?Math.round(f.aprobadas/f.total*100):0}% aprobadas</span>
+            </div>
+            <div style="background:#F3F4F6;border-radius:4px;height:14px;overflow:hidden;display:flex">
+              <div style="width:${maxFranja?Math.round(f.aprobadas/maxFranja*100):0}%;background:#2D7A2D;height:100%;transition:width .4s"></div>
+              <div style="width:${maxFranja?Math.round((f.total-f.aprobadas)/maxFranja*100):0}%;background:#DBEAFE;height:100%;transition:width .4s"></div>
+            </div>
+          </div>
+        `).join('')}
+        ${legend([{color:C.green,label:"Citas aprobadas"},{color:C.lblue,label:"Resto de solicitudes"}])}
+
+        <div class="divider"></div>
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;font-weight:600;margin-bottom:.5rem">Horas más solicitadas</p>
+        ${(()=>{
+          const hCount = {};
+          DONACIONES.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
+          return Object.entries(hCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+            .map(([h,v])=>hBar(`${h} – ${String(parseInt(h)+1).padStart(2,'0')}:00`,v,
+              Math.max(...Object.values(hCount)),C.blue)).join('');
+        })()}
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">🎯</span>
+        <span class="section-title">Distribución de estados</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${donutChart([
+          {v:aprobadas,                                      color:C.green,  label:"Cita aprobada"},
+          {v:donacionesVis.filter(d=>d.estado==="en-espera").length, color:C.espera, label:"En espera"},
+          {v:pendientes,                                     color:C.yellow, label:"Pendiente"},
+          {v:canceladas,                                     color:C.red,    label:"Cancelada/Rech."},
+        ],60)}
+
+        <div style="margin-top:.8rem">
+          ${[
+            {label:"✅ Cita confirmada",   v:aprobadas,  color:C.green},
+            {label:"🕐 En espera cita",  v:donacionesVis.filter(d=>d.estado==="en-espera").length, color:C.espera},
+            {label:"⏳ Pendiente",v:pendientes, color:C.yellow},
+            {label:"❌ Cancelada/Rech.", v:canceladas, color:C.red},
+          ].map(({label,v,color})=>hBar(label,v,total||1,color,`(${total?Math.round(v/total*100):0}%)`)).join('')}
+        </div>
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">⏱️</span>
+        <span class="section-title">Horas donadas esta semana</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${porBarrio.map(b=>hBar(
+          `📍 ${b.barrio}`,
+          b.aprobadas,
+          Math.max(...porBarrio.map(x=>x.aprobadas),1),
+          C.green,
+          `hora${b.aprobadas!==1?'s':''} aprobadas`
+        )).join('')}
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-family:'Noto Sans',sans-serif">
+          <span style="font-size:.82rem;color:#374151">Total horas aprobadas:</span>
+          <span style="font-family:'Source Serif 4',serif;font-size:1.6rem;font-weight:700;color:#2D7A2D">${aprobadas}</span>
+        </div>
+        <div style="font-size:.76rem;color:#9CA3AF;margin-top:.2rem">
+          + ${donacionesVis.filter(d=>d.estado==="en-espera").length} en espera de cita
+        </div>
+      </div>
+    </div>`;
+  const _sub_miembros=`<div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">🏆</span>
+        <span class="section-title">Miembros más comprometidos</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Miembro</th><th>Barrio</th><th>Solicitudes</th><th>Aprobadas</th></tr></thead>
+          <tbody>
+            ${(()=>{
+              const map={};
+              DONACIONES.forEach(d=>{
+                if(!map[d.tel]) map[d.tel]={nombre:d.nombre,barrio:d.barrio,tel:d.tel,total:0,aprobadas:0};
+                map[d.tel].total++;
+                if(d.estado==="cita-confirmada") map[d.tel].aprobadas++;
+              });
+              return Object.values(map).sort((a,b)=>b.total-a.total).slice(0,8).map((m,i)=>`<tr>
+                <td style="color:#9CA3AF;font-size:.78rem">${i+1}</td>
+                <td><div class="td-name">${m.nombre}</div><div class="td-sub">${m.tel}</div></td>
+                <td style="font-size:.82rem">${m.barrio}</td>
+                <td style="font-weight:600;color:#006EB6">${m.total}</td>
+                <td><span style="color:#2D7A2D;font-weight:600">${m.aprobadas}</span></td>
+              </tr>`).join('');
+            })()}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  const _sub_barrios=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.1rem;margin-bottom:1.1rem"><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">📊</span>
+        <span class="section-title">Solicitudes por barrio</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${barChart(
+          porBarrio,
+          b=>[{v:b.aprobadas,color:C.green},{v:b.espera,color:C.espera},{v:b.pendientes,color:C.yellow},{v:b.canceladas,color:C.red}],
+          b=>b.barrio.split(' ')[0],
+          ()=>'',
+          maxBarrio
+        )}
+        ${legend([
+          {color:C.green,"label":"Cita aprobada"},
+          {color:C.espera,"label":"En espera"},
+          {color:C.yellow,"label":"Pendiente"},
+          {color:C.red,"label":"Cancelada/Rechaz."},
+        ])}
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">📍</span>
+        <span class="section-title">Detalle por barrio</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Barrio</th><th>Total</th><th>✅ Confirmadas</th>
+            <th>⏳ Pendiente</th><th>❌ Cancel.</th><th>Tasa éxito</th>
+          </tr></thead>
+          <tbody>
+            ${porBarrio.map(b=>`<tr>
+              <td><strong>📍 ${b.barrio}</strong></td>
+              <td style="font-weight:600">${b.total}</td>
+              <td><span style="color:#2D7A2D;font-weight:600">${b.aprobadas}</span></td>
+              <td><span style="color:#D4A017">${b.pendientes}</span></td>
+              <td><span style="color:#DC2626">${b.canceladas}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:.4rem">
+                  <div style="flex:1;background:#F3F4F6;border-radius:3px;height:6px;overflow:hidden;min-width:40px">
+                    <div style="width:${b.total?Math.round(b.aprobadas/b.total*100):0}%;background:#2D7A2D;height:100%"></div>
+                  </div>
+                  <span style="font-size:.76rem;color:#374151;white-space:nowrap">
+                    ${b.total?Math.round(b.aprobadas/b.total*100):0}%
+                  </span>
+                </div>
+              </td>
+            </tr>`).join('')}
+            <tr style="background:#F8FAFC;font-weight:600">
+              <td>TOTAL</td>
+              <td>${total}</td>
+              <td style="color:#2D7A2D">${aprobadas}</td>
+              <td style="color:#D4A017">${pendientes}</td>
+              <td style="color:#DC2626">${canceladas}</td>
+              <td style="color:#003E6B">${tasaExito}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div></div><div class="section-card" style="margin-bottom:1.1rem">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📍</span>
+      <span class="section-title">Informe detallado por barrio</span>
+      <div class="filters" style="margin-left:auto">
+        ${BARRIOS_LISTA.map(b=>barrioInformeBtn(b)).join('')}
+      </div>
+    </div>
+
+    ${(()=>{
+      const selB = informeBarrioSel || BARRIOS_LISTA[0];
+      const bAll = donacionesVis.filter(d=>d.barrio===selB);
+      const bApr = bAll.filter(d=>d.estado==="cita-confirmada");
+      const bEsp = bAll.filter(d=>d.estado==="en-espera");
+      const bPen = bAll.filter(d=>d.estado==="pendiente");
+      const bCan = bAll.filter(d=>d.estado==="cita-cancelada");
+      const bPre = bAll.filter(d=>d.modalidad==="presencial");
+      const bOnl = bAll.filter(d=>d.modalidad==="online");
+      const tasa = bAll.length ? Math.round(bApr.length/bAll.length*100) : 0;
+
+      // Horas más solicitadas en este barrio
+      const horasB = {};
+      bAll.forEach(d=>{ horasB[d.desde]=(horasB[d.desde]||0)+1; });
+      const topHoras = Object.entries(horasB).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const maxH = topHoras[0]?.[1] || 1;
+
+      // Días más solicitados
+      const diasB = {};
+      DIAS.forEach(d=>{ diasB[d]=0; });
+      bAll.forEach(d=>{ diasB[d.dia]=(diasB[d.dia]||0)+1; });
+      const maxD2 = Math.max(...Object.values(diasB),1);
+
+      // Miembros del barrio
+      const miembrosB = {};
+      bAll.forEach(d=>{
+        if(!miembrosB[d.tel]) miembrosB[d.tel]={nombre:d.nombre,tel:d.tel,total:0,aprobadas:0};
+        miembrosB[d.tel].total++;
+        if(d.estado==="cita-confirmada") miembrosB[d.tel].aprobadas++;
+      });
+      const listaMiembros = Object.values(miembrosB).sort((a,b)=>b.total-a.total);
+
+      // Misionero asignado
+      const mis = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===selB);
+
+      return `
+      <!-- KPIs barrio -->
+      <div style="padding:1rem 1.3rem 0">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:.6rem;background:#EEF5FB;border:1px solid #BFDBF7;border-radius:6px;padding:.6rem 1rem">
+            <div style="font-size:1.4rem">⛪</div>
+            <div>
+              <div style="font-family:'Noto Sans',sans-serif;font-size:.72rem;color:#6B7280">Misionero asignado</div>
+              <div style="font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;color:#003E6B">${mis?mis.nombre:'Sin asignar'}</div>
+              ${mis?.tel?`<div style="font-size:.76rem;color:#006EB6">📱 ${mis.tel}</div>`:''}
+            </div>
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.82rem;color:#374151">Tasa de éxito</span>
+              <span style="font-family:'Source Serif 4',serif;font-size:1.5rem;font-weight:700;color:${tasa>=50?'#2D7A2D':'#D4A017'}">${tasa}%</span>
+            </div>
+            <div style="background:#F3F4F6;border-radius:4px;height:10px;overflow:hidden;max-width:300px">
+              <div style="width:${tasa}%;background:${tasa>=50?'#2D7A2D':'#D4A017'};height:100%;border-radius:4px;transition:width .5s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0;border-top:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB">
+        ${[
+          {l:"Total",     v:bAll.length, c:"#003E6B"},
+          {l:"⏳ Pendiente",  v:bPen.length, c:"#D4A017"},
+          {l:"🕐 En espera", v:bEsp.length, c:"#3B82F6"},
+          {l:"✅ Confirmadas",v:bApr.length,c:"#2D7A2D"},
+          {l:"❌ Canceladas",v:bCan.length,c:"#DC2626"},
+        ].map(({l,v,c},i)=>`
+          <div style="padding:.9rem 1rem;text-align:center;${i<4?'border-right:1px solid #E5E7EB':''}">
+            <div style="font-family:'Noto Sans',sans-serif;font-size:.68rem;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">${l}</div>
+            <div style="font-family:'Source Serif 4',serif;font-size:1.7rem;font-weight:700;color:${c}">${v}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Dos columnas: días + horas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #E5E7EB">
+
+        <!-- Por día -->
+        <div style="padding:1rem 1.3rem;border-right:1px solid #E5E7EB">
+          <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Solicitudes por día</p>
+          ${DIAS.map(dia=>{
+            const v = diasB[dia]||0;
+            const apr = bAll.filter(d=>d.dia===dia&&d.estado==="cita-confirmada").length;
+            return `<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:#374151;width:70px;flex-shrink:0">${dia.substring(0,3)}</span>
+              <div style="flex:1;background:#F3F4F6;border-radius:3px;height:8px;overflow:hidden;display:flex">
+                <div style="width:${maxD2?Math.round(apr/maxD2*100):0}%;background:#2D7A2D;height:100%"></div>
+                <div style="width:${maxD2?Math.round((v-apr)/maxD2*100):0}%;background:#DBEAFE;height:100%"></div>
+              </div>
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#6B7280;width:20px;text-align:right">${v}</span>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- Horas más solicitadas -->
+        <div style="padding:1rem 1.3rem">
+          <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">Horarios más solicitados</p>
+          ${topHoras.length ? topHoras.map(([h,v])=>`
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:#374151;width:85px;flex-shrink:0">${h} – ${pad(parseInt(h)+1)}:00</span>
+              <div style="flex:1;background:#F3F4F6;border-radius:3px;height:8px;overflow:hidden">
+                <div style="width:${Math.round(v/maxH*100)}%;background:#006EB6;height:100%;border-radius:3px"></div>
+              </div>
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#6B7280;width:20px;text-align:right">${v}</span>
+            </div>`).join('')
+          : `<p style="font-size:.82rem;color:#9CA3AF;font-style:italic">Sin datos</p>`}
+
+          <div style="margin-top:1rem;padding-top:.75rem;border-top:1px solid #F3F4F6">
+            <div style="display:flex;justify-content:space-between;font-family:'Noto Sans',sans-serif;font-size:.82rem">
+              <span style="color:#6B7280">🏠 Presencial</span>
+              <span style="font-weight:600;color:#006EB6">${bPre.length}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'Noto Sans',sans-serif;font-size:.82rem;margin-top:.3rem">
+              <span style="color:#6B7280">💻 En línea</span>
+              <span style="font-weight:600;color:#3B82F6">${bOnl.length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Miembros del barrio -->
+      <div style="padding:1rem 1.3rem">
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.75rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem">
+          Miembros del barrio ${selB} (${listaMiembros.length})
+        </p>
+        ${listaMiembros.length===0
+          ? `<p style="font-size:.85rem;color:#9CA3AF;font-style:italic;text-align:center;padding:1rem">Sin registros en este barrio aún.</p>`
+          : `<div class="table-wrap"><table>
+              <thead><tr><th>#</th><th>Miembro</th><th>Teléfono</th><th>Modalidad</th><th>Solicitudes</th><th>✅ Confirmadas</th><th>Tasa</th></tr></thead>
+              <tbody>${listaMiembros.map((m,i)=>`<tr>
+                <td style="color:#9CA3AF;font-size:.76rem">${i+1}</td>
+                <td class="td-name">${m.nombre}</td>
+                <td style="font-size:.82rem">${m.tel}</td>
+                <td>${badgeModal(bAll.find(d=>d.tel===m.tel)?.modalidad||'presencial')}</td>
+                <td style="font-weight:600;color:#006EB6">${m.total}</td>
+                <td style="color:#2D7A2D;font-weight:600">${m.aprobadas}</td>
+                <td style="font-size:.8rem;color:#374151">${m.total?Math.round(m.aprobadas/m.total*100):0}%</td>
+              </tr>`).join('')}
+              </tbody>
+            </table></div>`
+        }
+      </div>`;
+    })()}
+  </div>`;
+  const _sub_estaca_extra=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem;margin-bottom:1.1rem"><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">📅</span>
+        <span class="section-title">Solicitudes por día de la semana</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${barChart(
+          porDia,
+          d=>[{v:d.aprobadas,color:C.green},{v:d.total-d.aprobadas-d.canceladas,color:C.yellow},{v:d.canceladas,color:C.red}],
+          d=>d.dia.substring(0,3),
+          ()=>'',
+          maxDia
+        )}
+        ${legend([{color:C.green,label:"Aprobadas"},{color:C.yellow,label:"En proceso"},{color:C.red,label:"Canceladas"}])}
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">🍩</span>
+        <span class="section-title">Modalidad</span>
+      </div>
+      <div style="padding:1rem 1.3rem;display:flex;flex-direction:column;align-items:center">
+        ${donutChart([
+          {v:presencial, color:C.blue,  label:"Presencial"},
+          {v:online,     color:C.espera,label:"En línea"},
+        ])}
+        <div style="display:flex;gap:1rem;margin-top:.5rem">
+          <div style="text-align:center">
+            <div style="font-family:'Source Serif 4',serif;font-size:1.4rem;font-weight:700;color:${C.blue}">${presencial}</div>
+            <div style="font-size:.74rem;color:#6B7280">🏠 Presencial</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:'Source Serif 4',serif;font-size:1.4rem;font-weight:700;color:${C.espera}">${online}</div>
+            <div style="font-size:.74rem;color:#6B7280">💻 En línea</div>
+          </div>
+        </div>
+      </div>
+    </div></div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">⏰</span>
+        <span class="section-title">Solicitudes por franja horaria</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${porFranja.map(f=>`
+          <div style="margin-bottom:1rem">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem">
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.85rem;color:#374151">${f.label}</span>
+              <span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#6B7280">${f.total} solicitudes · ${f.total?Math.round(f.aprobadas/f.total*100):0}% aprobadas</span>
+            </div>
+            <div style="background:#F3F4F6;border-radius:4px;height:14px;overflow:hidden;display:flex">
+              <div style="width:${maxFranja?Math.round(f.aprobadas/maxFranja*100):0}%;background:#2D7A2D;height:100%;transition:width .4s"></div>
+              <div style="width:${maxFranja?Math.round((f.total-f.aprobadas)/maxFranja*100):0}%;background:#DBEAFE;height:100%;transition:width .4s"></div>
+            </div>
+          </div>
+        `).join('')}
+        ${legend([{color:C.green,label:"Citas aprobadas"},{color:C.lblue,label:"Resto de solicitudes"}])}
+
+        <div class="divider"></div>
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;font-weight:600;margin-bottom:.5rem">Horas más solicitadas</p>
+        ${(()=>{
+          const hCount = {};
+          DONACIONES.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
+          return Object.entries(hCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
+            .map(([h,v])=>hBar(`${h} – ${String(parseInt(h)+1).padStart(2,'0')}:00`,v,
+              Math.max(...Object.values(hCount)),C.blue)).join('');
+        })()}
+      </div>
+    </div><div class="section-card">
+      <div class="section-header">
+        <span style="font-size:1.05rem">🎯</span>
+        <span class="section-title">Distribución de estados</span>
+      </div>
+      <div style="padding:1rem 1.3rem">
+        ${donutChart([
+          {v:aprobadas,                                      color:C.green,  label:"Cita aprobada"},
+          {v:donacionesVis.filter(d=>d.estado==="en-espera").length, color:C.espera, label:"En espera"},
+          {v:pendientes,                                     color:C.yellow, label:"Pendiente"},
+          {v:canceladas,                                     color:C.red,    label:"Cancelada/Rech."},
+        ],60)}
+
+        <div style="margin-top:.8rem">
+          ${[
+            {label:"✅ Cita confirmada",   v:aprobadas,  color:C.green},
+            {label:"🕐 En espera cita",  v:donacionesVis.filter(d=>d.estado==="en-espera").length, color:C.espera},
+            {label:"⏳ Pendiente",v:pendientes, color:C.yellow},
+            {label:"❌ Cancelada/Rech.", v:canceladas, color:C.red},
+          ].map(({label,v,color})=>hBar(label,v,total||1,color,`(${total?Math.round(v/total*100):0}%)`)).join('')}
+        </div>
+      </div>
+    </div>`;
+  const _sub_export=`<div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">📥</span>
+      <span class="section-title">Exportar datos e informes</span>
+    </div>
+    <div style="padding:1rem 1.3rem">
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.82rem;color:#6B7280;margin-bottom:1rem">
+        Descarga los datos o capturas visuales de cada sección para archivar o compartir.
+      </p>
+
+      <!-- Fila 1: datos -->
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem">Datos</p>
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1.2rem">
+        <button class="btn-primary" style="font-size:.8rem" onclick="exportarCSV()">📊 Exportar CSV</button>
+        <button class="btn-ghost"   style="font-size:.8rem" onclick="exportarResumen()">📄 Resumen TXT</button>
+      </div>
+
+      <!-- Fila 2: imágenes de sección -->
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem">Captura de gráficos e informes</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.65rem;margin-bottom:1rem">
+        ${[
+          {id:"informe-kpis",       icon:"📊", label:"KPIs generales"},
+          {id:"informe-barrio-chart",icon:"📍", label:"Gráfico por barrio"},
+          {id:"informe-dia-chart",   icon:"📅", label:"Gráfico por día"},
+          {id:"informe-estados",     icon:"🎯", label:"Distribución estados"},
+          {id:"informe-franja",      icon:"⏰", label:"Franjas horarias"},
+          {id:"informe-coord",       icon:"📋", label:"Coordinación misional"},
+          {id:"informe-barrio-det",  icon:"📍", label:"Informe por barrio"},
+          ...(isLider()?[{id:"informe-lider",icon:"📊",label:"Análisis extendido"}]:[]),
+        ].map(({id,icon,label})=>`
+          <button onclick="capturaSeccion('${id}','${label}')"
+            style="display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border:1px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);font-family:'Noto Sans',sans-serif;font-size:.8rem;color:var(--color-text-primary);cursor:pointer;transition:all .15s;text-align:left"
+            onmouseover="this.style.borderColor='#006EB6';this.style.background='#EEF5FB'"
+            onmouseout="this.style.borderColor='';this.style.background=''">
+            <span style="font-size:1rem">${icon}</span>
+            <span>${label}</span>
+            <span style="margin-left:auto;font-size:.7rem;color:#9CA3AF">🖼️</span>
+          </button>`).join('')}
+      </div>
+
+      <!-- Botón capturar todo el informe -->
+      <button onclick="capturaTodoElInforme()"
+        style="width:100%;padding:.75rem;border:2px dashed #006EB6;border-radius:6px;background:#EEF5FB;font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;color:#006EB6;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">
+        📸 Capturar informe completo como imagen
+      </button>
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.74rem;color:#9CA3AF;margin-top:.5rem;text-align:center">
+        Usa la función de captura de pantalla de tu dispositivo (Ctrl+Shift+S en Chrome, o el botón de abajo) para guardar el informe.
+      </p>
+    </div>
+  </div>`;
+  const _kpiStrip=`<div class="stats-row" style="margin-bottom:1.2rem">${[{l:"Total solicitudes",v:total,c:"#003E6B",sub:"registradas"},{l:"✅ Citas confirmadas",v:aprobadas,c:"#2D7A2D",sub:tasaExito+"% del total"},{l:"❌ Canceladas",v:canceladas,c:"#DC2626",sub:(total?Math.round(canceladas/total*100):0)+"% del total"},{l:"⏳ Pendientes",v:pendientes,c:"#D4A017",sub:"requieren atención"},{l:"🏠 Presencial",v:presencial,c:"#006EB6",sub:"💻 "+online+" en línea"}].map(({l,v,c,sub})=>`<div class="stat-card" style="border-left:3px solid ${c}"><div class="stat-label">${l}</div><div class="stat-value" style="color:${c}">${v}</div><div class="stat-sub">${sub}</div></div>`).join("")}</div>`;
+  const _barrioGrid=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.1rem;margin-bottom:1.1rem"><div class="section-card"><div class="section-header"><span style="font-size:1.05rem">📊</span><span class="section-title">Solicitudes por barrio</span></div><div style="padding:1rem 1.3rem">${barChart(porBarrio,b=>[{v:b.aprobadas,color:C.green},{v:b.espera,color:C.espera},{v:b.pendientes,color:C.yellow},{v:b.canceladas,color:C.red}],b=>b.barrio.split(" ")[0],()=>"",maxBarrio)}${legend([{color:C.green,label:"Confirmada"},{color:C.espera,label:"En espera"},{color:C.yellow,label:"Pendiente"},{color:C.red,label:"Cancelada"}])}</div></div><div class="section-card"><div class="section-header"><span style="font-size:1.05rem">📍</span><span class="section-title">Detalle por barrio</span></div><div class="table-wrap"><table><thead><tr><th>Barrio</th><th>Total</th><th>✅</th><th>⏳</th><th>❌</th><th>Tasa</th></tr></thead><tbody>${porBarrio.map(b=>`<tr><td><strong>${b.barrio}</strong></td><td style="font-weight:600">${b.total}</td><td style="color:#2D7A2D;font-weight:600">${b.aprobadas}</td><td style="color:#D4A017">${b.pendientes}</td><td style="color:#DC2626">${b.canceladas}</td><td>${b.total?Math.round(b.aprobadas/b.total*100):0}%</td></tr>`).join("")}<tr style="background:#F8FAFC;font-weight:600"><td>TOTAL</td><td>${total}</td><td style="color:#2D7A2D">${aprobadas}</td><td style="color:#D4A017">${pendientes}</td><td style="color:#DC2626">${canceladas}</td><td>${tasaExito}%</td></tr></tbody></table></div></div></div>`;
+
+  const _nav=(function(){
+    const items=[
+      {id:"semanal",  icon:"📊", label:"Informe semanal barrio"},
+      {id:"miembros", icon:"👥", label:"Miembros"},
+      {id:"barrios",  icon:"📍", label:"Barrios"},
+      {id:"coord",    icon:"📋", label:"Coordinación misional"},
+      {id:"estaca",   icon:"🏛️",  label:"Estaca"},
+    ];
+    let h='<div style="display:flex;gap:0;margin-bottom:1.5rem;flex-wrap:wrap;border-bottom:2px solid #D8DCE1">';
+    items.forEach(function(s){
+      const a=informeSubview===s.id;
+      h+='<div onclick="informeSubview=\''+s.id+'\';renderView()" style="'
+        +'display:flex;align-items:center;gap:.4rem;padding:.7rem 1.1rem;cursor:pointer;'
+        +'border-bottom:'+(a?'2px solid #006EB6':'2px solid transparent')+';'
+        +'margin-bottom:-2px;font-family:\'Noto Sans\',sans-serif;font-size:.83rem;'
+        +'font-weight:'+(a?'600':'400')+';color:'+(a?'#006EB6':'#555')+';'
+        +'white-space:nowrap;background:'+(a?'#EEF5FB':'transparent')+';'
+        +'transition:all .15s;border-radius:4px 4px 0 0">'
+        +s.icon+' '+s.label+'</div>';
+    });
+    h+='</div>';
+    return h;
+  })();
+
+  let _body='';
+  if(informeSubview==='semanal')  _body=_sub_semanal;
+  if(informeSubview==='miembros') _body=_sub_miembros;
+  if(informeSubview==='barrios')  _body=_sub_barrios;
+  if(informeSubview==='coord')    _body=_genCoord();
+  if(informeSubview==='estaca')   _body=_kpiStrip+_barrioGrid+_sub_estaca_extra;
+
+  return _liderBanner+_nav+_body+_sub_export;
+}
+
+function exportarCSV(){
+  const header = "ID,Nombre,Teléfono,Barrio,Modalidad,Día,Desde,Hasta,Estado,Fecha";
+  const rows = DONACIONES.map(d=>
+    `${d.id},"${d.nombre}",${d.tel},"${d.barrio}",${d.modalidad},${d.dia},${d.desde},${d.hasta},${d.estado},"${d.fecha}"`
+  );
+  const csv = [header,...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='dona-una-hora-informe.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('📊 CSV descargado correctamente.');
+}
+
+function exportarResumen(){
+  const aprobadas = DONACIONES.filter(d=>d.estado==="cita-confirmada").length;
+  const canceladas= DONACIONES.filter(d=>d.estado==="cita-cancelada").length;
+  const pendientes= DONACIONES.filter(d=>d.estado==="pendiente").length;
+  const BARRIOS_L = ["Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
+  const lines = [
+    "INFORME SEMANAL — DONA UNA HORA POR LA OBRA",
+    `Misión Viña del Mar · Estaca de Villa Alemana`,
+    `Generado: ${new Date().toLocaleDateString('es-CL')} ${new Date().toLocaleTimeString('es-CL')}`,
+    "═".repeat(50),
+    ``,
+    `RESUMEN GENERAL`,
+    `Total solicitudes:   ${DONACIONES.length}`,
+    `Citas aprobadas:     ${aprobadas}`,
+    `En espera de cita:   ${DONACIONES.filter(d=>d.estado==="en-espera").length}`,
+    `Pendientes:          ${pendientes}`,
+    `Canceladas/Rechaz.:  ${canceladas}`,
+    `Tasa de éxito:       ${DONACIONES.length?Math.round(aprobadas/DONACIONES.length*100):0}%`,
+    ``,
+    `DETALLE POR BARRIO`,
+    "─".repeat(50),
+    ...BARRIOS_L.map(b=>{
+      const bD = DONACIONES.filter(d=>d.barrio===b);
+      const bA = bD.filter(d=>d.estado==="cita-confirmada").length;
+      return `${b.padEnd(16)} Total:${String(bD.length).padStart(3)}  Aprobadas:${String(bA).padStart(3)}  (${bD.length?Math.round(bA/bD.length*100):0}%)`;
+    }),
+    ``,
+    `LISTADO COMPLETO DE CITAS APROBADAS`,
+    "─".repeat(50),
+    ...DONACIONES.filter(d=>d.estado==="cita-confirmada").map(d=>
+      `• ${d.nombre} · ${d.barrio} · ${d.dia} ${d.desde}–${d.hasta} · ${d.modalidad}`
+    ),
+  ];
+  const blob = new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='informe-dona-una-hora.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  toast('📄 Resumen TXT descargado.');
+}
+
+// ── Captura de sección como imagen PNG ──────────────────────────
+function capturaSeccion(seccionId, label){
+  // Usamos la API nativa de Print/Screenshot orientada a la sección
+  // Como html2canvas no está disponible sin npm, usamos window.print con estilos
+  const contenido = document.getElementById('page-content');
+  if(!contenido){ toast('No se encontró el contenido.','#DC2626'); return; }
+
+  // Crea un blob con el HTML de la sección actual + estilos para impresión
+  const estilosPrint = `
+    @page { size: A4 landscape; margin: 15mm; }
+    body { font-family: 'Noto Sans', sans-serif; background: #fff !important; color: #1A1A1A !important; }
+    .section-card { break-inside: avoid; border: 1px solid #D8DCE1 !important; border-radius: 4px; margin-bottom: 16px; }
+    .section-header { padding: 10px 16px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; gap: 8px; }
+    .section-title { font-size: 1rem; font-weight: 600; color: #003E6B; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { padding: 6px 8px; background: #F8FAFC; border-bottom: 2px solid #E5E7EB; text-align: left; font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: .06em; }
+    td { padding: 6px 8px; border-bottom: 1px solid #F3F4F6; }
+    .badge { padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 8px; margin-bottom: 12px; }
+    .stat-card { border: 1px solid #D8DCE1; border-radius: 4px; padding: 10px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; }
+    .stat-label { font-size: 10px; color: #9CA3AF; text-transform: uppercase; }
+    @media print { .no-print { display:none !important; } }
+  `;
+
+  const ventana = window.open('', '_blank',
+    'width=1200,height=800,scrollbars=yes,toolbar=no,menubar=no,location=no');
+  if(!ventana){ toast('Permite ventanas emergentes para descargar.','#B8860B'); return; }
+
+  const hoy = new Date();
+  const fechaStr = `${hoy.getDate()}/${hoy.getMonth()+1}/${hoy.getFullYear()}`;
+
+  ventana.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>${label} — Informe ${fechaStr}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>${estilosPrint}</style>
+</head>
+<body>
+  <div style="background:#003E6B;color:#fff;padding:12px 20px;margin-bottom:16px;border-radius:4px;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;opacity:.65">Misión Viña del Mar · Estaca de Villa Alemana</div>
+      <div style="font-family:'Source Serif 4',serif;font-size:1.1rem;font-weight:600">Dona una Hora por la Obra</div>
+    </div>
+    <div style="text-align:right;font-size:11px;opacity:.8">
+      <div>${label}</div>
+      <div>${fechaStr} · ${currentUser.nombre}</div>
+    </div>
+  </div>
+  ${contenido.innerHTML}
+  <script>
+    window.onload = function(){
+      // Ocultar botones de acción
+      document.querySelectorAll('button,.btn-primary,.btn-ghost,.btn-wa-sm,.btn-sm,.filters').forEach(el=>el.remove());
+      setTimeout(()=>{ window.print(); }, 800);
+    };
+  <\/script>
+</body></html>`);
+  ventana.document.close();
+  toast(`🖼️ Preparando "${label}" para imprimir / guardar como PDF...`);
+}
+
+function capturaTodoElInforme(){
+  capturaSeccion('page-content','Informe completo');
+}
+
+function renderMisioneros(){
+  if(!isAdmin()) return `<div class="empty-state"><div class="empty-icon">🔒</div><p>Solo el administrador puede gestionar usuarios.</p></div>`;
+
+  const filas = BARRIOS.filter(b=>b!=="Todos").map(b=>{
+    const u = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b);
+    const enEdicion = editandoBarrio === b;
+
+    if(enEdicion){
+      // Fila en modo edición inline
+      return `<tr id="fila-${b.replace(/\s/g,'_')}" style="background:#EEF5FB">
+        <td><strong style="color:#003E6B">📍 ${b}</strong></td>
+        <td><input class="form-input" id="ed-nombre-${b.replace(/\s/g,'_')}" value="${u?.nombre||''}" placeholder="Nombre del misionero" style="padding:.4rem .7rem;font-size:.85rem"/></td>
+        <td>
+          <div style="display:flex;gap:.4rem;align-items:center">
+            <span style="font-size:1rem">🇨🇱</span>
+            <input class="form-input" id="ed-tel-${b.replace(/\s/g,'_')}" value="${u?.tel||''}" placeholder="+56 9 XXXX XXXX" style="padding:.4rem .7rem;font-size:.85rem"/>
+          </div>
+          <p style="font-size:.71rem;color:#6B7280;margin-top:.2rem">Formato: +56 9 XXXX XXXX</p>
+        </td>
+        <td><input class="form-input" id="ed-email-${b.replace(/\s/g,'_')}" value="${u?.email||''}" placeholder="correo@misionvina.cl" style="padding:.4rem .7rem;font-size:.85rem"/></td>
+        <td>
+          <span class="badge" style="background:#EEF5FB;color:#006EB6;border:1px solid #006EB6">✏️ Editando</span>
+        </td>
+        <td>
+          <div style="display:flex;gap:.4rem">
+            <button class="btn-sm btn-confirm" onclick="guardarMisionero('${b}')">💾 Guardar</button>
+            <button class="btn-sm btn-cancel2" onclick="editandoBarrio=null;renderView()">✕ Cancelar</button>
+          </div>
+        </td>
+      </tr>`;
+    }
+
+    // Fila normal
+    const telLimpio = u?.tel?.replace(/\D/g,"") || "";
+    const estado = u?.tel
+      ? `<span class="badge badge-confirm">✅ Enlazado</span>`
+      : `<span class="badge badge-cancel">⚠ Sin teléfono</span>`;
+
+    return `<tr>
+      <td><strong style="color:#003E6B">📍 ${b}</strong></td>
+      <td>${u ? `<div class="td-name">${u.nombre}</div>` : `<span style="color:#9CA3AF;font-size:.82rem">Sin asignar</span>`}</td>
+      <td>
+        ${u?.tel
+          ? `<a href="https://wa.me/${telLimpio}" target="_blank"
+               style="color:#006EB6;text-decoration:none;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem">
+               💬 ${u.tel}
+             </a>`
+          : `<span style="color:#DC2626;font-size:.82rem">⚠ Sin número</span>`}
+      </td>
+      <td style="font-size:.82rem;color:#6B7280">${u?.email || "—"}</td>
+      <td>${estado}</td>
+      <td>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn-sm btn-confirm" onclick="editandoBarrio='${b}';renderView()">✏️ Editar</button>
+          ${telLimpio ? `<a href="https://wa.me/${telLimpio}?text=${encodeURIComponent(`Hola, soy el coordinador de la Estaka de Villa Alemana. Te escribo sobre las solicitudes del barrio ${b}. 🙏`)}" target="_blank" class="btn-sm btn-detail" style="text-decoration:none">💬 Probar WA</a>` : ""}
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // Calcular estado general
+  const enlazados = BARRIOS.filter(b=>b!=="Todos").filter(b=>USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b&&u.tel)).length;
+  const total = BARRIOS.filter(b=>b!=="Todos").length;
+  const todoOk = enlazados === total;
+
+  return `
+  <!-- Banner de estado -->
+  <div style="background:${todoOk?"#D1FAE5":"#FEF3C7"};border:1px solid ${todoOk?"#6EE7B7":"#FCD34D"};border-radius:4px;padding:.85rem 1.3rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem">
+    <span style="font-size:1.3rem">${todoOk?"✅":"⚠️"}</span>
+    <div>
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;color:${todoOk?"#065F46":"#92400E"}">
+        ${todoOk
+          ? `Todos los barrios tienen misionero enlazado. El enrutamiento de WhatsApp está funcionando.`
+          : `${enlazados} de ${total} barrios tienen misionero con teléfono configurado.`}
+      </p>
+      <p style="font-size:.76rem;color:${todoOk?"#065F46":"#92400E"};margin-top:.15rem">
+        Cuando un miembro se registre, el WhatsApp llegará al número del misionero de su barrio.
+      </p>
+    </div>
+  </div>
+
+  <!-- Explicación -->
+  <div class="section-card" style="margin-bottom:1.2rem">
+    <div class="section-header">
+      <span style="font-size:1.05rem">⛪</span>
+      <span class="section-title">Misioneros por barrio</span>
+      <span style="margin-left:auto;font-size:.76rem;color:#9CA3AF">${enlazados}/${total} barrios enlazados</span>
+    </div>
+
+    <div style="background:#F8FAFC;border-bottom:1px solid #E5E7EB;padding:.75rem 1.3rem;display:flex;gap:1.5rem;flex-wrap:wrap">
+      <div style="font-size:.8rem;color:#374151">
+        <strong style="color:#003E6B">¿Cómo funciona?</strong><br>
+        Cada barrio tiene una pareja de misioneros asignada. Cuando un miembro dona una hora en el front-end,
+        el sistema envía el aviso de WhatsApp <strong>directamente al número de los misioneros de ese barrio</strong>.
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:130px">Barrio</th>
+            <th>Misionero(s)</th>
+            <th>📱 WhatsApp</th>
+            <th>Correo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>${filas}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabla de prueba de enrutamiento -->
+  <div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">🔗</span>
+      <span class="section-title">Verificar enrutamiento</span>
+    </div>
+    <div style="padding:1rem 1.3rem">
+      <p style="font-size:.82rem;color:#6B7280;margin-bottom:1rem">
+        Selecciona un barrio para ver a qué número llegaría un mensaje si un miembro se registrara ahora.
+      </p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+        ${BARRIOS.filter(b=>b!=="Todos").map(b=>{
+          const u=USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b&&u.tel);
+          return `<button onclick="probarEnrutamiento('${b}')"
+            class="btn-ghost" style="font-size:.78rem;padding:.38rem .85rem">
+            📍 ${b}
+          </button>`;
+        }).join("")}
+      </div>
+      <div id="enrutamiento-resultado" style="display:none;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:4px;padding:1rem 1.2rem;font-size:.85rem;font-family:'Noto Sans',sans-serif"></div>
+    </div>
+  </div>`;
+}
+
+function guardarMisionero(barrio){
+  const key = barrio.replace(/\s/g,'_');
+  const nombre = document.getElementById(`ed-nombre-${key}`)?.value.trim();
+  const tel    = document.getElementById(`ed-tel-${key}`)?.value.trim();
+  const email  = document.getElementById(`ed-email-${key}`)?.value.trim();
+
+  if(!tel){ toast("⚠ El teléfono WhatsApp es obligatorio.","#DC2626"); return; }
+  if(!/^\+?[\d\s\-]{9,}$/.test(tel)){ toast("⚠ Formato de teléfono inválido. Ej: +56 9 1234 5678","#DC2626"); return; }
+
+  const existente = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
+  if(existente){
+    USUARIOS = USUARIOS.map(u=>u.id===existente.id ? {...u, nombre:nombre||u.nombre, tel, email:email||u.email} : u);
+  } else {
+    // Crear nuevo usuario misionero para ese barrio
+    USUARIOS.push({
+      id:`U${Date.now()}`, nombre:nombre||`Misionero ${barrio}`,
+      email:email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`,
+      rol:"misionero", barrio, tel, activo:true, ultimo:"Ahora"
+    });
+  }
+  editandoBarrio = null;
+  toast(`✅ Misionero de ${barrio} actualizado. WhatsApp: ${tel}`);
+  renderView();
+}
+
+function probarEnrutamiento(barrio){
+  const u = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
+  const el = document.getElementById("enrutamiento-resultado");
+  if(!el) return;
+  el.style.display="block";
+  if(u?.tel){
+    const tel=u.tel.replace(/\D/g,"");
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+        <span style="font-size:1.1rem">📍</span>
+        <strong style="color:#003E6B">${barrio}</strong>
+        <span style="color:#9CA3AF">→</span>
+        <span style="color:#006EB6;font-weight:600">${u.nombre}</span>
+        <span style="color:#9CA3AF">→</span>
+        <a href="https://wa.me/${tel}?text=${encodeURIComponent(`🧪 Prueba de enrutamiento\nUn miembro del barrio ${barrio} acaba de registrar una hora.\nEste mensaje confirma que el número está correctamente enlazado. ✅`)}"
+           target="_blank" style="color:#25D366;font-weight:600;text-decoration:none">💬 ${u.tel}</a>
+      </div>
+      <div style="font-size:.78rem;color:#065F46;background:#D1FAE5;border-radius:3px;padding:.4rem .7rem;display:inline-block">
+        ✅ Enrutamiento correcto — haz clic en el número para enviar un WA de prueba
+      </div>`;
+  } else {
+    el.innerHTML=`
+      <div style="color:#DC2626;display:flex;align-items:center;gap:.5rem">
+        ⚠ El barrio <strong>${barrio}</strong> no tiene misionero con teléfono configurado.
+        Los mensajes no llegarán a ningún número.
+      </div>
+      <button class="btn-sm btn-confirm" style="margin-top:.6rem" onclick="editandoBarrio='${barrio}';renderView()">✏️ Configurar ahora</button>`;
+  }
+}
+
+function renderUsuarios(){
+  if(!isAdmin()) return `<div class="empty-state"><div class="empty-icon">🔒</div><p>Acceso restringido.</p></div>`;
+
+  // Tabla barrio → misionero (resumen de enrutamiento)
+  const barrioMap = BARRIOS.filter(b=>b!=="Todos").map(b=>{
+    const u=USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b);
+    return {barrio:b, misionero:u?u.nombre:"⚠ Sin asignar", tel:u?.tel||"—", ok:!!u};
+  });
+
+  return `
+  <!-- Tabla de enrutamiento barrio → misionero -->
+  <div class="section-card" style="margin-bottom:1.1rem">
+    <div class="section-header">
+      <span style="font-size:1.05rem">🗺️</span>
+      <span class="section-title">Enrutamiento WhatsApp · Barrio → Misionero</span>
+    </div>
+    <div style="padding:.8rem 1.3rem 1.1rem">
+      <p style="font-size:.8rem;color:#6B7280;margin-bottom:.9rem;font-style:italic">
+        Cuando un miembro selecciona un barrio en el front-end, el mensaje de WhatsApp se envía automáticamente al número de la pareja misionera asignada a ese barrio.
+      </p>
+      <div style="margin-bottom:.9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <button onclick="cargarDonacionesLS();buildSidebar();renderView();toast('🔄 Donaciones del front-end cargadas.');"
+          class="btn-ghost" style="font-size:.76rem;padding:.38rem .85rem">
+          🔄 Recargar donaciones del front-end
+        </button>
+        <button onclick="if(confirm('¿Eliminar los datos de demostración y dejar solo las donaciones reales?'))limpiarDonacionesDemo();"
+          class="btn-ghost" style="font-size:.76rem;padding:.38rem .85rem;color:#DC2626;border-color:#DC2626">
+          🗑 Limpiar datos demo
+        </button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Barrio</th><th>Pareja misionera</th><th>WhatsApp</th><th>Estado</th></tr></thead>
+        <tbody>${barrioMap.map(r=>`<tr>
+          <td><strong>📍 ${r.barrio}</strong></td>
+          <td>${r.misionero}</td>
+          <td style="font-size:.83rem">${r.tel!=="—"?`<a href="https://wa.me/${r.tel.replace(/\D/g,"")}" target="_blank" style="color:#006EB6;text-decoration:none">💬 ${r.tel}</a>`:r.tel}</td>
+          <td>${r.ok
+            ?`<span class="badge badge-confirm">✅ Enlazado</span>`
+            :`<span class="badge badge-cancel">⚠ Sin misionero</span>`}
+          </td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- Usuarios del sistema -->
+  <div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">🔐</span>
+      <span class="section-title">Usuarios del sistema</span>
+      <button class="btn-primary" style="margin-left:auto;font-size:.76rem;padding:.42rem .95rem" onclick="openModalUsuario(null)">+ Nuevo usuario</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Barrio</th><th>📱 WhatsApp</th><th>Último acceso</th><th>Acciones</th></tr></thead>
+      <tbody>${USUARIOS.map(u=>`<tr>
+        <td class="td-name">${u.nombre}</td>
+        <td style="font-size:.8rem">${u.email}</td>
+        <td><span class="badge badge-${u.rol}">${u.rol==="admin"?"🛡 Admin":u.rol==="lider-misional"?"📊 Líder Misional":"⛪ Misionero"}</span></td>
+        <td>${u.barrio}</td>
+        <td style="font-size:.81rem">
+          ${u.rol==="misionero"&&u.tel
+            ? `<a href="https://wa.me/${u.tel.replace(/\D/g,"")}" target="_blank" style="color:#006EB6;text-decoration:none;display:inline-flex;align-items:center;gap:.25rem">💬 ${u.tel}</a>`
+            : u.rol==="admin" ? `<span style="color:#9CA3AF;font-size:.74rem">N/A</span>`
+            : `<span style="color:#DC2626;font-size:.74rem">⚠ Sin teléfono</span>`}
+        </td>
+        <td style="font-size:.74rem;color:#9CA3AF">${u.ultimo}</td>
+        <td><div style="display:flex;gap:.32rem">
+          <button class="btn-sm btn-detail" onclick="openModalUsuario('${u.id}')">✏️ Editar</button>
+          ${u.id!==currentUser.id?`<button class="btn-sm btn-cancel2" onclick="eliminarUsuario('${u.id}')">✕</button>`:""}
+        </div></td>
+      </tr>`).join("")}</tbody>
+    </table></div>
+  </div>`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dona una Hora por la Obra</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,110,182,.35)}70%{box-shadow:0 0 0 16px rgba(0,110,182,0)}}
+.anim{animation:fadeUp .5s ease both}
+
+/* Top bar */
+.topbar{background:#003E6B;color:#fff;padding:.45rem 2rem;font-family:'Noto Sans',sans-serif;font-size:.72rem;letter-spacing:.04em;display:flex;align-items:center;gap:.6rem}
+.topbar-logo{font-weight:600;letter-spacing:.06em;font-size:.78rem}
+.topbar-sep{opacity:.35}
+
+/* Header */
+.site-header{background:#006EB6;padding:0}
+.site-header-inner{max-width:100%;margin:0 auto;padding:1.5rem 1.2rem 0;display:flex;flex-direction:column;align-items:flex-start}
+.site-header h1{font-family:'Source Serif 4',Georgia,serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;color:#fff;line-height:1.15;margin-bottom:.35rem}
+.site-header .sub{font-family:'Noto Sans',sans-serif;font-size:.92rem;color:rgba(255,255,255,.82);line-height:1.6;max-width:100%;margin-bottom:1.4rem}
+.site-header .eyebrow{font-family:'Noto Sans',sans-serif;font-size:.75rem;color:rgba(255,255,255,.65);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
+.wave-wrap{height:28px;background:#006EB6;position:relative}
+.wave-wrap svg{position:absolute;bottom:0;width:100%;height:100%;display:block}
+
+/* Steps */
+.steps{display:flex;align-items:center;background:#fff;border-bottom:1px solid #D8DCE1;font-family:'Noto Sans',sans-serif;font-size:.8rem;overflow-x:auto}
+.step-item{display:flex;align-items:center;gap:.5rem;padding:.75rem 1.4rem;border-bottom:3px solid transparent;color:#6B7280;white-space:nowrap}
+.step-item.active{border-bottom-color:#006EB6;color:#006EB6;font-weight:600}
+.step-item.done{color:#2D7A2D}
+.step-num{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.step-item.done .step-num{background:#2D7A2D;border-color:#2D7A2D;color:#fff;font-size:.65rem}
+
+/* Content */
+.content{max-width:100%;margin:0 auto;padding:1.5rem 1rem 4rem}
+
+/* Card */
+.card{background:#fff;border:1px solid #D8DCE1;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:1.2rem}
+.card-header{padding:1.1rem 1.6rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;gap:.7rem}
+.card-header h2{font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:600;color:#003E6B}
+.card-body{padding:1.6rem}
+
+/* Scripture */
+.scripture{background:#EEF5FB;border-left:4px solid #006EB6;padding:1rem 1.3rem;border-radius:0 4px 4px 0;margin-bottom:1.8rem}
+.scripture p{font-family:'Source Serif 4',serif;font-style:italic;font-size:.97rem;color:#1A3A5C;line-height:1.7}
+.scripture cite{display:block;font-family:'Noto Sans',sans-serif;font-size:.78rem;color:#006EB6;margin-top:.35rem;font-style:normal;font-weight:600}
+
+/* Form */
+.field{margin-bottom:1.25rem}
+.field label{display:block;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:600;color:#374151;margin-bottom:.35rem}
+.field input{width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.97rem;color:#111;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.field input:focus{border-color:#006EB6;box-shadow:0 0 0 3px rgba(0,110,182,.15)}
+.field .hint{font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#6B7280;margin-top:.3rem}
+
+/* Modalidad */
+.modal-grid{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.3rem}
+.modal-card{flex:1;min-width:140px;padding:.9rem 1rem;border:2px solid #D8DCE1;border-radius:4px;cursor:pointer;background:#fff;text-align:center;transition:all .16s}
+.modal-card:hover,.modal-card.on{border-color:#006EB6;background:#EEF5FB}
+.modal-card .mc-icon{font-size:1.5rem;margin-bottom:.3rem}
+.modal-card .mc-label{font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;color:#003E6B}
+.modal-card .mc-desc{font-family:'Noto Sans',sans-serif;font-size:.75rem;color:#6B7280;margin-top:.15rem}
+
+/* Barrios */
+.barrio-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.3rem}
+.barrio-btn{padding:.6rem 1.1rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;background:#fff;cursor:pointer;transition:all .15s}
+.barrio-btn:hover{border-color:#006EB6;color:#006EB6;background:#EEF5FB}
+.barrio-btn.on{border-color:#006EB6;color:#fff;background:#006EB6}
+
+/* Buttons */
+.btn-primary{background:#006EB6;color:#fff;border:none;border-radius:4px;padding:.7rem 2rem;font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:background .16s}
+.btn-primary:hover{background:#005A9E}
+.btn-primary:disabled{background:#9CA3AF;cursor:not-allowed}
+.btn-secondary{background:transparent;color:#006EB6;border:1px solid #006EB6;border-radius:4px;padding:.65rem 1.6rem;font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem}
+.btn-secondary:hover{background:#EEF5FB}
+.btn-wa{background:#25D366;color:#fff;border:none;border-radius:4px;padding:.7rem 1.8rem;font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:background .15s;text-decoration:none;display:inline-flex;align-items:center;gap:.5rem;justify-content:center;width:100%;margin-bottom:1rem}
+.btn-wa:hover{background:#1DA851}
+
+/* Calendar */
+.cal-wrap{overflow-x:auto}
+.cal-grid{display:grid;grid-template-columns:60px repeat(7,minmax(38px,1fr));gap:2px;min-width:326px}
+.cal-day-head{text-align:center;font-family:'Noto Sans',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.05em;color:#003E6B;padding:.45rem 0 .6rem;text-transform:uppercase}
+.cal-day-today{background:#EEF5FB;border-radius:4px 4px 0 0}
+.cal-day-name{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cal-day-date{font-size:.75rem;font-weight:400;color:#9CA3AF;letter-spacing:0;text-transform:none;margin-top:.18rem}
+.cal-day-date-today{color:#006EB6;font-weight:600}
+.cal-hour-label{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding-right:8px;gap:1px}
+.cal-hour-label span{font-family:'Noto Sans',sans-serif;font-size:.68rem;color:#9CA3AF}
+.cal-hour-label .sep{font-size:.65rem;color:#CBD5E0}
+.cal-cell{height:44px;border:1px solid #E5E7EB;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .12s;user-select:none;background:#fff;color:transparent}
+.cal-cell:hover{border-color:#006EB6;background:#EEF5FB;color:#006EB6}
+.cal-cell.sel{background:#006EB6;border-color:#005A9E;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.2)}
+.cal-cell.blk{background:#F5F5F5;border-color:#E5E7EB;cursor:not-allowed;background-image:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,.04) 4px,rgba(0,0,0,.04) 8px);color:transparent!important}
+
+/* Summary */
+.summary-band{background:#EEF5FB;border:1px solid #BFDBF7;border-radius:4px;padding:.8rem 1.2rem;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;align-items:center;font-family:'Noto Sans',sans-serif;font-size:.85rem;color:#1A3A5C;margin-bottom:1.2rem}
+.summary-badge{background:#006EB6;color:#fff;border-radius:3px;padding:.15rem .6rem;font-size:.74rem;font-weight:600}
+.counter-pill{display:inline-flex;align-items:center;gap:.4rem;background:#003E6B;color:#fff;border-radius:3px;padding:.3rem .85rem;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:600}
+.divider{height:1px;background:#E5E7EB;margin:1.2rem 0}
+
+/* Legend */
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:1rem}
+.legend-item{display:flex;align-items:center;gap:.4rem;font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#6B7280}
+.legend-swatch{width:14px;height:14px;border-radius:2px}
+
+/* Confirmation */
+.confirm-icon{width:72px;height:72px;border-radius:50%;background:#006EB6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.2rem;animation:pulse 2s ease infinite}
+.gcal-link{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.3rem;padding:.6rem .9rem;border:1px solid #D8DCE1;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.83rem;color:#003E6B;text-decoration:none;transition:all .14s;margin-bottom:.4rem;background:#fff}
+.gcal-link:hover{background:#EEF5FB;border-color:#006EB6}
+.row-summary{display:flex;justify-content:space-between;padding:.22rem 0;font-size:.87rem;border-bottom:1px solid #F0F0F0}
+
+/* Footer */
+.site-footer{background:#003E6B;color:rgba(255,255,255,.6);text-align:center;padding:.9rem;font-family:'Noto Sans',sans-serif;font-size:.74rem}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#9CA3AF;border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ── Hidden steps ── */
+.page{display:none}.page.active{display:block}
+/* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  .topbar{padding:.4rem .9rem;font-size:.68rem}
+  .site-header-inner{padding:1.2rem .9rem 0}
+  .site-header h1{font-size:1.55rem}
+  .site-header .sub{font-size:.84rem}
+  .content{padding:1rem .75rem 3.5rem}
+  .card-body{padding:1.1rem .9rem}
+  .card-header{padding:.85rem 1rem}
+  .card-header h2{font-size:1.05rem}
+  .btn-primary{width:100%;padding:.85rem;font-size:.9rem}
+  .btn-secondary{width:100%;justify-content:center;padding:.75rem}
+  .btn-wa{padding:.85rem;font-size:.88rem}
+  .barrio-btn{padding:.65rem .9rem;font-size:.84rem}
+  .modal-card{min-width:calc(50% - .4rem);padding:.8rem .7rem}
+  .modal-card .mc-icon{font-size:1.3rem}
+  .cal-cell{height:38px}
+  .cal-day-head{font-size:.58rem}
+  .cal-day-date{font-size:.65rem}
+  .gcal-link{font-size:.8rem;flex-direction:column;align-items:flex-start;gap:.25rem}
+  .row-summary{font-size:.82rem}
+  .step-item{padding:.65rem .9rem;font-size:.76rem;gap:.35rem}
+  /* Semana selector buttons */
+  #btn-semana-0, #btn-semana-1{font-size:.74rem;padding:.32rem .7rem}
+}
+@media (max-width: 400px) {
+  .site-header h1{font-size:1.35rem}
+  .modal-card{min-width:100%}
+  .barrio-grid{gap:.35rem}
+  .barrio-btn{padding:.6rem .7rem;font-size:.8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SHARED HEADER ═══ -->
+<div class="topbar">
+  <span class="topbar-logo">Misión Viña del Mar</span>
+  <span class="topbar-sep">|</span>
+  <span>Estaca de Villa Alemana</span>
+</div>
+<div class="site-header">
+  <div class="site-header-inner">
+    <p class="eyebrow">Obra de Salvación</p>
+    <h1>Dona una Hora<br>por la Obra</h1>
+    <p class="sub">Los miembros de la Estaca de Villa Alemana pueden donar una o más horas semanales para acompañar a los misioneros y enseñar el evangelio juntos.</p>
+  </div>
+  <div class="wave-wrap">
+    <svg viewBox="0 0 1200 28" preserveAspectRatio="none"><path d="M0,0 C300,28 900,28 1200,0 L1200,28 L0,28 Z" fill="#F0F2F4"/></svg>
+  </div>
+</div>
+<div class="steps" id="steps-nav">
+  <div class="step-item active" id="step-nav-1"><div class="step-num">1</div>Tus datos</div>
+  <div class="step-item" id="step-nav-2"><div class="step-num">2</div>Selecciona horarios</div>
+</div>
+
+<!-- ═══ PAGE 1: DATOS ═══ -->
+<div class="page active" id="page-1">
+<div class="content">
+  <div style="max-width:680px">
+    <div class="scripture">
+      <p>"Id por todo el mundo y predicad el evangelio a toda criatura."</p>
+      <cite>— Marcos 16:15</cite>
+    </div>
+    <div class="card anim">
+      <div class="card-header">
+        <span style="font-size:1.1rem">📋</span>
+        <h2>Información del miembro</h2>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>Nombres y apellidos *</label>
+          <input type="text" id="inp-nombre" placeholder="Ej. María González Pérez"/>
+          <p class="hint" id="hint-nombre">Ingresa tu nombre completo tal como aparece en los registros de la Misión Viña del Mar.</p>
+        </div>
+        <div class="field">
+          <label>Teléfono celular *</label>
+          <input type="tel" id="inp-telefono" placeholder="+56 9 1234 5678"/>
+          <p class="hint" id="hint-tel">Formato válido: +56 9 XXXX XXXX · 9 XXXX XXXX</p>
+        </div>
+        <div class="field">
+          <label>Modalidad de participación *</label>
+          <div class="modal-grid" id="modal-grid">
+            <div class="modal-card" onclick="selectModalidad('presencial',this)">
+              <div class="mc-icon">🏠</div>
+              <div class="mc-label">Presencial</div>
+              <div class="mc-desc">Junto a los misioneros en persona</div>
+            </div>
+            <div class="modal-card" onclick="selectModalidad('online',this)">
+              <div class="mc-icon">💻</div>
+              <div class="mc-label">En línea</div>
+              <div class="mc-desc">Participación desde tu hogar</div>
+            </div>
+          </div>
+          <p class="hint" id="hint-modal" style="margin-top:.4rem"></p>
+        </div>
+        <div class="field">
+          <label>Barrio *</label>
+          <div class="barrio-grid" id="barrio-grid">
+            <div class="barrio-btn" onclick="selectBarrio('Olmué',this)">Olmué</div>
+            <div class="barrio-btn" onclick="selectBarrio('Limache',this)">Limache</div>
+            <div class="barrio-btn" onclick="selectBarrio('Peñablanca 1',this)">Peñablanca 1</div>
+            <div class="barrio-btn" onclick="selectBarrio('Peñablanca 2',this)">Peñablanca 2</div>
+            <div class="barrio-btn" onclick="selectBarrio('Villa Alemana',this)">Villa Alemana</div>
+          </div>
+          <p class="hint" id="hint-barrio" style="margin-top:.4rem"></p>
+        </div>
+        <div class="field">
+          <label>Notas para los misioneros <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
+          <input type="text" id="inp-notas" placeholder="Ej. Prefiero las citas en la tarde, tengo niños pequeños..."/>
+          <p class="hint">Puedes indicar cualquier detalle que ayude a los misioneros a preparar la cita.</p>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+          <button class="btn-primary" onclick="goStep2()">Continuar →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PAGE 2: CALENDARIO ═══ -->
+<div class="page" id="page-2">
+<div class="content">
+  <div class="summary-band" id="summary-band"></div>
+  <div class="card anim">
+    <div class="card-header">
+      <span style="font-size:1.1rem">📅</span>
+      <h2>Selecciona tus horarios</h2>
+      <span class="counter-pill" id="counter-pill" style="margin-left:auto;display:none"></span>
+    </div>
+    <!-- Selector de semana -->
+    <div style="padding:.7rem 1.6rem .3rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;border-bottom:1px solid #F3F4F6;background:#FAFBFC">
+      <span style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:#6B7280" id="cal-semana-rango"></span>
+      <div style="margin-left:auto;display:flex;gap:.4rem">
+        <button id="btn-semana-0"
+          onclick="semanaOffset=0;buildCalendar()"
+          style="padding:.35rem .95rem;border:1px solid #006EB6;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;background:#006EB6;color:#fff;transition:all .15s">
+          Esta semana
+        </button>
+        <button id="btn-semana-1"
+          onclick="semanaOffset=1;buildCalendar()"
+          style="padding:.35rem .95rem;border:1px solid #006EB6;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;background:transparent;color:#006EB6;transition:all .15s">
+          Próxima semana
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-family:'Source Serif 4',serif;font-style:italic;font-size:.93rem;color:#374151;margin-bottom:1rem;line-height:1.6">
+        Selecciona una o más horas en que puedes acompañar a los misioneros. Cada casillero azul representa una hora que donas por la Obra.
+      </p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#fff;border:1px solid #E5E7EB"></div>Disponible</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#006EB6;border:1px solid #005A9E"></div>Seleccionada</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#F5F5F5;border:1px solid #E5E7EB;background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(0,0,0,.05) 3px,rgba(0,0,0,.05) 6px)"></div>No disponible</div>
+      </div>
+      <div class="cal-wrap" id="cal-grid-wrap"></div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+        <p id="msg-selecciona" style="font-size:.82rem;color:#9CA3AF;font-style:italic">
+          👆 Toca un casillero disponible para seleccionar tu horario
+        </p>
+        <button class="btn-primary" id="btn-confirm" disabled onclick="goStep3()">Confirmar solicitud →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PAGE 3: CONFIRMACIÓN ═══ -->
+<div class="page" id="page-3">
+<div class="content">
+  <div style="max-width:540px;margin:0 auto" class="anim">
+    <div class="card" style="text-align:center;padding:2rem 2rem 1.5rem">
+      <div class="confirm-icon">✔</div>
+      <h2 id="confirm-title" style="font-family:'Source Serif 4',serif;color:#003E6B;font-size:1.6rem;margin-bottom:.4rem"></h2>
+      <p id="confirm-sub" style="color:#374151;font-size:.95rem;line-height:1.7;margin-bottom:1.4rem"></p>
+      <div id="confirm-summary" style="background:#F8FAFC;border:1px solid #E5E7EB;border-radius:4px;padding:1rem 1.2rem;text-align:left;margin-bottom:1.4rem"></div>
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.73rem;font-weight:600;color:#374151;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;text-align:left">Agregar a Google Calendar</p>
+      <div id="gcal-links"></div>
+      <div class="divider"></div>
+      <a id="wa-link" href="#" target="_blank" class="btn-wa">📲 Notificar a los misioneros por WhatsApp</a>
+      <button class="btn-secondary" style="width:100%;justify-content:center" onclick="reset()">Registrar otro miembro</button>
+    </div>
+    <div class="scripture" style="margin-top:1.2rem">
+      <p>"El que quiera hacerse grande entre vosotros, será vuestro servidor."</p>
+      <cite>— Mateo 20:26</cite>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Footer -->
+<div class="site-footer">
+  © <span id="yr"></span> Misión Viña del Mar · Estaca de Villa Alemana
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ── State ──────────────────────────────────────────────────────────
+// ── Enrutamiento barrio → WhatsApp misionero ──────────────────────
+// Estos números deben coincidir con los registrados en el panel admin.
+// Cuando se agregue la API, este mapa se cargará dinámicamente desde el backend.
+const MISIONEROS_POR_BARRIO = {
+  "Olmué":        "56911112222",  // Elder Smith Johnson
+  "Limache":      "56922223333",  // Elder García Pérez
+  "Villa Alemana":"56933334444",  // Elder Kim Park
+  "Peñablanca 1": "56944445555",  // Elder Morales Reyes
+  "Peñablanca 2": "56955556666",  // Elder Torres Díaz
+};
+function getWAByBarrio(barrio){
+  return MISIONEROS_POR_BARRIO[barrio] || "56912345678"; // fallback admin
+}
+const DAYS  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const HOURS = Array.from({length:12},(_,i)=>i+10); // 10..21
+
+const DAY_CFG = {
+  Lunes:     {start:10, end:22, blocked:[10,11,12,13,14,15]},
+  Martes:    {start:10, end:22, blocked:[]},
+  Miércoles: {start:10, end:22, blocked:[]},
+  Jueves:    {start:10, end:22, blocked:[]},
+  Viernes:   {start:10, end:22, blocked:[]},
+  Sábado:    {start:10, end:22, blocked:[]},
+  Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
+};
+
+let form = {nombre:'',telefono:'',modalidad:'',barrio:''};
+let selected = {}; // key: "day|HH:00|HH:00" → bool
+let semanaOffset = 0; // 0 = semana actual, 1 = próxima semana
+
+function isBlocked(day,h){
+  const c=DAY_CFG[day];
+  return h<c.start||h>=c.end||c.blocked.includes(h);
+}
+function validatePhone(p){
+  const c=p.replace(/\s/g,'');
+  return /^\+56[2-9]\d{8}$/.test(c)||/^56[2-9]\d{8}$/.test(c)||/^[2-9]\d{8}$/.test(c);
+}
+function pad(n){return String(n).padStart(2,'0');}
+function slotKey(day,h){return `${day}|${pad(h)}:00|${pad(h+1)}:00`;}
+
+// ── Step navigation ────────────────────────────────────────────────
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  [1,2].forEach(i=>{
+    const el=document.getElementById('step-nav-'+i);
+    el.className='step-item'+(i===n?' active':i<n?' done':'');
+    el.querySelector('.step-num').textContent = i<n?'✓':i;
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Page 1 ─────────────────────────────────────────────────────────
+function selectModalidad(id,el){
+  form.modalidad=id;
+  document.querySelectorAll('.modal-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function selectBarrio(b,el){
+  form.barrio=b;
+  document.querySelectorAll('.barrio-btn').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function goStep2(){
+  form.nombre=document.getElementById('inp-nombre').value.trim();
+  form.telefono=document.getElementById('inp-telefono').value.trim();
+  let ok=true;
+
+  // nombre
+  const hn=document.getElementById('hint-nombre');
+  if(!form.nombre||form.nombre.split(' ').length<2){
+    hn.textContent='⚠ Por favor ingresa nombres y apellidos completos.';
+    hn.style.color='#C0392B'; ok=false;
+  } else {hn.textContent='Ingresa tu nombre completo tal como aparece en los registros de la Misión Viña del Mar.';hn.style.color='#6B7280';}
+
+  // telefono
+  const ht=document.getElementById('hint-tel');
+  if(!form.telefono){
+    ht.textContent='⚠ Ingresa tu número de celular.';ht.style.color='#C0392B';ok=false;
+  } else if(!validatePhone(form.telefono)){
+    ht.textContent='⚠ Número inválido. Ejemplo: +56 9 1234 5678';ht.style.color='#C0392B';ok=false;
+  } else {ht.textContent='Formato válido: +56 9 XXXX XXXX · 9 XXXX XXXX';ht.style.color='#6B7280';}
+
+  // modalidad
+  const hm=document.getElementById('hint-modal');
+  if(!form.modalidad){hm.textContent='⚠ Selecciona una modalidad.';hm.style.color='#C0392B';ok=false;}
+  else {hm.textContent='';}
+
+  // barrio
+  const hb=document.getElementById('hint-barrio');
+  if(!form.barrio){hb.textContent='⚠ Selecciona tu barrio.';hb.style.color='#C0392B';ok=false;}
+  else {hb.textContent='';}
+
+  if(!ok) return;
+  form.notas = document.getElementById('inp-notas')?.value.trim() || '';
+  buildCalendar();
+  buildSummaryBand();
+  showPage(2);
+}
+
+// ── Calendar ───────────────────────────────────────────────────────
+function buildCalendar(){
+  const wrap=document.getElementById('cal-grid-wrap');
+  const grid=document.createElement('div');
+  grid.className='cal-grid';
+
+  // ── Calcular fechas según semanaOffset ───────────────────
+  const hoy       = new Date();
+  const diaSem    = hoy.getDay(); // 0=dom…6=sab
+  const lunesDiff = diaSem === 0 ? -6 : 1 - diaSem;
+  const lunes     = new Date(hoy);
+  lunes.setDate(hoy.getDate() + lunesDiff + (semanaOffset * 7));
+  const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+  // Fecha real de cada columna (Lun=0 … Dom=6)
+  const fechasDia = DAYS.map((_,i)=>{
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    return d;
+  });
+
+  // Actualizar texto del rango de semana
+  const domingo  = fechasDia[6];
+  const rangoTxt = semanaOffset === 0
+    ? `Semana actual · ${lunes.getDate()} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`
+    : `Próxima semana · ${lunes.getDate()} ${MESES[lunes.getMonth()]} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`;
+  const rangoEl = document.getElementById('cal-semana-rango');
+  if(rangoEl) rangoEl.textContent = rangoTxt;
+
+  // Actualizar estado de botones semana
+  ['btn-semana-0','btn-semana-1'].forEach((id,i)=>{
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    if(i === semanaOffset){
+      btn.style.background='#006EB6'; btn.style.color='#fff'; btn.style.borderColor='#006EB6';
+    } else {
+      btn.style.background='transparent'; btn.style.color='#006EB6'; btn.style.borderColor='#006EB6';
+    }
+  });
+
+  // Header — celda vacía de esquina
+  const empty=document.createElement('div');
+  grid.appendChild(empty);
+
+  // Headers de días con fecha
+  DAYS.forEach((dia, i)=>{
+    const fd    = fechasDia[i];
+    const esHoy = fd.toDateString() === hoy.toDateString();
+    const hd    = document.createElement('div');
+    hd.className = 'cal-day-head' + (esHoy ? ' cal-day-today' : '');
+    hd.innerHTML = `
+      <div class="cal-day-name">${dia.substring(0,3)}</div>
+      <div class="cal-day-date${esHoy?' cal-day-date-today':''}">${fd.getDate()} ${MESES[fd.getMonth()]}</div>`;
+    grid.appendChild(hd);
+  });
+
+  // Rows de horas
+  HOURS.forEach(h=>{
+    const anyVis=DAYS.some(d=>{const c=DAY_CFG[d];return h>=c.start&&h<c.end;});
+    if(!anyVis) return;
+    const from=pad(h)+':00', to=pad(h+1)+':00';
+
+    // Label hora
+    const lbl=document.createElement('div');
+    lbl.className='cal-hour-label';
+    lbl.innerHTML=`<span>${from}</span><span class="sep">│</span><span class="sep">${to}</span>`;
+    grid.appendChild(lbl);
+
+    DAYS.forEach(day=>{
+      const cell=document.createElement('div');
+      cell.className='cal-cell';
+      const blk=isBlocked(day,h);
+      if(blk){
+        cell.classList.add('blk');
+        cell.title='No disponible';
+      } else {
+        // Clave incluye semana para distinguir actual de próxima
+        const key=`${semanaOffset}|${slotKey(day,h)}`;
+        cell.textContent='+';
+        cell.title=`${day} ${from} – ${to}`;
+        cell.onclick=()=>toggleSlot(cell,key,day,h);
+        if(selected[key]){cell.classList.add('sel');cell.textContent='✔';}
+      }
+      grid.appendChild(cell);
+    });
+  });
+
+  wrap.innerHTML='';
+  wrap.appendChild(grid);
+  updateCounter();
+}
+
+function toggleSlot(cell,key,day,h){
+  selected[key]=!selected[key];
+  if(selected[key]){cell.classList.add('sel');cell.textContent='✔';}
+  else{cell.classList.remove('sel');cell.textContent='+';}
+  updateCounter();
+}
+
+function updateCounter(){
+  const n=Object.values(selected).filter(Boolean).length;
+  const pill=document.getElementById('counter-pill');
+  const btn=document.getElementById('btn-confirm');
+  const msg=document.getElementById('msg-selecciona');
+  if(n>0){
+    pill.style.display='inline-flex';
+    pill.textContent=`✔ ${n} hora${n!==1?'s':''} seleccionada${n!==1?'s':''}`;
+    btn.disabled=false;
+    btn.textContent=`Confirmar solicitud (${n} hora${n!==1?'s':''}) →`;
+    if(msg) msg.style.display='none';
+  } else {
+    pill.style.display='none';
+    btn.disabled=true;
+    btn.textContent='Confirmar solicitud →';
+    if(msg) msg.style.display='block';
+  }
+}
+
+function buildSummaryBand(){
+  const b=document.getElementById('summary-band');
+  const mod=form.modalidad==='presencial'?'🏠 Presencial':'💻 En línea';
+  b.innerHTML=`
+    <span><strong>${form.nombre}</strong></span>
+    <span style="color:#6B7280">${form.telefono}</span>
+    <span class="summary-badge">${mod}</span>
+    <span style="color:#6B7280">📍 ${form.barrio}</span>
+    <button class="btn-secondary" onclick="showPage(1)" style="margin-left:auto;padding:.35rem .8rem;font-size:.76rem">← Editar datos</button>
+  `;
+}
+
+// ── Step 3 ─────────────────────────────────────────────────────────
+function goStep3(){
+  const list=getSelectedList();
+  const n=list.length;
+
+  // Title
+  document.getElementById('confirm-title').textContent=`¡Gracias, ${form.nombre.split(' ')[0]}!`;
+  document.getElementById('confirm-sub').innerHTML=
+    `Tu solicitud de <strong style="color:#006EB6">${n} hora${n!==1?'s':''}</strong> fue enviada a los misioneros.<br>
+     Ellos te contactarán para <strong>confirmar su disponibilidad</strong><br>
+     en el horario que seleccionaste.`;
+
+  // Summary
+  const sum=document.getElementById('confirm-summary');
+  sum.innerHTML=`
+    ${[['Nombre',form.nombre],['Teléfono',form.telefono],['Barrio',form.barrio],
+       ['Modalidad',form.modalidad==='presencial'?'Presencial 🏠':'En línea 💻'],
+       ...(form.notas?[['Notas',form.notas]]:[])
+      ].map(([k,v])=>`<div class="row-summary"><span style="color:#9CA3AF;font-size:.76rem">${k}</span><span style="color:#1A1A1A">${v}</span></div>`).join('')}
+    <div style="margin-top:.8rem">
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:600;color:#003E6B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem">
+        Horas donadas · ${n} por semana
+      </p>
+      ${list.map(({day,from,to,week=0})=>`
+        <div style="display:flex;justify-content:space-between;padding:.2rem 0;font-size:.86rem;font-family:'Noto Sans',sans-serif;border-bottom:1px solid #F0F0F0">
+          <span style="color:#006EB6;font-weight:600">${day} <span style="font-size:.72rem;font-weight:400;color:#9CA3AF">${week===0?'esta sem.':'próx. sem.'}</span></span>
+          <span style="color:#374151">${from} – ${to}</span>
+        </div>`).join('')}
+    </div>
+  `;
+
+  // Google Calendar links
+  const gcal=document.getElementById('gcal-links');
+  gcal.innerHTML=buildGCalHTML(list);
+
+  // WhatsApp
+  document.getElementById('wa-link').href=buildWA(list,n);
+
+  // ── Guardar en localStorage para que el panel admin lo lea ──────
+  // Cuando exista la API, esta función se reemplazará por un fetch POST.
+  guardarDonacion(list);
+
+  showPage(3);
+}
+
+function getSelectedList(){
+  return Object.entries(selected)
+    .filter(([,v])=>v)
+    .map(([k])=>{
+      // key format: "weekOffset|day|HH:00|HH:00"
+      const parts = k.split('|');
+      const week  = parseInt(parts[0]);
+      const day   = parts[1];
+      const from  = parts[2];
+      const to    = parts[3];
+      return {day, from, to, week};
+    })
+    .sort((a,b)=>{
+      if(a.week !== b.week) return a.week - b.week;
+      return DAYS.indexOf(a.day) - DAYS.indexOf(b.day);
+    });
+}
+
+function buildGCalHTML(list){
+  const dayIdx={Lunes:1,Martes:2,Miércoles:3,Jueves:4,Viernes:5,Sábado:6,Domingo:0};
+  const today=new Date();
+  return list.map(({day,from,to,week=0})=>{
+    const diff=(dayIdx[day]-today.getDay()+7)%7||7;
+    const d=new Date(today);
+    d.setDate(today.getDate() + diff + (week * 7));
+    const fh=parseInt(from), th=parseInt(to);
+    const fmt=(dd,h)=>`${dd.getFullYear()}${pad(dd.getMonth()+1)}${pad(dd.getDate())}T${pad(h)}0000`;
+    const title=encodeURIComponent(`Dona una Hora por la Obra – ${form.barrio}`);
+    const details=encodeURIComponent(`Voluntario: ${form.nombre}\nTeléfono: ${form.telefono}\nBarrio: ${form.barrio}\nModalidad: ${form.modalidad==='presencial'?'Presencial':'En línea'}\n\nEstaca de Villa Alemana · Misión Viña del Mar`);
+    const url=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${fmt(d,fh)}/${fmt(d,th)}&details=${details}&recur=RRULE:FREQ=WEEKLY`;
+    const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+    const fechaLabel=`${d.getDate()} ${MESES[d.getMonth()]}`;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="gcal-link">
+      <span>📅 <strong>${day}</strong> <span style="font-size:.74rem;color:#9CA3AF">${fechaLabel}</span></span>
+      <span style="color:#6B7280;font-size:.78rem">${from} – ${to}</span>
+    </a>`;
+  }).join('');
+}
+
+function buildWA(list,n){
+  const mod=form.modalidad==='presencial'?'Presencial':'En línea';
+  const semActual = list.filter(s=>(s.week||0)===0);
+  const semProxima= list.filter(s=>(s.week||0)===1);
+  const lineas = [];
+  if(semActual.length){
+    lineas.push(`📅 *Esta semana (${semActual.length} hora${semActual.length!==1?'s':''}):*`);
+    semActual.forEach(s=>lineas.push(`   • ${s.day}: ${s.from} – ${s.to}`));
+  }
+  if(semProxima.length){
+    if(semActual.length) lineas.push('');
+    lineas.push(`📅 *Próxima semana (${semProxima.length} hora${semProxima.length!==1?'s':''}):*`);
+    semProxima.forEach(s=>lineas.push(`   • ${s.day}: ${s.from} – ${s.to}`));
+  }
+  const lines=[
+    `✦ *Nueva solicitud de hora — Obra de Salvación*`,
+    `_Barrio ${form.barrio} · Estaca de Villa Alemana · Misión Viña del Mar_`,``,
+    `👤 *Miembro:* ${form.nombre}`,
+    `📞 *Teléfono:* ${form.telefono}`,
+    `📍 *Barrio:* ${form.barrio}`,
+    `🖥️ *Modalidad:* ${mod}`,``,
+    ...lineas,``,
+    `👉 Por favor respondan al miembro si *tienen disponibilidad* en ese horario.`,
+    `_Si es así, coordinen directamente con el miembro la visita._`,
+    ...(form.notas ? [``, `📝 *Nota del miembro:* ${form.notas}`] : []),
+  ];
+  const tel = getWAByBarrio(form.barrio);
+  return `https://wa.me/${tel}?text=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+// ── Persistencia local (puente con el panel admin) ─────────────────
+// Cuando exista la API, reemplazar el cuerpo de esta función por:
+//   await fetch('/api/donaciones', { method:'POST', body: JSON.stringify(payload) })
+function guardarDonacion(list){
+  try {
+    const KEY = 'dona_hora_donaciones';
+    const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
+    const ahora = new Date();
+    const fecha = `${pad(ahora.getDate())}/${pad(ahora.getMonth()+1)}/${ahora.getFullYear()} ${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
+
+    list.forEach((slot, i) => {
+      const id = `F${Date.now()}${i}`;
+      existing.push({
+        id,
+        nombre:    form.nombre,
+        tel:       form.telefono,
+        barrio:    form.barrio,
+        modalidad: form.modalidad,
+        notas:     form.notas || '',
+        dia:       slot.day,
+        desde:     slot.from,
+        hasta:     slot.to,
+        semana:    slot.week || 0,
+        estado:    'pendiente',
+        fecha,
+        origen:    'frontend'
+      });
+    });
+
+    localStorage.setItem(KEY, JSON.stringify(existing));
+    console.log(`✅ ${list.length} donación(es) guardadas en localStorage.`);
+  } catch(e) {
+    console.warn('No se pudo guardar en localStorage:', e);
+  }
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function reset(){
+  form={nombre:'',telefono:'',modalidad:'',barrio:''};
+  selected={};
+  semanaOffset=0;
+  // Limpiar también el calendario visualmente
+  document.querySelectorAll('.cal-cell.sel').forEach(c=>{
+    c.classList.remove('sel'); c.textContent='+';
+  });
+  document.getElementById('inp-nombre').value='';
+  document.getElementById('inp-telefono').value='';
+  const inp_notas = document.getElementById('inp-notas');
+  if(inp_notas) inp_notas.value='';
+  document.querySelectorAll('.modal-card').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.barrio-btn').forEach(c=>c.classList.remove('on'));
+  showPage(1);
+}
+</script>
+</body>
+</html>
