@@ -612,16 +612,21 @@ function goStep3(){
   const gcal=document.getElementById('gcal-links');
   gcal.innerHTML=buildGCalHTML(list);
 
-  // WhatsApp (multi-misionero)
+  // WhatsApp (multi-misionero) — usar botones con onclick para evitar corrupción de caracteres via innerHTML
   const waUrls = buildWA(list,n);
+  window._waUrls = waUrls;
   const waContainer = document.getElementById('wa-links');
-  if(waUrls.length===1){
-    waContainer.innerHTML=`<a href="${waUrls[0]}" target="_blank" class="btn-wa" style="display:inline-flex;width:100%;justify-content:center;margin-bottom:.6rem">📲 Notificar a los misioneros por WhatsApp</a>`;
-  } else {
-    waContainer.innerHTML=waUrls.map((url,i)=>
-      `<a href="${url}" target="_blank" class="btn-wa" style="display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem">📲 Notificar misionero ${i+1} por WhatsApp</a>`
-    ).join('');
-  }
+  waContainer.innerHTML = '';
+  waUrls.forEach((url, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-wa';
+    btn.style.cssText = 'display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem';
+    btn.textContent = waUrls.length === 1
+      ? '📲 Notificar a los misioneros por WhatsApp'
+      : `📲 Notificar misionero ${i+1} por WhatsApp`;
+    btn.onclick = () => window.open(waUrls[i], '_blank');
+    waContainer.appendChild(btn);
+  });
 
   // ── Guardar en localStorage para que el panel admin lo lea ──────
   // Cuando exista la API, esta función se reemplazará por un fetch POST.
