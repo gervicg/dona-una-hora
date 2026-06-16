@@ -266,6 +266,15 @@ tr:last-child td{border-bottom:none}
       </div>
       <p id="login-err" style="color:#DC2626;font-size:.78rem;margin-bottom:.8rem;display:none"></p>
       <button class="btn-primary" style="width:100%" onclick="doLogin()">Ingresar →</button>
+      <div id="forgot-wrap" style="display:none;margin-top:1rem;border-top:1px solid #E5E7EB;padding-top:1rem">
+        <div class="form-field">
+          <label class="form-label">Correo electrónico para recuperar acceso</label>
+          <input class="form-input" type="email" id="forgot-email" placeholder="correo@misionvina.cl"/>
+        </div>
+        <p id="forgot-msg" style="font-size:.78rem;margin-bottom:.6rem;display:none"></p>
+        <button class="btn-primary" style="width:100%;background:#374151" onclick="enviarForgot()">Enviar contraseña temporal →</button>
+      </div>
+      <button onclick="toggleForgot()" style="background:none;border:none;color:#6B7280;font-size:.76rem;cursor:pointer;width:100%;margin-top:.6rem;font-family:'Noto Sans',sans-serif">¿Olvidaste tu contraseña?</button>
     </div>
   </div>
   <p style="margin-top:1.1rem;font-size:.73rem;color:#9CA3AF">
@@ -399,11 +408,15 @@ let DONACIONES = [];
 let USUARIOS = [];
 let MAPA_MISIONEROS = {};
 
-// Mapa barrio → teléfono misionero (fuente única de verdad)
+// Mapa barrio → array de misioneros (fuente única de verdad)
+function getMisionerosByBarrio(barrio){
+  if(MAPA_MISIONEROS[barrio]) return MAPA_MISIONEROS[barrio]; // array desde API
+  return USUARIOS.filter(u => u.rol==="misionero" && u.barrio===barrio && u.tel);
+}
+// Compatibilidad: primer tel del barrio
 function getMisioneroTelByBarrio(barrio){
-  if(MAPA_MISIONEROS[barrio]) return MAPA_MISIONEROS[barrio].tel.replace(/\D/g,"");
-  const u = USUARIOS.find(u => u.rol==="misionero" && u.barrio===barrio && u.tel);
-  return u ? u.tel.replace(/\D/g,"") : null;
+  const arr = getMisionerosByBarrio(barrio);
+  return arr[0]?.tel?.replace(/\D/g,"") || null;
 }
 
 // ── Helpers de rol ──────────────────────────────────────────────
@@ -541,6 +554,25 @@ function toast(msg, color="#2D7A2D"){
 // ═══════════════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════════════
+function toggleForgot(){
+  const w = document.getElementById('forgot-wrap');
+  w.style.display = w.style.display==='none' ? 'block' : 'none';
+}
+async function enviarForgot(){
+  const email = document.getElementById('forgot-email').value.trim();
+  const msg   = document.getElementById('forgot-msg');
+  if(!email){ msg.style.color='#DC2626'; msg.textContent='Ingresa tu correo.'; msg.style.display='block'; return; }
+  try {
+    const res  = await fetch(`${API_URL}/auth.php?action=forgot`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    const data = await res.json();
+    msg.style.color='#065F46';
+    msg.textContent = data.data?.mensaje || 'Revisa tu correo.';
+    msg.style.display='block';
+  } catch(e){ msg.style.color='#DC2626'; msg.textContent='Error al conectar.'; msg.style.display='block'; }
+}
 async function doLogin(){
   const email = document.getElementById("login-email").value.trim();
   const pass  = document.getElementById("login-pass").value;
@@ -600,6 +632,7 @@ function buildSidebar(){
     {id:"informes",   icon:"📈", label:"Informes"},
     ...(isAdmin()?[
       {id:"misioneros", icon:"⛪", label:"Misioneros"},
+      {id:"lideres",    icon:"👔", label:"Líderes Misionales"},
       {id:"usuarios",   icon:"🔐", label:"Usuarios admin"},
     ]:[]),
   ];
@@ -692,6 +725,7 @@ function renderView(){
     case "whatsapp":    pc.innerHTML=renderWhatsApp();    break;
     case "informes":    pc.innerHTML=renderInformes();    break;
     case "misioneros":  pc.innerHTML=renderMisioneros();  break;
+    case "lideres":     pc.innerHTML=renderLideres();     break;
     case "usuarios":    pc.innerHTML=renderUsuarios();    break;
   }
 }
@@ -2589,68 +2623,230 @@ function capturaTodoElInforme(){
   capturaSeccion('page-content','Informe completo');
 }
 
+// ═══════════════════════════════════════════════════════════════
+// LÍDERES MISIONALES
+// ═══════════════════════════════════════════════════════════════
+function renderLideres(){
+  if(!isAdmin()) return `<div class="empty-state"><div class="empty-icon">🔒</div><p>Solo el administrador puede acceder.</p></div>`;
+
+  const lideres = USUARIOS.filter(u=>u.rol==='lider-misional');
+
+  const filas = lideres.map(u=>`<tr>
+    <td><div class="td-name">${u.nombre}</div></td>
+    <td style="font-size:.82rem;color:#6B7280">${u.email}</td>
+    <td>${u.barrio||'—'}</td>
+    <td><span class="badge ${u.activo?'badge-confirm':'badge-cancel'}">${u.activo?'✅ Activo':'❌ Inactivo'}</span></td>
+    <td>
+      <div style="display:flex;gap:.4rem">
+        <button class="btn-sm btn-confirm" onclick="editarLider(${u.id})">✏️ Editar</button>
+        <button class="btn-sm btn-cancel2" onclick="toggleActivoLider(${u.id},${u.activo})">
+          ${u.activo?'❌ Desactivar':'✅ Activar'}
+        </button>
+      </div>
+    </td>
+  </tr>`).join('');
+
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <span style="font-size:1.05rem">👔</span>
+      <span class="section-title">Líderes Misionales</span>
+      <button class="btn-primary" style="margin-left:auto;font-size:.76rem;padding:.42rem .95rem" onclick="abrirModalLider()">+ Agregar líder</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Nombre</th><th>Correo</th><th>Barrio</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${filas||`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👔</div><p>No hay líderes misionales registrados.</p></div></td></tr>`}</tbody>
+    </table></div>
+  </div>
+
+  <!-- Modal líder -->
+  <div id="modal-lider-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;align-items:center;justify-content:center" onclick="cerrarModalLider()">
+    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:8px;width:min(420px,95vw);box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div style="padding:1rem 1.3rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between">
+        <span id="modal-lider-title" style="font-family:'Source Serif 4',serif;font-size:1rem;font-weight:700;color:#003E6B">Agregar Líder Misional</span>
+        <button onclick="cerrarModalLider()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B7280">✕</button>
+      </div>
+      <div style="padding:1.2rem 1.3rem;display:grid;gap:.8rem">
+        <input type="hidden" id="lider-id"/>
+        <div class="form-field"><label class="form-label">Nombre completo</label>
+          <input type="text" class="form-input" id="lider-nombre" placeholder="Ej. Hermano García Silva"/></div>
+        <div class="form-field"><label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" id="lider-email" placeholder="lider@misionvina.cl"/></div>
+        <div class="form-field"><label class="form-label">Contraseña <span id="lider-pass-hint" style="font-weight:400;color:#9CA3AF">(dejar vacío para no cambiar)</span></label>
+          <input type="password" class="form-input" id="lider-pass" placeholder="••••••••"/></div>
+        <div class="form-field"><label class="form-label">Barrio (opcional)</label>
+          <select class="form-input" id="lider-barrio">
+            <option value="">Sin barrio asignado</option>
+            ${BARRIOS.filter(b=>b!=='Todos').map(b=>`<option value="${b}">${b}</option>`).join('')}
+          </select>
+        </div>
+        <p id="lider-err" style="color:#DC2626;font-size:.78rem;display:none"></p>
+        <button class="btn-primary" style="width:100%" onclick="guardarLider()">💾 Guardar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+let _liderEditId = null;
+function abrirModalLider(){
+  _liderEditId = null;
+  document.getElementById('lider-id').value = '';
+  document.getElementById('lider-nombre').value = '';
+  document.getElementById('lider-email').value = '';
+  document.getElementById('lider-pass').value = '';
+  document.getElementById('lider-barrio').value = '';
+  document.getElementById('lider-err').style.display = 'none';
+  document.getElementById('modal-lider-title').textContent = 'Agregar Líder Misional';
+  document.getElementById('lider-pass-hint').style.display = 'none';
+  const o = document.getElementById('modal-lider-overlay');
+  o.style.display = 'flex';
+}
+function editarLider(id){
+  const u = USUARIOS.find(x=>x.id===id||String(x.id)===String(id));
+  if(!u) return;
+  _liderEditId = id;
+  document.getElementById('lider-id').value = id;
+  document.getElementById('lider-nombre').value = u.nombre;
+  document.getElementById('lider-email').value = u.email;
+  document.getElementById('lider-pass').value = '';
+  document.getElementById('lider-barrio').value = u.barrio||'';
+  document.getElementById('lider-err').style.display = 'none';
+  document.getElementById('modal-lider-title').textContent = 'Editar Líder Misional';
+  document.getElementById('lider-pass-hint').style.display = 'inline';
+  const o = document.getElementById('modal-lider-overlay');
+  o.style.display = 'flex';
+}
+function cerrarModalLider(){
+  document.getElementById('modal-lider-overlay').style.display = 'none';
+}
+async function guardarLider(){
+  const nombre = document.getElementById('lider-nombre').value.trim();
+  const email  = document.getElementById('lider-email').value.trim();
+  const pass   = document.getElementById('lider-pass').value.trim();
+  const barrio = document.getElementById('lider-barrio').value;
+  const errEl  = document.getElementById('lider-err');
+  if(!nombre||!email){ errEl.textContent='Nombre y correo son obligatorios.'; errEl.style.display='block'; return; }
+
+  try {
+    let res;
+    if(_liderEditId){
+      const body = {nombre, email, barrio:barrio||'Todos'};
+      if(pass) body.password = pass;
+      res = await fetch(`${API_URL}/usuarios.php?id=${_liderEditId}`,{
+        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body: JSON.stringify(body)
+      });
+    } else {
+      if(!pass){ errEl.textContent='La contraseña es obligatoria al crear.'; errEl.style.display='block'; return; }
+      res = await fetch(`${API_URL}/usuarios.php`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body: JSON.stringify({nombre, email, password:pass, rol:'lider-misional', barrio:barrio||'Todos'})
+      });
+    }
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error||'Error');
+    cerrarModalLider();
+    toast(_liderEditId?'✅ Líder actualizado.':'✅ Líder creado.');
+    await cargarUsuariosAPI();
+    renderView();
+  } catch(e){ errEl.textContent='⚠ '+e.message; errEl.style.display='block'; }
+}
+async function toggleActivoLider(id, activo){
+  try {
+    const res = await fetch(`${API_URL}/usuarios.php?id=${id}`,{
+      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      body: JSON.stringify({activo: activo?0:1})
+    });
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error||'Error');
+    toast(activo?'❌ Líder desactivado.':'✅ Líder activado.');
+    await cargarUsuariosAPI();
+    renderView();
+  } catch(e){ toast('⚠ '+e.message,'#DC2626'); }
+}
+
 function renderMisioneros(){
   if(!isAdmin()) return `<div class="empty-state"><div class="empty-icon">🔒</div><p>Solo el administrador puede gestionar usuarios.</p></div>`;
 
   const filas = BARRIOS.filter(b=>b!=="Todos").map(b=>{
-    const u = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b);
+    const misioneros = USUARIOS.filter(u=>u.rol==="misionero"&&u.barrio===b);
     const enEdicion = editandoBarrio === b;
+    const misioneroEditando = editandoMisioneroId ? USUARIOS.find(u=>String(u.id)===String(editandoMisioneroId)) : null;
 
     if(enEdicion){
-      // Fila en modo edición inline
-      return `<tr id="fila-${b.replace(/\s/g,'_')}" style="background:#EEF5FB">
-        <td><strong style="color:#003E6B">📍 ${b}</strong></td>
-        <td><input class="form-input" id="ed-nombre-${b.replace(/\s/g,'_')}" value="${u?.nombre||''}" placeholder="Nombre del misionero" style="padding:.4rem .7rem;font-size:.85rem"/></td>
-        <td>
-          <div style="display:flex;gap:.4rem;align-items:center">
-            <span style="font-size:1rem">🇨🇱</span>
-            <input class="form-input" id="ed-tel-${b.replace(/\s/g,'_')}" value="${u?.tel||''}" placeholder="+56 9 XXXX XXXX" style="padding:.4rem .7rem;font-size:.85rem"/>
-          </div>
-          <p style="font-size:.71rem;color:#6B7280;margin-top:.2rem">Formato: +56 9 XXXX XXXX</p>
-        </td>
-        <td><input class="form-input" id="ed-email-${b.replace(/\s/g,'_')}" value="${u?.email||''}" placeholder="correo@misionvina.cl" style="padding:.4rem .7rem;font-size:.85rem"/></td>
-        <td>
-          <span class="badge" style="background:#EEF5FB;color:#006EB6;border:1px solid #006EB6">✏️ Editando</span>
-        </td>
-        <td>
-          <div style="display:flex;gap:.4rem">
-            <button class="btn-sm btn-confirm" onclick="guardarMisionero('${b}')">💾 Guardar</button>
-            <button class="btn-sm btn-cancel2" onclick="editandoBarrio=null;renderView()">✕ Cancelar</button>
-          </div>
-        </td>
-      </tr>`;
+      const u = misioneroEditando; // null si es nuevo
+      const key = b.replace(/\s/g,'_');
+      return `
+        ${misioneros.map(m=>{
+          const t=m.tel?.replace(/\D/g,"")||"";
+          return `<tr>
+            <td><strong style="color:#003E6B">📍 ${b}</strong></td>
+            <td><div style="font-size:.85rem;font-weight:600;color:#003E6B">${m.nombre}</div></td>
+            <td>${t?`<a href="https://wa.me/${t}" target="_blank" style="color:#006EB6;text-decoration:none;font-size:.82rem">💬 ${m.tel}</a>`:'—'}</td>
+            <td style="font-size:.82rem;color:#6B7280">${m.email||'—'}</td>
+            <td><span class="badge ${m.tel?'badge-confirm':'badge-cancel'}">${m.tel?'✅ Enlazado':'⚠ Sin tel'}</span></td>
+            <td></td>
+          </tr>`;
+        }).join('')}
+        <tr style="background:#EEF5FB">
+          <td><strong style="color:#003E6B">📍 ${b}</strong><br><span style="font-size:.73rem;color:#006EB6">${u?'Editando':'Nuevo'}</span></td>
+          <td><input class="form-input" id="ed-nombre-${key}" value="${u?.nombre||''}" placeholder="Nombre del misionero" style="padding:.4rem .7rem;font-size:.85rem"/></td>
+          <td>
+            <div style="display:flex;gap:.4rem;align-items:center">
+              <span style="font-size:1rem">🇨🇱</span>
+              <input class="form-input" id="ed-tel-${key}" value="${u?.tel||''}" placeholder="+56 9 XXXX XXXX" style="padding:.4rem .7rem;font-size:.85rem"/>
+            </div>
+          </td>
+          <td><input class="form-input" id="ed-email-${key}" value="${u?.email||''}" placeholder="correo@misionvina.cl" style="padding:.4rem .7rem;font-size:.85rem"/></td>
+          <td><span class="badge" style="background:#EEF5FB;color:#006EB6;border:1px solid #006EB6">✏️ Editando</span></td>
+          <td>
+            <div style="display:flex;gap:.4rem">
+              <button class="btn-sm btn-confirm" onclick="guardarMisionero('${b}')">💾 Guardar</button>
+              <button class="btn-sm btn-cancel2" onclick="editandoBarrio=null;editandoMisioneroId=null;renderView()">✕ Cancelar</button>
+            </div>
+          </td>
+        </tr>`;
     }
-
-    // Fila normal
-    const telLimpio = u?.tel?.replace(/\D/g,"") || "";
-    const estado = u?.tel
-      ? `<span class="badge badge-confirm">✅ Enlazado</span>`
-      : `<span class="badge badge-cancel">⚠ Sin teléfono</span>`;
 
     return `<tr>
       <td><strong style="color:#003E6B">📍 ${b}</strong></td>
-      <td>${u ? `<div class="td-name">${u.nombre}</div>` : `<span style="color:#9CA3AF;font-size:.82rem">Sin asignar</span>`}</td>
       <td>
-        ${u?.tel
-          ? `<a href="https://wa.me/${telLimpio}" target="_blank"
-               style="color:#006EB6;text-decoration:none;font-size:.85rem;display:inline-flex;align-items:center;gap:.3rem">
-               💬 ${u.tel}
-             </a>`
-          : `<span style="color:#DC2626;font-size:.82rem">⚠ Sin número</span>`}
+        ${misioneros.length===0
+          ? `<span style="color:#9CA3AF;font-size:.82rem">Sin asignar</span>`
+          : misioneros.map(u=>`<div style="font-size:.85rem;font-weight:600;color:#003E6B">${u.nombre}</div>`).join('')
+        }
       </td>
-      <td style="font-size:.82rem;color:#6B7280">${u?.email || "—"}</td>
-      <td>${estado}</td>
       <td>
-        <div style="display:flex;gap:.4rem">
-          <button class="btn-sm btn-confirm" onclick="editandoBarrio='${b}';renderView()">✏️ Editar</button>
-          ${telLimpio ? `<a href="https://wa.me/${telLimpio}?text=${encodeURIComponent(`Hola, soy el coordinador de la Estaka de Villa Alemana. Te escribo sobre las solicitudes del barrio ${b}. 🙏`)}" target="_blank" class="btn-sm btn-detail" style="text-decoration:none">💬 Probar WA</a>` : ""}
+        ${misioneros.filter(u=>u.tel).length===0
+          ? `<span style="color:#DC2626;font-size:.82rem">⚠ Sin número</span>`
+          : misioneros.filter(u=>u.tel).map(u=>{
+              const t=u.tel.replace(/\D/g,"");
+              return `<div><a href="https://wa.me/${t}" target="_blank" style="color:#006EB6;text-decoration:none;font-size:.82rem">💬 ${u.tel}</a></div>`;
+            }).join('')
+        }
+      </td>
+      <td style="font-size:.82rem;color:#6B7280">
+        ${misioneros.map(u=>u.email||'—').join('<br>')||'—'}
+      </td>
+      <td>
+        ${misioneros.length===0
+          ? `<span class="badge badge-cancel">⚠ Sin asignar</span>`
+          : misioneros.every(u=>u.tel)
+            ? `<span class="badge badge-confirm">✅ Enlazado</span>`
+            : `<span class="badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FCD34D">⚠ Incompleto</span>`
+        }
+      </td>
+      <td>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          ${misioneros.map(u=>`<button class="btn-sm btn-confirm" onclick="editandoMisioneroId=${u.id};editandoBarrio='${b}';renderView()">✏️ ${u.nombre.split(' ')[0]}</button>`).join('')}
+          <button class="btn-sm" style="background:#EEF5FB;color:#006EB6;border:1px solid #BFDBF7" onclick="agregarMisioneroBarrio('${b}')">+ Agregar</button>
         </div>
       </td>
     </tr>`;
   }).join("");
 
   // Calcular estado general
-  const enlazados = BARRIOS.filter(b=>b!=="Todos").filter(b=>USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===b&&u.tel)).length;
+  const enlazados = BARRIOS.filter(b=>b!=="Todos").filter(b=>USUARIOS.some(u=>u.rol==="misionero"&&u.barrio===b&&u.tel)).length;
   const total = BARRIOS.filter(b=>b!=="Todos").length;
   const todoOk = enlazados === total;
 
@@ -2727,6 +2923,8 @@ function renderMisioneros(){
   </div>`;
 }
 
+let editandoMisioneroId = null;
+
 async function guardarMisionero(barrio){
   const key = barrio.replace(/\s/g,'_');
   const nombre = document.getElementById(`ed-nombre-${key}`)?.value.trim();
@@ -2734,14 +2932,12 @@ async function guardarMisionero(barrio){
   const email  = document.getElementById(`ed-email-${key}`)?.value.trim();
 
   if(!tel){ toast("⚠ El teléfono WhatsApp es obligatorio.","#DC2626"); return; }
-  if(!/^\+?[\d\s\-]{9,}$/.test(tel)){ toast("⚠ Formato de teléfono inválido. Ej: +56 9 1234 5678","#DC2626"); return; }
 
   try {
-    const existente = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
-    if(existente){
-      const res = await fetch(`${API_URL}/usuarios.php?id=${existente.id}`,{
+    if(editandoMisioneroId){
+      const res = await fetch(`${API_URL}/usuarios.php?id=${editandoMisioneroId}`,{
         method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
-        body: JSON.stringify({nombre:nombre||existente.nombre, tel, email:email||existente.email})
+        body: JSON.stringify({nombre:nombre||'', tel, email:email||''})
       });
       const data = await res.json();
       if(!data.ok) throw new Error(data.error||'Error');
@@ -2749,20 +2945,22 @@ async function guardarMisionero(barrio){
       const pass = `Mision${new Date().getFullYear()}`;
       const res = await fetch(`${API_URL}/usuarios.php`,{
         method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
-        body: JSON.stringify({
-          nombre: nombre||`Misionero ${barrio}`,
-          email: email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`,
-          password: pass, rol:'misionero', barrio, tel
-        })
+        body: JSON.stringify({nombre:nombre||`Misionero ${barrio}`, email:email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`, password:pass, rol:'misionero', barrio, tel})
       });
       const data = await res.json();
       if(!data.ok) throw new Error(data.error||'Error');
     }
-    editandoBarrio = null;
+    editandoBarrio = null; editandoMisioneroId = null;
     toast(`✅ Misionero de ${barrio} guardado.`);
     await cargarUsuariosAPI();
     renderView();
   } catch(e){ toast("⚠ "+e.message,"#DC2626"); }
+}
+
+function agregarMisioneroBarrio(barrio){
+  editandoMisioneroId = null;
+  editandoBarrio = barrio;
+  renderView();
 }
 
 function probarEnrutamiento(barrio){

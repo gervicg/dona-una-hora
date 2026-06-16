@@ -303,7 +303,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
       <p style="font-family:'Noto Sans',sans-serif;font-size:.73rem;font-weight:600;color:#374151;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem;text-align:left">Agregar a Google Calendar</p>
       <div id="gcal-links"></div>
       <div class="divider"></div>
-      <a id="wa-link" href="#" target="_blank" class="btn-wa">📲 Notificar a los misioneros por WhatsApp</a>
+      <div id="wa-links"></div>
       <button class="btn-secondary" style="width:100%;justify-content:center" onclick="reset()">Registrar otro miembro</button>
     </div>
     <div class="scripture" style="margin-top:1.2rem">
@@ -368,6 +368,14 @@ async function cargarSlotsOcupados(barrio){
     const data = await res.json();
     ocupados = data.data || data || [];
   } catch(e){ ocupados = []; }
+  // Cargar mapa de misioneros (para WA multi-pareja)
+  try {
+    if(!window._mapaBarriosAPI){
+      const r2 = await fetch(`${API_URL}/usuarios.php?action=mapa`);
+      const d2 = await r2.json();
+      window._mapaBarriosAPI = d2.data || {};
+    }
+  } catch(e){}
 }
 function validatePhone(p){
   const c=p.replace(/\s/g,'');
@@ -603,8 +611,16 @@ function goStep3(){
   const gcal=document.getElementById('gcal-links');
   gcal.innerHTML=buildGCalHTML(list);
 
-  // WhatsApp
-  document.getElementById('wa-link').href=buildWA(list,n);
+  // WhatsApp (multi-misionero)
+  const waUrls = buildWA(list,n);
+  const waContainer = document.getElementById('wa-links');
+  if(waUrls.length===1){
+    waContainer.innerHTML=`<a href="${waUrls[0]}" target="_blank" class="btn-wa" style="display:inline-flex;width:100%;justify-content:center;margin-bottom:.6rem">📲 Notificar a los misioneros por WhatsApp</a>`;
+  } else {
+    waContainer.innerHTML=waUrls.map((url,i)=>
+      `<a href="${url}" target="_blank" class="btn-wa" style="display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem">📲 Notificar misionero ${i+1} por WhatsApp</a>`
+    ).join('');
+  }
 
   // ── Guardar en localStorage para que el panel admin lo lea ──────
   // Cuando exista la API, esta función se reemplazará por un fetch POST.
@@ -678,8 +694,17 @@ function buildWA(list,n){
     `_Si es así, coordinen directamente con el miembro la visita._`,
     ...(form.notas ? [``, `📝 *Nota del miembro:* ${form.notas}`] : []),
   ];
-  const tel = getWAByBarrio(form.barrio);
-  return `https://wa.me/${tel}?text=${encodeURIComponent(lines.join('\n'))}`;
+  const texto = encodeURIComponent(lines.join('\n'));
+  const tels = getMisionerosTelByBarrio(form.barrio);
+  return tels.map(t=>`https://wa.me/${t}?text=${texto}`);
+}
+
+function getMisionerosTelByBarrio(barrio){
+  if(window._mapaBarriosAPI && window._mapaBarriosAPI[barrio]){
+    return window._mapaBarriosAPI[barrio].map(m=>m.tel.replace(/\D/g,''));
+  }
+  const tel = getWAByBarrio(barrio);
+  return tel ? [tel] : [];
 }
 
 // ── Persistencia local (puente con el panel admin) ─────────────────
