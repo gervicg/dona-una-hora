@@ -762,78 +762,44 @@ function openDrawer(id){
   const telMiembro = d.tel.replace(/\D/g,"");
   const telMisionero = getMisioneroTelByBarrio(d.barrio);
   if(d.estado==="pendiente"){
-    const waAprobada = encodeURIComponent(
-      `Hola *${d.nombre}* 😊\n\nMuchas gracias, hemos recibido tu solicitud para donar una hora a los misioneros.\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio}\n\nTe confirmaremos la hora exacta y el lugar ${d.modalidad==="presencial"?"(presencial)":"(en línea)"}.\n\n¡Que el Señor bendiga tu disposición! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
-    const waRechazada = encodeURIComponent(
-      `Hola *${d.nombre}*,\n\nEn este horario no tenemos disponibilidad para citas, muchas gracias por apoyarnos.\n\n📅 ${d.dia}: ${d.desde} – ${d.hasta}\n\nFavor de seleccionar otro horario en el sistema. ¡Tu ayuda es muy importante para nosotros! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
     footer= canActuar() ? `
-      <a href="https://wa.me/${telMiembro}?text=${waRechazada}" target="_blank" style="text-decoration:none"
-         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="sinDisponibilidad('${d.id}')">❌ Sin disponibilidad</a>
-      <a href="https://wa.me/${telMiembro}?text=${waAprobada}" target="_blank" style="text-decoration:none"
-         class="btn-primary" onclick="aceptar('${d.id}')">🕐 Aceptar solicitud</a>
+      <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="sinDisponibilidad('${d.id}');mensajeWA('${d.id}','rechazar')">❌ Sin disponibilidad</button>
+      <button class="btn-primary"
+         onclick="aceptar('${d.id}');mensajeWA('${d.id}','aceptar')">🕐 Aceptar solicitud</button>
     ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura — sin acciones disponibles</span>`;
 
   } else if(d.estado==="en-espera"){
-    const waCitaAprobada = encodeURIComponent(
-      `¡Hola *${d.nombre}*! 🎉\n\nTu cita con los misioneros está confirmada:\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio}\n🖥️ Modalidad: ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\nEsta es la fecha, hora y lugar de la cita. ¡Muchas gracias por tu apoyo! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
-    const waCitaCancelada = encodeURIComponent(
-      `Hola *${d.nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${d.dia} ${d.desde} – ${d.hasta}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
     footer= canActuar() ? `
-      <a href="https://wa.me/${telMiembro}?text=${waCitaCancelada}" target="_blank" style="text-decoration:none"
-         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="cancelarCita('${d.id}')">❌ Cancelar cita</a>
-      <a href="https://wa.me/${telMiembro}?text=${waCitaAprobada}" target="_blank" style="text-decoration:none"
-         class="btn-primary" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</a>
+      <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌ Cancelar cita</button>
+      <button class="btn-primary"
+         onclick="confirmarCita('${d.id}');mensajeWA('${d.id}','confirmar')">✅ Confirmar cita</button>
     ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura</span>`;
 
   } else if(d.estado==="cita-confirmada"){
-    const waRecordatorio = encodeURIComponent(
-      `🔔 *Recordatorio de cita*\n\nHola *${d.nombre}*, recuerda tu cita con los misioneros:\n\n📅 *${d.dia}: ${d.desde} – ${d.hasta}*\n📍 Barrio ${d.barrio} · ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\n¡Te esperamos! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
-    const waCancelacion = encodeURIComponent(
-      `Hola *${d.nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${d.dia} ${d.desde} – ${d.hasta}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
-    const waRealizada = encodeURIComponent(
-      `🙏 Hola *${d.nombre}*, ¡gracias por acompañar a los misioneros hoy!\n\nFue un gusto enseñar el evangelio junto a ti. Esperamos verte pronto nuevamente en la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
     footer= canActuar() ? `
-      <a href="https://wa.me/${telMiembro}?text=${waCancelacion}" target="_blank" style="text-decoration:none"
-         class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="cancelarCita('${d.id}')">❌ Cancelar cita</a>
-      <a href="https://wa.me/${telMiembro}?text=${waRecordatorio}" target="_blank"
-         class="btn-wa-sm" style="text-decoration:none">📲 Recordatorio</a>
-      <a href="https://wa.me/${telMiembro}?text=${waRealizada}" target="_blank"
-         class="btn-primary" style="text-decoration:none;background:#0F766E;display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1rem"
-         onclick="citaRealizada('${d.id}')">🙏 Cita realizada</a>
-    ` : `<a href="https://wa.me/${telMiembro}?text=${waRecordatorio}" target="_blank"
-         class="btn-wa-sm" style="text-decoration:none">📲 Recordatorio</a>`;
+      <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
+         onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌ Cancelar cita</button>
+      <button class="btn-wa-sm"
+         onclick="mensajeWA('${d.id}','recordatorio')">📲 Recordatorio</button>
+      <button class="btn-primary" style="background:#0F766E"
+         onclick="citaRealizada('${d.id}');mensajeWA('${d.id}','realizada')">🙏 Cita realizada</button>
+    ` : `<button class="btn-wa-sm" onclick="mensajeWA('${d.id}','recordatorio')">📲 Recordatorio</button>`;
 
   } else if(d.estado==="cita-realizada"){
     const waGracias = encodeURIComponent(
       `🙏 Hola *${d.nombre}*, ¡gracias por acompañar a los misioneros!\n\nFue un gusto enseñar el evangelio junto a ti. Te invitamos a seguir donando horas para la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
     );
     footer=`
-      <a href="https://wa.me/${telMiembro}?text=${waGracias}" target="_blank"
-         class="btn-wa-sm" style="text-decoration:none;background:#0F766E">📲 Mensaje de agradecimiento</a>
-      ${canActuar()?`<button class="btn-primary" style="background:#006EB6" onclick="reactivarSolicitud('${d.id}')">
-        ↩️ Nueva solicitud
-      </button>`:''}
+      <button class="btn-wa-sm" style="background:#0F766E"
+         onclick="mensajeWA('${d.id}','gracias')">📲 Mensaje de agradecimiento</button>
+      ${canActuar()?`<button class="btn-primary" style="background:#006EB6" onclick="reactivarSolicitud('${d.id}')">↩️ Nueva solicitud</button>`:''}
     `;
   } else if(d.estado==="cita-cancelada"){
-    const waReagendar = encodeURIComponent(
-      `Hola *${d.nombre}*, ¿te gustaría reagendar tu cita con los misioneros?\n\nPuedes ingresar nuevamente al sistema y seleccionar otro horario disponible. ¡Tu apoyo es muy importante para nosotros! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`
-    );
     footer=`
-      <a href="https://wa.me/${telMiembro}?text=${waReagendar}" target="_blank"
-         class="btn-ghost" style="text-decoration:none">📲 Invitar a reagendar</a>
-      ${canActuar()?`<button class="btn-primary" onclick="reactivarSolicitud('${d.id}')">
-        ↩️ Reactivar solicitud
-      </button>`:''}
+      <button class="btn-ghost" onclick="mensajeWA('${d.id}','reagendar')">📲 Invitar a reagendar</button>
+      ${canActuar()?`<button class="btn-primary" onclick="reactivarSolicitud('${d.id}')">↩️ Reactivar solicitud</button>`:''}
     `;
   }
   footer+=`<button class="btn-ghost" onclick="closeDrawer()">Cerrar</button>`;
@@ -1082,30 +1048,42 @@ function cancelarCita(id){
   );
 }
 
+function mensajeWA(id, tipo){
+  const d = DONACIONES.find(x=>x.id===String(id));
+  if(!d) return;
+  const tel     = d.tel.replace(/\D/g,'');
+  const nombre  = d.nombre;
+  const horario = d.dia+': '+d.desde+' – '+d.hasta;
+  const mod     = d.modalidad==='presencial'?'(presencial)':'(en línea)';
+  const firma   = '_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_';
+  const msgs = {
+    aceptar:      'Hola *'+nombre+'* 😊\n\nMuchas gracias, hemos recibido tu solicitud para donar una hora a los misioneros.\n\n📅 *'+horario+'*\n📍 Barrio '+d.barrio+'\n\nTe confirmaremos la hora exacta y el lugar '+mod+'.\n\n¡Que el Señor bendiga tu disposición! 🙏\n'+firma,
+    rechazar:     'Hola *'+nombre+'*,\n\nEn este horario no tenemos disponibilidad para citas, muchas gracias por apoyarnos.\n\n📅 '+horario+'\n\nFavor de seleccionar otro horario en el sistema. ¡Tu ayuda es muy importante! 🙏\n'+firma,
+    confirmar:    '¡Hola *'+nombre+'*! 🎉\n\nTu cita con los misioneros está confirmada:\n\n📅 *'+horario+'*\n📍 Barrio '+d.barrio+'\n🖥️ Modalidad: '+(d.modalidad==='presencial'?'Presencial':'En línea')+'\n\n¡Muchas gracias por tu apoyo! 🙏\n'+firma,
+    cancelar:     'Hola *'+nombre+'*,\n\nLamentamos informarte que debemos cancelar la cita del *'+horario+'*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n'+firma,
+    realizada:    '🙏 Hola *'+nombre+'*, ¡gracias por acompañar a los misioneros hoy!\n\nFue un gusto enseñar el evangelio junto a ti. Esperamos verte pronto nuevamente en la Obra de Salvación. 🌟\n'+firma,
+    recordatorio: '🔔 *Recordatorio de cita*\n\nHola *'+nombre+'*, recuerda tu cita con los misioneros:\n\n📅 *'+horario+'*\n📍 Barrio '+d.barrio+' · '+(d.modalidad==='presencial'?'Presencial':'En línea')+'\n\n¡Te esperamos! 🙏\n'+firma,
+    gracias:      '🙏 Hola *'+nombre+'*, ¡gracias por acompañar a los misioneros!\n\nFue un gusto enseñar el evangelio junto a ti. Te invitamos a seguir donando horas para la Obra de Salvación. 🌟\n'+firma,
+    reagendar:    'Hola *'+nombre+'*, ¿te gustaría reagendar tu cita con los misioneros?\n\nPuedes ingresar nuevamente al sistema y seleccionar otro horario disponible. ¡Tu apoyo es muy importante para nosotros! 🙏\n'+firma,
+  };
+  const texto = msgs[tipo];
+  if(!texto) return;
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(texto), '_blank');
+}
+
 function botonesAccion(d){
   if(!canActuar()) return '';
-  const tel = d.tel.replace(/\D/g,'');
-  const nombre = d.nombre;
-  const horario = `${d.dia}: ${d.desde} – ${d.hasta}`;
-  const mod = d.modalidad==="presencial"?"(presencial)":"(en línea)";
-
   if(d.estado==="pendiente"){
-    const waAcep = encodeURIComponent(`Hola *${nombre}* 😊\n\nMuchas gracias, hemos recibido tu solicitud para donar una hora a los misioneros.\n\n📅 *${horario}*\n📍 Barrio ${d.barrio}\n\nTe confirmaremos la hora exacta y el lugar ${mod}.\n\n¡Que el Señor bendiga tu disposición! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    const waRech = encodeURIComponent(`Hola *${nombre}*,\n\nEn este horario no tenemos disponibilidad para citas, muchas gracias por apoyarnos.\n\n📅 ${horario}\n\nFavor de seleccionar otro horario en el sistema. ¡Tu ayuda es muy importante! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    return `<a href="https://wa.me/${tel}?text=${waAcep}" target="_blank" class="btn-sm btn-confirm" style="text-decoration:none" onclick="aceptar('${d.id}')">🕐 Aceptar</a>
-            <a href="https://wa.me/${tel}?text=${waRech}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="sinDisponibilidad('${d.id}')">🚫 Rechazar</a>`;
+    return `<button class="btn-sm btn-confirm"  onclick="aceptar('${d.id}');mensajeWA('${d.id}','aceptar')">🕐 Aceptar</button>
+            <button class="btn-sm btn-cancel2"  onclick="sinDisponibilidad('${d.id}');mensajeWA('${d.id}','rechazar')">🚫 Rechazar</button>`;
   }
   if(d.estado==="en-espera"){
-    const waConf = encodeURIComponent(`¡Hola *${nombre}*! 🎉\n\nTu cita con los misioneros está confirmada:\n\n📅 *${horario}*\n📍 Barrio ${d.barrio}\n🖥️ Modalidad: ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\n¡Muchas gracias por tu apoyo! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    const waCanc = encodeURIComponent(`Hola *${nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${horario}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    return `<a href="https://wa.me/${tel}?text=${waConf}" target="_blank" class="btn-sm btn-confirm" style="text-decoration:none" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</a>
-            <a href="https://wa.me/${tel}?text=${waCanc}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="cancelarCita('${d.id}')">❌</a>`;
+    return `<button class="btn-sm btn-confirm"  onclick="confirmarCita('${d.id}');mensajeWA('${d.id}','confirmar')">✅ Confirmar cita</button>
+            <button class="btn-sm btn-cancel2"  onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌</button>`;
   }
   if(d.estado==="cita-confirmada"){
-    const waReal = encodeURIComponent(`🙏 Hola *${nombre}*, ¡gracias por acompañar a los misioneros hoy!\n\nFue un gusto enseñar el evangelio junto a ti. Esperamos verte pronto nuevamente en la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    const waCanc = encodeURIComponent(`Hola *${nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${horario}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
-    return `<a href="https://wa.me/${tel}?text=${waReal}" target="_blank" class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none;text-decoration:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</a>
-            <a href="https://wa.me/${tel}?text=${waCanc}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="cancelarCita('${d.id}')">❌</a>`;
+    return `<button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}');mensajeWA('${d.id}','realizada')">🙏 Realizada</button>
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌</button>`;
   }
   return '';
 }
