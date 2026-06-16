@@ -2632,7 +2632,7 @@ function renderMisioneros(){
   </div>`;
 }
 
-function guardarMisionero(barrio){
+async function guardarMisionero(barrio){
   const key = barrio.replace(/\s/g,'_');
   const nombre = document.getElementById(`ed-nombre-${key}`)?.value.trim();
   const tel    = document.getElementById(`ed-tel-${key}`)?.value.trim();
@@ -2641,20 +2641,33 @@ function guardarMisionero(barrio){
   if(!tel){ toast("⚠ El teléfono WhatsApp es obligatorio.","#DC2626"); return; }
   if(!/^\+?[\d\s\-]{9,}$/.test(tel)){ toast("⚠ Formato de teléfono inválido. Ej: +56 9 1234 5678","#DC2626"); return; }
 
-  const existente = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
-  if(existente){
-    USUARIOS = USUARIOS.map(u=>u.id===existente.id ? {...u, nombre:nombre||u.nombre, tel, email:email||u.email} : u);
-  } else {
-    // Crear nuevo usuario misionero para ese barrio
-    USUARIOS.push({
-      id:`U${Date.now()}`, nombre:nombre||`Misionero ${barrio}`,
-      email:email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`,
-      rol:"misionero", barrio, tel, activo:true, ultimo:"Ahora"
-    });
-  }
-  editandoBarrio = null;
-  toast(`✅ Misionero de ${barrio} actualizado. WhatsApp: ${tel}`);
-  renderView();
+  try {
+    const existente = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
+    if(existente){
+      const res = await fetch(`${API_URL}/usuarios.php?id=${existente.id}`,{
+        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body: JSON.stringify({nombre:nombre||existente.nombre, tel, email:email||existente.email})
+      });
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error||'Error');
+    } else {
+      const pass = `Mision${new Date().getFullYear()}`;
+      const res = await fetch(`${API_URL}/usuarios.php`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body: JSON.stringify({
+          nombre: nombre||`Misionero ${barrio}`,
+          email: email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`,
+          password: pass, rol:'misionero', barrio, tel
+        })
+      });
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error||'Error');
+    }
+    editandoBarrio = null;
+    toast(`✅ Misionero de ${barrio} guardado.`);
+    await cargarUsuariosAPI();
+    renderView();
+  } catch(e){ toast("⚠ "+e.message,"#DC2626"); }
 }
 
 function probarEnrutamiento(barrio){
