@@ -353,10 +353,21 @@ const API_URL = 'https://api.faroalasnaciones.com';
 let form = {nombre:'',telefono:'',modalidad:'',barrio:''};
 let selected = {}; // key: "day|HH:00|HH:00" → bool
 let semanaOffset = 0; // 0 = semana actual, 1 = próxima semana
+let ocupados = []; // slots ya reservados del barrio seleccionado
 
 function isBlocked(day,h){
   const c=DAY_CFG[day];
-  return h<c.start||h>=c.end||c.blocked.includes(h);
+  if(h<c.start||h>=c.end||c.blocked.includes(h)) return true;
+  const from=pad(h)+':00';
+  return ocupados.some(o=>o.dia===day && o.desde===from);
+}
+
+async function cargarSlotsOcupados(barrio){
+  try {
+    const res = await fetch(`${API_URL}/donaciones.php?action=slots&barrio=${encodeURIComponent(barrio)}`);
+    const data = await res.json();
+    ocupados = data.data || data || [];
+  } catch(e){ ocupados = []; }
 }
 function validatePhone(p){
   const c=p.replace(/\s/g,'');
@@ -383,10 +394,11 @@ function selectModalidad(id,el){
   document.querySelectorAll('.modal-card').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
 }
-function selectBarrio(b,el){
+async function selectBarrio(b,el){
   form.barrio=b;
   document.querySelectorAll('.barrio-btn').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
+  await cargarSlotsOcupados(b);
 }
 
 function goStep2(){
