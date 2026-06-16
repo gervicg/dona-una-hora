@@ -445,8 +445,8 @@ function normalizeUsuario(u){
 }
 
 async function cambiarEstadoAPI(id, estado){
-  const res = await fetch(`${API_URL}/donaciones.php?id=${id}`, {
-    method: 'PUT',
+  const res = await fetch(`${API_URL}/donaciones.php?action=update&id=${id}`, {
+    method: 'POST',
     headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+apiToken()},
     body: JSON.stringify({estado})
   });
