@@ -327,11 +327,11 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 // Estos números deben coincidir con los registrados en el panel admin.
 // Cuando se agregue la API, este mapa se cargará dinámicamente desde el backend.
 const MISIONEROS_POR_BARRIO = {
-  "Olmué":        "56911112222",  // Elder Smith Johnson
-  "Limache":      "56922223333",  // Elder García Pérez
-  "Villa Alemana":"56933334444",  // Elder Kim Park
-  "Peñablanca 1": "56944445555",  // Elder Morales Reyes
-  "Peñablanca 2": "56955556666",  // Elder Torres Díaz
+  "Olmué":        "56987472241",
+  "Limache":      "56987472241",
+  "Villa Alemana":"56987472241",
+  "Peñablanca 1": "56987472241",
+  "Peñablanca 2": "56987472241",
 };
 function getWAByBarrio(barrio){
   return MISIONEROS_POR_BARRIO[barrio] || "56912345678"; // fallback admin
@@ -390,6 +390,7 @@ function showPage(n){
   document.getElementById('page-'+n).classList.add('active');
   [1,2].forEach(i=>{
     const el=document.getElementById('step-nav-'+i);
+    if(!el) return;
     el.className='step-item'+(i===n?' active':i<n?' done':'');
     el.querySelector('.step-num').textContent = i<n?'✓':i;
   });
@@ -651,7 +652,7 @@ function buildGCalHTML(list){
   const dayIdx={Lunes:1,Martes:2,Miércoles:3,Jueves:4,Viernes:5,Sábado:6,Domingo:0};
   const today=new Date();
   return list.map(({day,from,to,week=0})=>{
-    const diff=(dayIdx[day]-today.getDay()+7)%7||7;
+    const diff=(dayIdx[day]-today.getDay()+7)%7;
     const d=new Date(today);
     d.setDate(today.getDate() + diff + (week * 7));
     const fh=parseInt(from), th=parseInt(to);
@@ -758,7 +759,6 @@ async function guardarDonacion(list){
   }
 }
 
-function pad(n){ return String(n).padStart(2,'0'); }
 
 function reset(){
   form={nombre:'',telefono:'',modalidad:'',barrio:''};

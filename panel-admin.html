@@ -358,11 +358,11 @@ tr:last-child td{border-bottom:none}
     </div>
     <div class="modal-body">
       <div class="form-field"><label class="form-label">Nombre completo</label><input type="text" class="form-input" id="m-nombre" placeholder="Ej. Elder Smith Johnson"/></div>
-      <div class="form-field"><label class="form-label">Correo electrónico</label><input type="email" class="form-input" id="m-email" type="email" placeholder="correo@misionvina.cl"/></div>
-      <div class="form-field"><label class="form-label">Contraseña</label><input type="password" class="form-input" id="m-pass" type="password" placeholder="••••••••"/></div>
+      <div class="form-field"><label class="form-label">Correo electrónico</label><input class="form-input" id="m-email" type="email" placeholder="correo@misionvina.cl"/></div>
+      <div class="form-field"><label class="form-label">Contraseña</label><input class="form-input" id="m-pass" type="password" placeholder="••••••••"/></div>
       <div class="form-field" id="m-tel-wrap">
         <label class="form-label">📱 Teléfono WhatsApp de la pareja misionera</label>
-        <input type="tel" class="form-input" id="m-tel" type="tel" placeholder="+56 9 1234 5678"/>
+        <input class="form-input" id="m-tel" type="tel" placeholder="+56 9 1234 5678"/>
         <p style="font-size:.73rem;color:#6B7280;margin-top:.25rem">Este número recibirá las notificaciones de donación de su barrio.</p>
       </div>
       <div class="form-field"><label class="form-label">Rol</label>
@@ -696,7 +696,7 @@ function setBarrioView(b){ barrioView=b; if(currentView==="barrios") renderView(
 const VIEW_TITLES = {
   dashboard:"Dashboard", solicitudes:"Solicitudes", calendario:"Calendario semanal",
   barrios:"Vista por barrio", miembros:"Miembros", whatsapp:"WhatsApp",
-  informes:"Informes y estadísticas",
+  informes:"Informes y estadísticas", lideres:"Líderes Misionales",
   misioneros:"Misioneros por barrio",
   usuarios:"Usuarios administradores",
 };
@@ -806,7 +806,7 @@ function openDrawer(id){
   } else if(d.estado==="en-espera"){
     footer= canActuar() ? `
       <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌ Cancelar cita</button>
+         onclick="cancelarCita('${d.id}',true)">❌ Cancelar cita</button>
       <button class="btn-primary"
          onclick="confirmarCita('${d.id}');mensajeWA('${d.id}','confirmar')">✅ Confirmar cita</button>
     ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura</span>`;
@@ -814,7 +814,7 @@ function openDrawer(id){
   } else if(d.estado==="cita-confirmada"){
     footer= canActuar() ? `
       <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌ Cancelar cita</button>
+         onclick="cancelarCita('${d.id}',true)">❌ Cancelar cita</button>
       <button class="btn-wa-sm"
          onclick="mensajeWA('${d.id}','recordatorio')">📲 Recordatorio</button>
       <button class="btn-primary" style="background:#0F766E"
@@ -1069,17 +1069,12 @@ function confirmarAccion(mensaje, callback){
 }
 
 // Cancelar cita — con confirmación
-function cancelarCita(id){
-  const d = DONACIONES.find(x=>x.id===id);
-  const label = d ? `${d.nombre} · ${d.dia} ${d.desde}–${d.hasta}` : id;
-  confirmarAccion(
-    `¿Estás seguro de que deseas cancelar la cita de <strong>${label}</strong>?<br><br>Se notificará al miembro por WhatsApp.`,
-    async () => {
-      try { await cambiarEstadoAPI(id,"cita-cancelada"); toast("❌ Cita cancelada.","#DC2626"); }
-      catch(e){ toast("⚠ "+e.message,"#DC2626"); }
-      closeDrawer(); buildSidebar(); renderView();
-    }
-  );
+async function cancelarCita(id, enviarWA=false){
+  if(!confirm('¿Confirmar cancelación de la cita?')) return;
+  try { await cambiarEstadoAPI(id,'cita-cancelada'); toast('❌ Cita cancelada.','#DC2626'); }
+  catch(e){ toast('⚠ '+e.message,'#DC2626'); }
+  if(enviarWA) mensajeWA(id,'cancelar');
+  closeDrawer(); buildSidebar(); renderView();
 }
 
 function mensajeWA(id, tipo){
@@ -1113,11 +1108,11 @@ function botonesAccion(d){
   }
   if(d.estado==="en-espera"){
     return `<button class="btn-sm btn-confirm"  onclick="confirmarCita('${d.id}');mensajeWA('${d.id}','confirmar')">✅ Confirmar cita</button>
-            <button class="btn-sm btn-cancel2"  onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌</button>`;
+            <button class="btn-sm btn-cancel2"  onclick="cancelarCita('${d.id}',true)">❌</button>`;
   }
   if(d.estado==="cita-confirmada"){
     return `<button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}');mensajeWA('${d.id}','realizada')">🙏 Realizada</button>
-            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}');mensajeWA('${d.id}','cancelar')">❌</button>`;
+            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}',true)">❌</button>`;
   }
   return '';
 }
@@ -1401,7 +1396,7 @@ function renderWhatsApp(){
   </div>
 
   <!-- Modal selección miembro para plantilla WA -->
-  <div id="modal-plantilla-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:none;align-items:center;justify-content:center" onclick="cerrarModalPlantilla()">
+  <div id="modal-plantilla-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;align-items:center;justify-content:center" onclick="cerrarModalPlantilla()">
     <div onclick="event.stopPropagation()" style="background:#fff;border-radius:8px;width:min(480px,95vw);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2)">
       <div style="padding:1rem 1.3rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between">
         <span style="font-family:'Source Serif 4',serif;font-size:1rem;font-weight:700;color:#003E6B">📲 Selecciona un miembro</span>
@@ -2945,7 +2940,7 @@ async function guardarMisionero(barrio){
       const pass = `Mision${new Date().getFullYear()}`;
       const res = await fetch(`${API_URL}/usuarios.php`,{
         method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
-        body: JSON.stringify({nombre:nombre||`Misionero ${barrio}`, email:email||`misionero.${barrio.toLowerCase().replace(/\s/g,".")}@ijsud.cl`, password:pass, rol:'misionero', barrio, tel})
+        body: JSON.stringify({nombre:nombre||`Misionero ${barrio}`, email:email||`misionero.${barrio.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s/g,'.')}@ijsud.cl`, password:pass, rol:'misionero', barrio, tel})
       });
       const data = await res.json();
       if(!data.ok) throw new Error(data.error||'Error');
@@ -2964,32 +2959,32 @@ function agregarMisioneroBarrio(barrio){
 }
 
 function probarEnrutamiento(barrio){
-  const u = USUARIOS.find(u=>u.rol==="misionero"&&u.barrio===barrio);
+  const lista = getMisionerosByBarrio(barrio).filter(u=>u.tel);
   const el = document.getElementById("enrutamiento-resultado");
   if(!el) return;
   el.style.display="block";
-  if(u?.tel){
-    const tel=u.tel.replace(/\D/g,"");
+  if(lista.length){
     el.innerHTML=`
-      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+      <div style="margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem">
         <span style="font-size:1.1rem">📍</span>
         <strong style="color:#003E6B">${barrio}</strong>
         <span style="color:#9CA3AF">→</span>
-        <span style="color:#006EB6;font-weight:600">${u.nombre}</span>
-        <span style="color:#9CA3AF">→</span>
-        <a href="https://wa.me/${tel}?text=${encodeURIComponent(`🧪 Prueba de enrutamiento\nUn miembro del barrio ${barrio} acaba de registrar una hora.\nEste mensaje confirma que el número está correctamente enlazado. ✅`)}"
-           target="_blank" style="color:#25D366;font-weight:600;text-decoration:none">💬 ${u.tel}</a>
+        <span style="color:#006EB6;font-weight:600">${lista.length} misionero${lista.length!==1?'s':''}</span>
       </div>
-      <div style="font-size:.78rem;color:#065F46;background:#D1FAE5;border-radius:3px;padding:.4rem .7rem;display:inline-block">
-        ✅ Enrutamiento correcto — haz clic en el número para enviar un WA de prueba
+      ${lista.map(u=>{
+        const tel=u.tel.replace(/\D/g,"");
+        return `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+          <span style="font-size:.85rem;color:#374151">${u.nombre}</span>
+          <span style="color:#9CA3AF">→</span>
+          <a href="https://wa.me/${tel}?text=${encodeURIComponent('🧪 Prueba de enrutamiento\nBarrio '+barrio+' — número correcto ✅')}"
+             target="_blank" style="color:#25D366;font-weight:600;text-decoration:none">💬 ${u.tel}</a>
+        </div>`;
+      }).join('')}
+      <div style="font-size:.78rem;color:#065F46;background:#D1FAE5;border-radius:3px;padding:.4rem .7rem;display:inline-block;margin-top:.3rem">
+        ✅ ${lista.length} número${lista.length!==1?'s':''} configurado${lista.length!==1?'s':''}
       </div>`;
   } else {
-    el.innerHTML=`
-      <div style="color:#DC2626;display:flex;align-items:center;gap:.5rem">
-        ⚠ El barrio <strong>${barrio}</strong> no tiene misionero con teléfono configurado.
-        Los mensajes no llegarán a ningún número.
-      </div>
-      <button class="btn-sm btn-confirm" style="margin-top:.6rem" onclick="editandoBarrio='${barrio}';renderView()">✏️ Configurar ahora</button>`;
+    el.innerHTML=`<div style="font-size:.78rem;color:#92400E;background:#FEF3C7;border-radius:3px;padding:.4rem .7rem">⚠ Sin misionero con teléfono configurado para este barrio.</div>`;
   }
 }
 
