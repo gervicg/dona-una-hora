@@ -1378,10 +1378,27 @@ function renderWhatsApp(){
   return `<div class="section-card" style="margin-bottom:1.1rem">
     <div class="section-header"><span style="font-size:1.05rem">📝</span><span class="section-title">Plantillas de mensaje</span></div>
     <div style="padding:1.1rem 1.3rem;display:grid;gap:.9rem">
-      ${plantillas.map(p=>`<div style="background:${p.color};border:1px solid ${p.border};border-radius:4px;padding:.9rem 1.1rem">
-        <div style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:700;color:#374151;margin-bottom:.45rem;text-transform:uppercase;letter-spacing:.06em">${p.ico} Plantilla de ${p.tipo}</div>
+      ${plantillas.map((p,i)=>`<div style="background:${p.color};border:1px solid ${p.border};border-radius:4px;padding:.9rem 1.1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.45rem;flex-wrap:wrap;gap:.4rem">
+          <span style="font-family:'Noto Sans',sans-serif;font-size:.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.06em">${p.ico} Plantilla de ${p.tipo}</span>
+          <button onclick="abrirModalPlantilla(${i})" style="background:#006EB6;color:#fff;border:none;border-radius:4px;padding:.32rem .85rem;font-size:.75rem;font-weight:600;font-family:'Noto Sans',sans-serif;cursor:pointer">📲 Enviar a miembro</button>
+        </div>
         <pre style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;white-space:pre-wrap;line-height:1.6">${p.texto}</pre>
       </div>`).join("")}
+    </div>
+  </div>
+
+  <!-- Modal selección miembro para plantilla WA -->
+  <div id="modal-plantilla-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:none;align-items:center;justify-content:center" onclick="cerrarModalPlantilla()">
+    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:8px;width:min(480px,95vw);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div style="padding:1rem 1.3rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:'Source Serif 4',serif;font-size:1rem;font-weight:700;color:#003E6B">📲 Selecciona un miembro</span>
+        <button onclick="cerrarModalPlantilla()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B7280">✕</button>
+      </div>
+      <div style="padding:.7rem 1.3rem;border-bottom:1px solid #F3F4F6">
+        <input id="plantilla-buscar" type="text" placeholder="Buscar por nombre o teléfono..." oninput="filtrarMiembrosPlantilla()" style="width:100%;padding:.45rem .75rem;border:1px solid #D1D5DB;border-radius:4px;font-size:.83rem;font-family:'Noto Sans',sans-serif;box-sizing:border-box;outline:none"/>
+      </div>
+      <div id="plantilla-lista" style="overflow-y:auto;flex:1;padding:.5rem .7rem"></div>
     </div>
   </div>
   <div class="section-card">
@@ -1391,6 +1408,63 @@ function renderWhatsApp(){
       <tbody>${hist}</tbody>
     </table></div>
   </div>`;
+}
+
+// ─── WhatsApp plantillas ────────────────────────────────────────
+let _plantillaIdx = 0;
+const _plantillasWA = [
+  {tipo:"Disponibilidad aceptada",
+   texto:"Hola *{nombre}* 👋\nTe confirmamos que *sí tenemos disponibilidad* para recibirte en la Obra de Salvación:\n\n📅 *{dia}: {hora_inicio} – {hora_fin}*\n📍 Barrio {barrio} · {modalidad}\n\n¡Te esperamos! Ante cualquier cambio avísanos con anticipación. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_"},
+  {tipo:"Recordatorio semanal",
+   texto:"🔔 *Recordatorio — Dona una Hora por la Obra*\nHola *{nombre}*, recuerda que esta semana tienes hora con los misioneros:\n📅 *{dia}: {hora_inicio} – {hora_fin}*\n¡Gracias por tu fiel servicio al evangelio! 🙏"},
+  {tipo:"Horario no disponible",
+   texto:"Hola *{nombre}*, lamentamos informarte que *no tenemos disponibilidad* de cita misionera en el horario que seleccionaste:\n📅 {dia}: {hora_inicio} – {hora_fin}\n\nTe invitamos a registrar otro horario en que podamos acompañarte. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_"},
+];
+
+function abrirModalPlantilla(idx){
+  _plantillaIdx = idx;
+  document.getElementById('plantilla-buscar').value = '';
+  filtrarMiembrosPlantilla();
+  const overlay = document.getElementById('modal-plantilla-overlay');
+  overlay.style.display = 'flex';
+}
+function cerrarModalPlantilla(){
+  document.getElementById('modal-plantilla-overlay').style.display = 'none';
+}
+function filtrarMiembrosPlantilla(){
+  const q = document.getElementById('plantilla-buscar').value.toLowerCase();
+  const mine = isMision() ? DONACIONES.filter(d=>d.barrio===currentUser.barrio) : DONACIONES;
+  const lista = mine.filter(d=>
+    !q || d.nombre.toLowerCase().includes(q) || (d.tel||'').includes(q)
+  );
+  const el = document.getElementById('plantilla-lista');
+  if(!lista.length){
+    el.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#9CA3AF;font-size:.83rem">Sin resultados</div>`;
+    return;
+  }
+  el.innerHTML = lista.map(d=>`
+    <div onclick="enviarPlantillaWA('${d.id}')" style="padding:.65rem .8rem;border-radius:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F3F4F6" onmouseover="this.style.background='#F0F9FF'" onmouseout="this.style.background='transparent'">
+      <div>
+        <div style="font-size:.85rem;font-weight:600;color:#003E6B;font-family:'Noto Sans',sans-serif">${d.nombre}</div>
+        <div style="font-size:.75rem;color:#6B7280;font-family:'Noto Sans',sans-serif">${d.tel} · ${d.dia} ${d.desde}–${d.hasta} · ${d.barrio}</div>
+      </div>
+      <span style="font-size:.72rem;color:#006EB6;font-weight:600">Enviar →</span>
+    </div>`).join('');
+}
+function enviarPlantillaWA(id){
+  const d = DONACIONES.find(x=>x.id===String(id));
+  if(!d) return;
+  const tel = (d.tel||'').replace(/\D/g,'');
+  const plantilla = _plantillasWA[_plantillaIdx];
+  const texto = plantilla.texto
+    .replace(/{nombre}/g, d.nombre)
+    .replace(/{dia}/g, d.dia)
+    .replace(/{hora_inicio}/g, d.desde)
+    .replace(/{hora_fin}/g, d.hasta)
+    .replace(/{barrio}/g, d.barrio)
+    .replace(/{modalidad}/g, d.modalidad==='presencial'?'Presencial':'En línea');
+  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(texto)}`, '_blank');
+  cerrarModalPlantilla();
 }
 
 // ═══════════════════════════════════════════════════════════════
