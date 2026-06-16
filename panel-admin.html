@@ -314,7 +314,7 @@ tr:last-child td{border-bottom:none}
       <div id="pending-alert" style="display:none" class="alert-banner" onclick="showView('solicitudes')">
         🔔 <span id="pending-count"></span>
       </div>
-      <button onclick="cargarDonacionesLS();buildSidebar();renderView();toast('🔄 Sincronizado con el front-end.');"
+      <button onclick="cargarDonacionesAPI();toast('🔄 Sincronizando...');"
         title="Recargar donaciones del front-end"
         style="margin-left:.5rem;background:#EEF5FB;border:1px solid #BFDBF7;color:#006EB6;border-radius:4px;padding:.4rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;display:flex;align-items:center;gap:.3rem">
         🔄 Sincronizar
@@ -391,33 +391,14 @@ const DAY_CFG = {
   Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
 };
 
-let DONACIONES = [
-  {id:"D001",nombre:"María González Pérez",    tel:"+56 9 1234 5678",barrio:"Olmué",       modalidad:"presencial",dia:"Lunes",    desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 09:12"},
-  {id:"D002",nombre:"Carlos Muñoz Soto",        tel:"+56 9 2345 6789",barrio:"Limache",     modalidad:"online",    dia:"Martes",   desde:"18:00",hasta:"19:00",estado:"en-espera",fecha:"05/06/2026 14:30"},
-  {id:"D003",nombre:"Ana Rodríguez López",      tel:"+56 9 3456 7890",barrio:"Villa Alemana",modalidad:"presencial",dia:"Miércoles",desde:"17:00",hasta:"18:00",estado:"pendiente", fecha:"06/06/2026 10:05"},
-  {id:"D004",nombre:"Pedro Fuentes Araya",      tel:"+56 9 4567 8901",barrio:"Peñablanca 1",modalidad:"presencial",dia:"Jueves",   desde:"19:00",hasta:"20:00",estado:"cita-confirmada",fecha:"04/06/2026 16:22"},
-  {id:"D005",nombre:"Sofía Herrera Vidal",      tel:"+56 9 5678 9012",barrio:"Peñablanca 2",modalidad:"online",    dia:"Viernes",  desde:"20:00",hasta:"21:00",estado:"pendiente", fecha:"06/06/2026 11:47"},
-  {id:"D006",nombre:"Luis Castillo Mora",       tel:"+56 9 6789 0123",barrio:"Olmué",       modalidad:"presencial",dia:"Lunes",    desde:"17:00",hasta:"18:00",estado:"en-espera",fecha:"03/06/2026 08:15"},
-  {id:"D007",nombre:"Isabel Vargas Pinto",      tel:"+56 9 7890 1234",barrio:"Limache",     modalidad:"presencial",dia:"Sábado",   desde:"10:00",hasta:"11:00",estado:"cita-realizada",fecha:"02/06/2026 19:03"},
-  {id:"D008",nombre:"Roberto Díaz Flores",      tel:"+56 9 8901 2345",barrio:"Villa Alemana",modalidad:"online",   dia:"Martes",   desde:"20:00",hasta:"21:00",estado:"cita-cancelada",fecha:"01/06/2026 12:00"},
-  {id:"D009",nombre:"Claudia Ríos Espinoza",    tel:"+56 9 9012 3456",barrio:"Peñablanca 1",modalidad:"presencial",dia:"Miércoles",desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 13:20"},
-  {id:"D010",nombre:"Fernando Morales Leiva",   tel:"+56 9 0123 4567",barrio:"Peñablanca 2",modalidad:"online",    dia:"Jueves",   desde:"18:00",hasta:"19:00",estado:"en-espera",fecha:"05/06/2026 07:55"},
-  {id:"D011",nombre:"Valentina Sepúlveda Cruz", tel:"+56 9 1122 3344",barrio:"Olmué",       modalidad:"presencial",dia:"Viernes",  desde:"19:00",hasta:"20:00",estado:"pendiente", fecha:"06/06/2026 15:10"},
-  {id:"D012",nombre:"Andrés Contreras Núñez",   tel:"+56 9 2233 4455",barrio:"Limache",     modalidad:"online",    dia:"Domingo",  desde:"16:00",hasta:"17:00",estado:"cita-realizada",fecha:"04/06/2026 11:30"},
-];
+let DONACIONES = [];
 
-let USUARIOS = [
-  {id:"U001",nombre:"Elder Smith Johnson",  email:"elder.smith@misionvina.cl",  rol:"misionero",barrio:"Olmué",        tel:"+56 9 1111 2222",activo:true,ultimo:"06/06/2026 08:00"},
-  {id:"U002",nombre:"Elder García Pérez",   email:"elder.garcia@misionvina.cl", rol:"misionero",barrio:"Limache",      tel:"+56 9 2222 3333",activo:true,ultimo:"06/06/2026 09:15"},
-  {id:"U003",nombre:"Elder Kim Park",       email:"elder.kim@misionvina.cl",    rol:"misionero",barrio:"Villa Alemana",tel:"+56 9 3333 4444",activo:true,ultimo:"05/06/2026 17:00"},
-  {id:"U004",nombre:"Elder Morales Reyes",  email:"elder.morales@misionvina.cl",rol:"misionero",barrio:"Peñablanca 1", tel:"+56 9 4444 5555",activo:true,ultimo:"06/06/2026 07:30"},
-  {id:"U005",nombre:"Elder Torres Díaz",    email:"elder.torres@misionvina.cl", rol:"misionero",barrio:"Peñablanca 2", tel:"+56 9 5555 6666",activo:true,ultimo:"06/06/2026 10:45"},
-  {id:"U006",nombre:"Pdte. Ramón Vega",     email:"presidente@misionvina.cl",   rol:"admin",         barrio:"Todos",        tel:"",              activo:true,ultimo:"06/06/2026 10:00"},
-  {id:"U007",nombre:"Hna. Carmen Rojas",    email:"lider@misionvina.cl",        rol:"lider-misional",barrio:"Olmué",       tel:"",              activo:true,ultimo:"06/06/2026 11:00"},
-];
+let USUARIOS = [];
+let MAPA_MISIONEROS = {};
 
 // Mapa barrio → teléfono misionero (fuente única de verdad)
 function getMisioneroTelByBarrio(barrio){
+  if(MAPA_MISIONEROS[barrio]) return MAPA_MISIONEROS[barrio].tel.replace(/\D/g,"");
   const u = USUARIOS.find(u => u.rol==="misionero" && u.barrio===barrio && u.tel);
   return u ? u.tel.replace(/\D/g,"") : null;
 }
@@ -445,47 +426,56 @@ const WA_HIST = [
   {id:"W006",nombre:"Fernando Morales",   tel:"+56 9 0123 4567",tipo:"recordatorio",estado:"enviado",fecha:"01/06/2026 08:00"},
 ];
 
-// ── Sincronización con localStorage del front-end ──────────────────
-// Lee las donaciones guardadas por dona-una-hora.html y las fusiona.
-// Cuando exista la API, reemplazar por: const res = await fetch('/api/donaciones')
-const LS_KEY = 'dona_hora_donaciones';
+// ── API helpers ──────────────────────────────────────────────────
+function apiToken(){ return localStorage.getItem('dona_hora_token') || ''; }
 
-function cargarDonacionesLS(){
-  try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    if(!raw.length) return;
-    raw.forEach(d => {
-      if(!DONACIONES.find(x => x.id === d.id)){
-        // Normaliza estado legacy del front-end
-        const estado = d.estado === 'pendiente' ? 'pendiente' : d.estado;
-        DONACIONES.push({...d, estado});
-      }
-    });
-  } catch(e){ console.warn('Error leyendo localStorage:', e); }
+function normalizeDonacion(d){
+  return {
+    ...d,
+    id: String(d.id),
+    tel: d.telefono || d.tel || '',
+    dia: d.dia_semana || d.dia || '',
+    fecha: (d.creado_en||d.fecha||'').replace('T',' ').substring(0,16),
+  };
+}
+function normalizeUsuario(u){
+  return { ...u, id: String(u.id), barrio: u.barrio||'Todos', activo: !!u.activo, ultimo: u.ultimo_acceso||u.ultimo||'—', tel: u.tel||'' };
 }
 
-function sincronizarEstadoLS(){
-  // Persiste cambios de estado (confirmaciones/cancelaciones) de vuelta al LS
-  try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    const updated = raw.map(d => {
-      const local = DONACIONES.find(x => x.id === d.id);
-      return local ? {...d, estado: local.estado} : d;
-    });
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
-  } catch(e){}
+async function cambiarEstadoAPI(id, estado){
+  const res = await fetch(`${API_URL}/donaciones.php?id=${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json', 'Authorization':'Bearer '+apiToken()},
+    body: JSON.stringify({estado})
+  });
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error||'Error al actualizar');
+  DONACIONES = DONACIONES.map(d => d.id===String(id) ? {...d, estado} : d);
 }
 
-function limpiarDonacionesDemo(){
-  // Borra del LS las donaciones de demo (para tener datos limpios)
+async function cargarDonacionesAPI(){
   try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    const solo_reales = raw.filter(d => d.origen === 'frontend');
-    localStorage.setItem(LS_KEY, JSON.stringify(solo_reales));
-    DONACIONES = DONACIONES.filter(d => d.origen === 'frontend');
-    toast('Datos demo eliminados. Solo se muestran donaciones reales.','#B8860B');
+    const res = await fetch(`${API_URL}/donaciones.php`, {
+      headers: {'Authorization':'Bearer '+apiToken()}
+    });
+    const data = await res.json();
+    if(data.ok) DONACIONES = data.data.map(normalizeDonacion);
     buildSidebar(); renderView();
-  } catch(e){}
+  } catch(e){ toast('⚠ No se pudo cargar donaciones.','#DC2626'); }
+}
+
+async function cargarUsuariosAPI(){
+  if(!isAdmin()) return;
+  try {
+    const res = await fetch(`${API_URL}/usuarios.php`, {
+      headers: {'Authorization':'Bearer '+apiToken()}
+    });
+    const data = await res.json();
+    if(data.ok){
+      USUARIOS = data.data.usuarios.map(normalizeUsuario);
+      MAPA_MISIONEROS = data.data.mapa_barrios || {};
+    }
+  } catch(e){ console.warn('No se pudo cargar usuarios:', e); }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -567,28 +557,15 @@ async function doLogin(){
       barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
       buildSidebar(); showView("dashboard");
       cargarDonacionesAPI();
+      cargarUsuariosAPI();
       return;
     }
     err.textContent = "⚠ " + data.error;
     err.style.display = "block"; return;
   } catch(e){
-    console.warn('API no disponible, usando modo demo:', e);
+    err.textContent="⚠ No se pudo conectar al servidor.";
+    err.style.display="block";
   }
-
-  // Fallback demo (cuando API no está disponible)
-  const u = USUARIOS.find(u=>u.email===email);
-  if(!u||pass!=="demo1234"){
-    err.textContent="⚠ Credenciales incorrectas.";
-    err.style.display="block"; return;
-  }
-  err.style.display="none";
-  currentUser=u;
-  cargarDonacionesLS();
-  document.getElementById("login-screen").style.display="none";
-  document.getElementById("panel-screen").style.display="block";
-  barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
-  buildSidebar();
-  showView("dashboard");
 }
 function doLogout(){
   currentUser=null;
@@ -711,40 +688,37 @@ function renderView(){
 // ═══════════════════════════════════════════════════════════════
 // CONFIRMAR / CANCELAR
 // ═══════════════════════════════════════════════════════════════
-// Pendiente-aprobacion → Aprobada-espera
-function aceptar(id){
-  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"en-espera"}:d);
-  sincronizarEstadoLS();
-  toast("🕐 Solicitud aceptada. Queda en espera de cita.");
+async function aceptar(id){
+  try { await cambiarEstadoAPI(id,"en-espera"); toast("🕐 Solicitud aceptada. Queda en espera de cita."); }
+  catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   closeDrawer(); buildSidebar(); renderView();
 }
-// pendiente → cita-cancelada (sin disponibilidad)
-function sinDisponibilidad(id){
-  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-cancelada"}:d);
-  sincronizarEstadoLS();
-  toast("❌ Sin disponibilidad. Se notificó al miembro.","#DC2626");
+async function sinDisponibilidad(id){
+  try { await cambiarEstadoAPI(id,"cita-cancelada"); toast("❌ Sin disponibilidad. Se notificó al miembro.","#DC2626"); }
+  catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   closeDrawer(); buildSidebar(); renderView();
 }
-// cita-confirmada → cita-realizada
-function citaRealizada(id){
-  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-realizada"}:d);
-  sincronizarEstadoLS();
-  toast("🙏 ¡Cita realizada! Registro actualizado. ¡Gracias por enseñar el evangelio!");
+async function citaRealizada(id){
+  try { await cambiarEstadoAPI(id,"cita-realizada"); toast("🙏 ¡Cita realizada! Registro actualizado."); }
+  catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   closeDrawer(); buildSidebar(); renderView();
 }
-// en-espera → cita-confirmada
-function confirmarCita(id){
-  DONACIONES=DONACIONES.map(d=>d.id===id?{...d,estado:"cita-confirmada"}:d);
-  sincronizarEstadoLS();
-  toast("✅ ¡Cita confirmada! El miembro fue notificado por WhatsApp.");
+async function confirmarCita(id){
+  try { await cambiarEstadoAPI(id,"cita-confirmada"); toast("✅ ¡Cita confirmada!"); }
+  catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   closeDrawer(); buildSidebar(); renderView();
 }
-// en-espera / cita-confirmada → cita-cancelada (con confirmación)
-// (defined below as wrapper with confirmarAccion)
-function aceptarTodosBarrio(barrio){
-  DONACIONES=DONACIONES.map(d=>d.barrio===barrio&&d.estado==="pendiente"?{...d,estado:"en-espera"}:d);
-  sincronizarEstadoLS();
-  toast(`🕐 Solicitudes de ${barrio} aceptadas. Quedan en espera de cita.`);
+async function reactivarSolicitud(id){
+  try { await cambiarEstadoAPI(id,"pendiente"); toast("↩️ Solicitud reactivada."); }
+  catch(e){ toast("⚠ "+e.message,"#DC2626"); }
+  closeDrawer(); buildSidebar(); renderView();
+}
+async function aceptarTodosBarrio(barrio){
+  const pendientes = DONACIONES.filter(d=>d.barrio===barrio&&d.estado==="pendiente");
+  try {
+    await Promise.all(pendientes.map(d=>cambiarEstadoAPI(d.id,"en-espera")));
+    toast(`🕐 Solicitudes de ${barrio} aceptadas.`);
+  } catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   buildSidebar(); renderView();
 }
 
@@ -834,8 +808,7 @@ function openDrawer(id){
     footer=`
       <a href="https://wa.me/${telMiembro}?text=${waGracias}" target="_blank"
          class="btn-wa-sm" style="text-decoration:none;background:#0F766E">📲 Mensaje de agradecimiento</a>
-      ${canActuar()?`<button class="btn-primary" style="background:#006EB6"
-        onclick="DONACIONES=DONACIONES.map(d=>d.id==='${d.id}'?{...d,estado:'pendiente'}:d);sincronizarEstadoLS();toast('↩️ Solicitud reactivada.');closeDrawer();buildSidebar();renderView();">
+      ${canActuar()?`<button class="btn-primary" style="background:#006EB6" onclick="reactivarSolicitud('${d.id}')">
         ↩️ Nueva solicitud
       </button>`:''}
     `;
@@ -846,7 +819,7 @@ function openDrawer(id){
     footer=`
       <a href="https://wa.me/${telMiembro}?text=${waReagendar}" target="_blank"
          class="btn-ghost" style="text-decoration:none">📲 Invitar a reagendar</a>
-      ${canActuar()?`<button class="btn-primary" onclick="DONACIONES=DONACIONES.map(d=>d.id==='${d.id}'?{...d,estado:'pendiente'}:d);sincronizarEstadoLS();toast('↩️ Solicitud reactivada.');closeDrawer();buildSidebar();renderView();">
+      ${canActuar()?`<button class="btn-primary" onclick="reactivarSolicitud('${d.id}')">
         ↩️ Reactivar solicitud
       </button>`:''}
     `;
@@ -890,28 +863,52 @@ function openModalUsuario(uid){
   document.getElementById("modal-overlay").style.display="flex";
 }
 function closeModal(){document.getElementById("modal-overlay").style.display="none";}
-function saveUsuario(){
+async function saveUsuario(){
   const nombre=document.getElementById("m-nombre").value.trim();
   const email =document.getElementById("m-email").value.trim();
+  const pass  =document.getElementById("m-pass").value;
   const rol   =document.getElementById("m-rol").value;
   const barrio=document.getElementById("m-barrio").value;
   const tel   =document.getElementById("m-tel").value.trim();
   if(!nombre||!email){toast("Completa nombre y correo.","#DC2626");return;}
   if(rol==="misionero"&&!tel){toast("Ingresa el teléfono WhatsApp del misionero.","#DC2626");return;}
-  // lider-misional y admin no requieren teléfono
-  if(editingUid){
-    USUARIOS=USUARIOS.map(u=>u.id===editingUid?{...u,nombre,email,rol,barrio,tel}:u);
-    toast("✅ Usuario actualizado.");
-  } else {
-    USUARIOS.push({id:`U00${USUARIOS.length+1}`,nombre,email,rol,barrio,tel,activo:true,ultimo:"Ahora"});
-    toast("✅ Usuario creado.");
-  }
-  closeModal(); renderView();
+  try {
+    if(editingUid){
+      const body={nombre,email,rol,barrio,tel};
+      if(pass) body.password=pass;
+      const res=await fetch(`${API_URL}/usuarios.php?id=${editingUid}`,{
+        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body:JSON.stringify(body)
+      });
+      const data=await res.json();
+      if(!data.ok) throw new Error(data.error||'Error');
+      toast("✅ Usuario actualizado.");
+    } else {
+      if(!pass){toast("Ingresa una contraseña.","#DC2626");return;}
+      const res=await fetch(`${API_URL}/usuarios.php`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+        body:JSON.stringify({nombre,email,password:pass,rol,barrio,tel})
+      });
+      const data=await res.json();
+      if(!data.ok) throw new Error(data.error||'Error');
+      toast("✅ Usuario creado.");
+    }
+    await cargarUsuariosAPI();
+    closeModal(); renderView();
+  } catch(e){ toast("⚠ "+e.message,"#DC2626"); }
 }
-function eliminarUsuario(uid){
-  if(uid===currentUser.id){toast("No puedes eliminarte a ti mismo.","#DC2626");return;}
-  USUARIOS=USUARIOS.filter(u=>u.id!==uid);
-  toast("Usuario desactivado.","#B8860B"); renderView();
+async function eliminarUsuario(uid){
+  if(String(uid)===String(currentUser.id)){toast("No puedes eliminarte a ti mismo.","#DC2626");return;}
+  try {
+    const res=await fetch(`${API_URL}/usuarios.php?id=${uid}`,{
+      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      body:JSON.stringify({activo:0})
+    });
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error||'Error');
+    toast("Usuario desactivado.","#B8860B");
+    await cargarUsuariosAPI(); renderView();
+  } catch(e){ toast("⚠ "+e.message,"#DC2626"); }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1055,10 +1052,9 @@ function cancelarCita(id){
   const label = d ? `${d.nombre} · ${d.dia} ${d.desde}–${d.hasta}` : id;
   confirmarAccion(
     `¿Estás seguro de que deseas cancelar la cita de <strong>${label}</strong>?<br><br>Se notificará al miembro por WhatsApp.`,
-    () => {
-      DONACIONES=DONACIONES.map(x=>x.id===id?{...x,estado:"cita-cancelada"}:x);
-      sincronizarEstadoLS();
-      toast("❌ Cita cancelada. Se notificó al miembro.","#DC2626");
+    async () => {
+      try { await cambiarEstadoAPI(id,"cita-cancelada"); toast("❌ Cita cancelada.","#DC2626"); }
+      catch(e){ toast("⚠ "+e.message,"#DC2626"); }
       closeDrawer(); buildSidebar(); renderView();
     }
   );
