@@ -17,7 +17,8 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 .fade-up{animation:fadeUp .4s ease both}
 
 /* ── Login ── */
-.login-wrap{min-height:100vh;background:#F0F2F4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+.login-wrap{min-height:100vh;background:#F0F2F4;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box}
+@media(max-width:500px){.login-wrap{justify-content:flex-start;padding:1rem .75rem;overflow-y:auto}.login-card{max-width:100%}.login-body{padding:1.2rem}.demo-hint{font-size:.72rem}}
 .login-card{background:#fff;border:1px solid #D8DCE1;border-radius:4px;width:100%;max-width:400px;box-shadow:0 2px 12px rgba(0,0,0,.08);animation:fadeUp .4s ease}
 .login-header{background:#003E6B;padding:1.8rem 2rem;text-align:center;border-radius:4px 4px 0 0}
 .login-header h1{font-family:'Source Serif 4',serif;color:#fff;font-size:1.3rem;font-weight:700;margin-top:.4rem}
