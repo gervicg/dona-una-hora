@@ -123,7 +123,7 @@ tr:last-child td{border-bottom:none}
 
 /* ── Calendar ── */
 .admin-cal{overflow-x:auto}
-.admin-cal-grid{display:grid;grid-template-columns:70px repeat(7,minmax(85px,1fr));gap:2px;min-width:660px}
+.admin-cal-grid{display:grid;grid-template-columns:50px repeat(7,minmax(60px,1fr));gap:2px;min-width:0;width:100%}
 .acg-head{text-align:center;font-family:'Noto Sans',sans-serif;font-size:.67rem;font-weight:700;color:#003E6B;padding:.38rem 0 .52rem;text-transform:uppercase;letter-spacing:.06em}
 .acg-head-today{background:#EEF5FB;border-radius:4px 4px 0 0}
 .acg-head-date{font-size:.72rem;font-weight:400;color:#9CA3AF;letter-spacing:0;text-transform:none;margin-top:.15rem}
@@ -215,7 +215,7 @@ tr:last-child td{border-bottom:none}
   .btn-sm{font-size:.72rem;padding:.28rem .55rem}
   .drawer{width:100%!important;right:0}
   .section-card{margin-bottom:.8rem}
-  .admin-cal-grid{min-width:540px}
+  .admin-cal-grid{min-width:0}
   .nav-section{font-size:.68rem}
   .nav-item{font-size:.8rem;padding:.55rem .8rem}
 }
@@ -750,7 +750,8 @@ function openDrawer(id){
       ].map(([k,v])=>`<div class="detail-row"><span class="detail-label">${k}</span><span class="detail-value" style="max-width:220px;text-align:right;word-break:break-word">${v}</span></div>`).join("")}
     <div style="margin-top:1.1rem">
       <label class="form-label">Notas del misionero</label>
-      <textarea style="width:100%;padding:.55rem .8rem;border:1px solid #D1D5DB;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.83rem;min-height:75px;resize:vertical;outline:none;margin-top:.3rem" placeholder="Agrega notas internas..."></textarea>
+      <textarea id="drawer-notas" style="width:100%;padding:.55rem .8rem;border:1px solid #D1D5DB;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.83rem;min-height:75px;resize:vertical;outline:none;margin-top:.3rem;box-sizing:border-box" placeholder="Agrega notas internas...">${localStorage.getItem('nota_'+d.id)||''}</textarea>
+      <button onclick="guardarNotaDrawer('${d.id}')" style="margin-top:.4rem;background:#EEF5FB;border:1px solid #BFDBF7;color:#006EB6;border-radius:4px;padding:.35rem .85rem;font-size:.77rem;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif">💾 Guardar nota</button>
     </div>
     <div style="margin-top:1.1rem;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:4px;padding:.9rem">
       <div style="font-size:.7rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.45rem">Historial WhatsApp</div>
@@ -840,6 +841,12 @@ function openDrawer(id){
   document.getElementById("drawer-overlay").style.display="block";
   document.getElementById("drawer").style.display="flex";
 }
+function guardarNotaDrawer(id){
+  const val = document.getElementById('drawer-notas')?.value || '';
+  localStorage.setItem('nota_'+id, val);
+  toast('💾 Nota guardada.');
+}
+
 function closeDrawer(){
   document.getElementById("drawer-overlay").style.display="none";
   document.getElementById("drawer").style.display="none";
