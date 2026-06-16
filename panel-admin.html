@@ -1445,7 +1445,7 @@ function cerrarModalPlantilla(){
 }
 function filtrarMiembrosPlantilla(){
   const q = document.getElementById('plantilla-buscar').value.toLowerCase();
-  const mine = isMision() ? DONACIONES.filter(d=>d.barrio===currentUser.barrio) : DONACIONES;
+  const mine = !isAdmin() ? DONACIONES.filter(d=>d.barrio===currentUser.barrio) : DONACIONES;
   const lista = mine.filter(d=>
     !q || d.nombre.toLowerCase().includes(q) || (d.tel||'').includes(q)
   );
