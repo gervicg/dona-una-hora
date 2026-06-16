@@ -973,19 +973,13 @@ function renderDashboard(){
       💡 Al <strong>aceptar</strong> la solicitud pasa a <em>En espera de cita</em>. Luego el misionero puede <strong>confirmar</strong> o <strong>cancelar</strong> la cita.
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Miembro</th><th>Barrio</th><th>Horario solicitado</th><th>Modalidad</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Miembro</th><th>Barrio</th><th>Horario solicitado</th><th>Modalidad</th><th>Recibido</th></tr></thead>
       <tbody>${pends.map(d=>`<tr>
         <td><div class="td-name">${d.nombre}</div><div class="td-sub">${d.tel}</div></td>
         <td>${d.barrio}</td>
         <td><strong>${d.dia}</strong><br><span style="font-size:.74rem;color:#6B7280">${d.desde} – ${d.hasta}</span></td>
         <td>${badgeModal(d.modalidad)}</td>
-        <td><div style="display:flex;gap:.35rem">
-          ${canActuar()?`
-            <button class="btn-sm btn-confirm" onclick="aceptar('${d.id}')">🕐 Aceptar</button>
-            <button class="btn-sm btn-cancel2" onclick="sinDisponibilidad('${d.id}')">❌ No disponible</button>
-          `:''}
-          <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
-        </div></td>
+        <td style="font-size:.78rem;color:#6B7280">${tiempoRelativo(d.fecha)}</td>
       </tr>`).join("")}</tbody>
     </table></div></div>`;
   }
