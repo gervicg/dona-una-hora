@@ -904,8 +904,8 @@ async function saveUsuario(){
     if(editingUid){
       const body={nombre,email,rol,barrio,tel};
       if(pass) body.password=pass;
-      const res=await fetch(`${API_URL}/usuarios.php?id=${editingUid}`,{
-        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      const res=await fetch(`${API_URL}/usuarios.php?action=update&id=${editingUid}`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
         body:JSON.stringify(body)
       });
       const data=await res.json();
@@ -928,8 +928,8 @@ async function saveUsuario(){
 async function eliminarUsuario(uid){
   if(String(uid)===String(currentUser.id)){toast("No puedes eliminarte a ti mismo.","#DC2626");return;}
   try {
-    const res=await fetch(`${API_URL}/usuarios.php?id=${uid}`,{
-      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+    const res=await fetch(`${API_URL}/usuarios.php?action=update&id=${uid}`,{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
       body:JSON.stringify({activo:0})
     });
     const data=await res.json();
@@ -2732,8 +2732,8 @@ async function guardarLider(){
     if(_liderEditId){
       const body = {nombre, email, barrio:barrio||'Todos'};
       if(pass) body.password = pass;
-      res = await fetch(`${API_URL}/usuarios.php?id=${_liderEditId}`,{
-        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      res = await fetch(`${API_URL}/usuarios.php?action=update&id=${_liderEditId}`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
         body: JSON.stringify(body)
       });
     } else {
@@ -2753,8 +2753,8 @@ async function guardarLider(){
 }
 async function toggleActivoLider(id, activo){
   try {
-    const res = await fetch(`${API_URL}/usuarios.php?id=${id}`,{
-      method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+    const res = await fetch(`${API_URL}/usuarios.php?action=update&id=${id}`,{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
       body: JSON.stringify({activo: activo?0:1})
     });
     const data = await res.json();
@@ -2935,8 +2935,8 @@ async function guardarMisionero(barrio){
 
   try {
     if(editandoMisioneroId){
-      const res = await fetch(`${API_URL}/usuarios.php?id=${editandoMisioneroId}`,{
-        method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      const res = await fetch(`${API_URL}/usuarios.php?action=update&id=${editandoMisioneroId}`,{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
         body: JSON.stringify({nombre:nombre||'', tel, email:email||''})
       });
       const data = await res.json();
