@@ -684,10 +684,9 @@ function showView(v){
   currentView=v;
   // Reset filters when changing views to avoid confusion
   if(v!=='solicitudes') { filtroEstado='todos'; filtroBarrio='Todos'; }
-  document.getElementById("topbar-title").textContent=VIEW_TITLES[v]||v;
-  const rolLabel = isAdmin()?"Administrador":isLider()?"Líder Misional":"Misionero";
-  document.getElementById("topbar-breadcrumb").textContent=
-    `Estaca de Villa Alemana · ${currentUser.barrio==="Todos"?"Todos los barrios":currentUser.barrio} · ${rolLabel}`;
+  const barrioLabel = isAdmin() ? "Todos los barrios" : currentUser.barrio;
+  document.getElementById("topbar-title").textContent=`Estaca Villa Alemana · ${barrioLabel}`;
+  document.getElementById("topbar-breadcrumb").textContent=VIEW_TITLES[v]||v;
   buildSidebar();
   renderView();
 }
