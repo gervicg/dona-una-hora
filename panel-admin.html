@@ -638,16 +638,21 @@ function updateAlert(){
 }
 
 function toggleSidebar(){
-  sideOpen=!sideOpen;
   const sb=document.getElementById("sidebar");
-  sb.classList.toggle("collapsed",!sideOpen);
-  ["logo-text-wrap","user-info-wrap","logout-wrap"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display=sideOpen?"":"none";
-  });
-  document.querySelectorAll(".nav-label,.nav-badge,.nav-section,.barrio-row").forEach(el=>{
-    el.style.display=sideOpen?"":"none";
-  });
+  const isMobile = window.innerWidth<=768;
+  if(isMobile){
+    sb.classList.toggle("open");
+  } else {
+    sideOpen=!sideOpen;
+    sb.classList.toggle("collapsed",!sideOpen);
+    ["logo-text-wrap","user-info-wrap","logout-wrap"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display=sideOpen?"":"none";
+    });
+    document.querySelectorAll(".nav-label,.nav-badge,.nav-section,.barrio-row").forEach(el=>{
+      el.style.display=sideOpen?"":"none";
+    });
+  }
 }
 
 function setBarrioView(b){ barrioView=b; if(currentView==="barrios") renderView(); }
@@ -977,10 +982,10 @@ function renderDashboard(){
       💡 Al <strong>aceptar</strong> la solicitud pasa a <em>En espera de cita</em>. Luego el misionero puede <strong>confirmar</strong> o <strong>cancelar</strong> la cita.
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Miembro</th><th>Barrio</th><th>Horario solicitado</th><th>Modalidad</th><th>Recibido</th></tr></thead>
+      <thead><tr><th>Miembro</th>${!isMision()?'<th>Barrio</th>':''}<th>Horario solicitado</th><th>Modalidad</th><th>Recibido</th></tr></thead>
       <tbody>${pends.map(d=>`<tr>
         <td><div class="td-name">${d.nombre}</div><div class="td-sub">${d.tel}</div></td>
-        <td>${d.barrio}</td>
+        ${!isMision()?`<td>${d.barrio}</td>`:''}
         <td><strong>${d.dia}</strong><br><span style="font-size:.74rem;color:#6B7280">${d.desde} – ${d.hasta}</span></td>
         <td>${badgeModal(d.modalidad)}</td>
         <td style="font-size:.78rem;color:#6B7280">${tiempoRelativo(d.fecha)}</td>
@@ -1121,9 +1126,9 @@ function renderSolicitudes(){
       </div>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Miembro</th><th>Barrio</th><th>Horario</th><th>Modalidad</th><th>Estado</th><th>Recibido</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>#</th><th>Miembro</th>${!isMision()?'<th>Barrio</th>':''}<th>Horario</th><th>Modalidad</th><th>Estado</th><th>Recibido</th><th>Acciones</th></tr></thead>
       <tbody>${list.length===0
-        ? `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div><p>No hay solicitudes que coincidan.</p></div></td></tr>`
+        ? `<tr><td colspan="${isMision()?7:8}"><div class="empty-state"><div class="empty-icon">📭</div><p>No hay solicitudes que coincidan.</p></div></td></tr>`
         : list.map(d=>`<tr>
         <td style="color:#9CA3AF;font-size:.73rem">${d.id}</td>
         <td>
@@ -1131,7 +1136,7 @@ function renderSolicitudes(){
           <div class="td-sub">${d.tel}</div>
           ${d.notas?`<div style="font-size:.72rem;color:#6B7280;margin-top:.2rem;font-style:italic">📝 ${d.notas}</div>`:''}
         </td>
-        <td>${d.barrio}</td>
+        ${!isMision()?`<td>${d.barrio}</td>`:''}
         <td><strong>${d.dia}</strong><br><span style="font-size:.74rem;color:#6B7280">${d.desde} – ${d.hasta}</span></td>
         <td>${badgeModal(d.modalidad)}</td>
         <td>${badgeEstado(d.estado)}</td>
