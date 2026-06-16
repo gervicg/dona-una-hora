@@ -429,12 +429,15 @@ const WA_HIST = [
 function apiToken(){ return localStorage.getItem('dona_hora_token') || ''; }
 
 function normalizeDonacion(d){
+  const raw = d.creado_en || d.fecha || '';
+  const mFecha = raw.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  const fecha = mFecha ? `${mFecha[3]}/${mFecha[2]}/${mFecha[1]} ${mFecha[4]}:${mFecha[5]}` : raw;
   return {
     ...d,
     id: String(d.id),
     tel: d.telefono || d.tel || '',
     dia: d.dia_semana || d.dia || '',
-    fecha: (d.creado_en||d.fecha||'').replace('T',' ').substring(0,16),
+    fecha,
   };
 }
 function normalizeUsuario(u){
