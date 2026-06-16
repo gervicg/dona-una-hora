@@ -1056,6 +1056,34 @@ function cancelarCita(id){
   );
 }
 
+function botonesAccion(d){
+  if(!canActuar()) return '';
+  const tel = d.tel.replace(/\D/g,'');
+  const nombre = d.nombre;
+  const horario = `${d.dia}: ${d.desde} – ${d.hasta}`;
+  const mod = d.modalidad==="presencial"?"(presencial)":"(en línea)";
+
+  if(d.estado==="pendiente"){
+    const waAcep = encodeURIComponent(`Hola *${nombre}* 😊\n\nMuchas gracias, hemos recibido tu solicitud para donar una hora a los misioneros.\n\n📅 *${horario}*\n📍 Barrio ${d.barrio}\n\nTe confirmaremos la hora exacta y el lugar ${mod}.\n\n¡Que el Señor bendiga tu disposición! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    const waRech = encodeURIComponent(`Hola *${nombre}*,\n\nEn este horario no tenemos disponibilidad para citas, muchas gracias por apoyarnos.\n\n📅 ${horario}\n\nFavor de seleccionar otro horario en el sistema. ¡Tu ayuda es muy importante! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    return `<a href="https://wa.me/${tel}?text=${waAcep}" target="_blank" class="btn-sm btn-confirm" style="text-decoration:none" onclick="aceptar('${d.id}')">🕐 Aceptar</a>
+            <a href="https://wa.me/${tel}?text=${waRech}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="sinDisponibilidad('${d.id}')">🚫 Rechazar</a>`;
+  }
+  if(d.estado==="en-espera"){
+    const waConf = encodeURIComponent(`¡Hola *${nombre}*! 🎉\n\nTu cita con los misioneros está confirmada:\n\n📅 *${horario}*\n📍 Barrio ${d.barrio}\n🖥️ Modalidad: ${d.modalidad==="presencial"?"Presencial":"En línea"}\n\n¡Muchas gracias por tu apoyo! 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    const waCanc = encodeURIComponent(`Hola *${nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${horario}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    return `<a href="https://wa.me/${tel}?text=${waConf}" target="_blank" class="btn-sm btn-confirm" style="text-decoration:none" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</a>
+            <a href="https://wa.me/${tel}?text=${waCanc}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="cancelarCita('${d.id}')">❌</a>`;
+  }
+  if(d.estado==="cita-confirmada"){
+    const waReal = encodeURIComponent(`🙏 Hola *${nombre}*, ¡gracias por acompañar a los misioneros hoy!\n\nFue un gusto enseñar el evangelio junto a ti. Esperamos verte pronto nuevamente en la Obra de Salvación. 🌟\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    const waCanc = encodeURIComponent(`Hola *${nombre}*,\n\nLamentamos informarte que debemos cancelar la cita del *${horario}*.\n\nTe contactaremos para reagendar. Disculpa los inconvenientes. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_`);
+    return `<a href="https://wa.me/${tel}?text=${waReal}" target="_blank" class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none;text-decoration:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</a>
+            <a href="https://wa.me/${tel}?text=${waCanc}" target="_blank" class="btn-sm btn-cancel2" style="text-decoration:none" onclick="cancelarCita('${d.id}')">❌</a>`;
+  }
+  return '';
+}
+
 function renderSolicitudes(){
   const mine = mineFilter;
   let list=DONACIONES.filter(d=>mineFilter(d));
@@ -1107,15 +1135,7 @@ function renderSolicitudes(){
           <span title="${d.fecha}">${tiempoRelativo(d.fecha)}</span>
         </td>
         <td><div style="display:flex;gap:.32rem;flex-wrap:wrap">
-          ${canActuar()&&d.estado==="pendiente"?`
-            <button class="btn-sm btn-confirm" onclick="aceptar('${d.id}')">🕐 Aceptar</button>
-            <button class="btn-sm btn-cancel2" onclick="sinDisponibilidad('${d.id}')">🚫 Rechazar</button>`:""}
-          ${canActuar()&&d.estado==="en-espera"?`
-            <button class="btn-sm btn-confirm" onclick="confirmarCita('${d.id}')">✅ Confirmar cita</button>
-            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
-          ${canActuar()&&d.estado==="cita-confirmada"?`
-            <button class="btn-sm" style="background:#0F766E;color:#CCFBF1;border:none" onclick="citaRealizada('${d.id}')">🙏 Realizada</button>
-            <button class="btn-sm btn-cancel2" onclick="cancelarCita('${d.id}')">❌</button>`:""}
+          ${botonesAccion(d)}
           <button class="btn-sm btn-detail" onclick="openDrawer('${d.id}')">Ver</button>
         </div></td>
       </tr>`).join("")}</tbody>
