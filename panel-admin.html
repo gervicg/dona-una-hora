@@ -593,7 +593,7 @@ function buildSidebar(){
     {id:"dashboard",  icon:"📊", label:"Dashboard"},
     {id:"solicitudes",icon:"📋", label:"Solicitudes"},
     {id:"calendario", icon:"📅", label:"Calendario"},
-    {id:"barrios",    icon:"📍", label:"Por barrio"},
+    ...(!isMision()?[{id:"barrios", icon:"📍", label:"Por barrio"}]:[]),
     {id:"miembros",   icon:"👥", label:"Miembros"},
     {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
     // Informes: admin + lider-misional + misionero (solo su barrio)
