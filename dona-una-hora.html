@@ -235,7 +235,11 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
           <input type="text" id="inp-notas" placeholder="Ej. Prefiero las citas en la tarde, tengo niños pequeños..."/>
           <p class="hint">Puedes indicar cualquier detalle que ayude a los misioneros a preparar la cita.</p>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid #E5E7EB">
+          <label style="display:flex;align-items:center;gap:.55rem;cursor:pointer;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;user-select:none">
+            <input type="checkbox" id="chk-referencia" style="width:17px;height:17px;accent-color:#006EB6;cursor:pointer;flex-shrink:0"/>
+            <span>¿Deseas darnos una referencia de alguien interesado en el evangelio?</span>
+          </label>
           <button class="btn-primary" onclick="goStep2()">Continuar →</button>
         </div>
       </div>
@@ -290,6 +294,33 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
     </div>
   </div>
 </div>
+</div>
+
+<!-- ═══ MODAL: REFERENCIAS ═══ -->
+<div id="modal-ref-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:6px;width:100%;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
+    <div style="background:#006EB6;padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <p style="font-family:'Noto Sans',sans-serif;font-size:.72rem;color:rgba(255,255,255,.7);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.15rem">Opcional</p>
+        <h3 style="font-family:'Source Serif 4',serif;font-size:1.15rem;font-weight:700;color:#fff;margin:0">Referencias</h3>
+      </div>
+      <button onclick="cerrarModalRef()" style="background:none;border:none;color:rgba(255,255,255,.8);font-size:1.4rem;cursor:pointer;line-height:1;padding:.2rem .4rem">✕</button>
+    </div>
+    <div style="padding:1.4rem">
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.84rem;color:#6B7280;margin-bottom:1.1rem">¿Conoces a alguien interesado en aprender más sobre el evangelio? Compártenos sus datos.</p>
+      <div class="field"><label>Nombres y Apellidos</label><input type="text" id="ref-nombre" placeholder="Nombre completo"/></div>
+      <div class="field"><label>Dirección</label><input type="text" id="ref-direccion" placeholder="Calle, número, ciudad"/></div>
+      <div class="field"><label>Teléfono</label><input type="tel" id="ref-telefono" placeholder="+56 9 XXXX XXXX"/></div>
+      <div class="field">
+        <label>Observaciones <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
+        <textarea id="ref-observaciones" rows="3" placeholder="Ej. Le interesó el tema de la familia, habla solo español..." style="width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;resize:vertical;outline:none;transition:border-color .15s"></textarea>
+      </div>
+      <div style="display:flex;gap:.7rem;justify-content:flex-end;margin-top:.4rem">
+        <button onclick="cerrarModalRef()" style="background:transparent;color:#6B7280;border:1px solid #D1D5DB;border-radius:4px;padding:.65rem 1.3rem;font-family:'Noto Sans',sans-serif;font-size:.85rem;cursor:pointer">Omitir</button>
+        <button onclick="guardarReferencia()" class="btn-primary">Enviar referencia →</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ PAGE 3: CONFIRMACIÓN ═══ -->
@@ -579,7 +610,44 @@ function buildSummaryBand(){
 }
 
 // ── Step 3 ─────────────────────────────────────────────────────────
+function abrirModalRef(){
+  const ov = document.getElementById('modal-ref-overlay');
+  ov.style.display = 'flex';
+  document.getElementById('ref-nombre').focus();
+}
+function cerrarModalRef(){
+  document.getElementById('modal-ref-overlay').style.display = 'none';
+  _goStep3Real();
+}
+function guardarReferencia(){
+  const nombre = document.getElementById('ref-nombre').value.trim();
+  const dir    = document.getElementById('ref-direccion').value.trim();
+  const tel    = document.getElementById('ref-telefono').value.trim();
+  const obs    = document.getElementById('ref-observaciones').value.trim();
+  if(!nombre || !dir || !tel){
+    alert('Por favor completa Nombres, Dirección y Teléfono.');
+    return;
+  }
+  // Guardar localmente y enviar a API si existe
+  const ref = { nombre, direccion: dir, telefono: tel, observaciones: obs, fecha: new Date().toISOString() };
+  try { localStorage.setItem('dona_hora_ref_pendiente', JSON.stringify(ref)); } catch(e){}
+  fetch(API_URL + '/referencias.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ref)
+  }).catch(()=>{}); // silencioso si el endpoint no existe aún
+  document.getElementById('modal-ref-overlay').style.display = 'none';
+  _goStep3Real();
+}
+
 function goStep3(){
+  if(document.getElementById('chk-referencia')?.checked){
+    abrirModalRef();
+    return;
+  }
+  _goStep3Real();
+}
+function _goStep3Real(){
   const list=getSelectedList();
   const n=list.length;
 
