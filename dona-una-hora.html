@@ -629,13 +629,14 @@ function guardarReferencia(){
     return;
   }
   // Guardar localmente y enviar a API si existe
-  const ref = { nombre, direccion: dir, telefono: tel, observaciones: obs, fecha: new Date().toISOString() };
+  const ref = { nombre, direccion: dir, telefono: tel, observaciones: obs,
+                referido_por: form.nombre || '', barrio: form.barrio || '' };
   try { localStorage.setItem('dona_hora_ref_pendiente', JSON.stringify(ref)); } catch(e){}
   fetch(API_URL + '/referencias.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ref)
-  }).catch(()=>{}); // silencioso si el endpoint no existe aún
+  }).catch(()=>{});
   document.getElementById('modal-ref-overlay').style.display = 'none';
   _goStep3Real();
 }
