@@ -635,7 +635,7 @@ function buildSidebar(){
     {id:"miembros",   icon:"👥", label:"Miembros"},
     {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
     {id:"informes",   icon:"📈", label:"Informes"},
-    ...(!isMision()?[{id:"referencias", icon:"🤝", label:"Referencias"}]:[]),
+    {id:"referencias", icon:"🤝", label:"Referencias"},
     ...(isAdmin()?[
       {id:"misioneros", icon:"⛪", label:"Misioneros"},
       {id:"lideres",    icon:"👔", label:"Líderes Misionales"},
@@ -1037,7 +1037,7 @@ function renderDashboard(){
   }
 
   // ── Cuadro resumen de Referencias ───────────────────────────────
-  if(!isMision()){
+  if(true){
     const ahora   = new Date();
     const mesAct  = ahora.getMonth();
     const anioAct = ahora.getFullYear();
