@@ -232,15 +232,9 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
           <p class="hint" id="hint-barrio" style="margin-top:.4rem"></p>
         </div>
         <div class="field">
-          <label>¿Algo que los misioneros deban saber? <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
-          <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.3rem">
-            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Prefiero las tardes"/> Prefiero las tardes</label>
-            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Tengo niños pequeños"/> Tengo niños pequeños</label>
-            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Solo presencial"/> Solo presencial</label>
-            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Solo en línea"/> Solo en línea</label>
-          </div>
-          <input type="text" id="inp-notas" placeholder="Otra nota..." style="margin-top:.5rem;width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;outline:none"/>
-          <p class="hint">Selecciona las que apliquen o escribe una nota libre.</p>
+          <label>Notas para los misioneros <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
+          <input type="text" id="inp-notas" placeholder="Ej. Prefiero las citas en la tarde, tengo niños pequeños..."/>
+          <p class="hint">Puedes indicar cualquier detalle que ayude a los misioneros a preparar la cita.</p>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid #E5E7EB">
           <button class="btn-primary" onclick="goStep2()">Continuar →</button>
@@ -458,9 +452,7 @@ function goStep2(){
   else {hb.textContent='';}
 
   if(!ok) return;
-  const checks = [...document.querySelectorAll('.nota-check:checked')].map(c=>c.value);
-  const libre = document.getElementById('inp-notas')?.value.trim() || '';
-  form.notas = [...checks, ...(libre ? [libre] : [])].join(' · ') || '';
+  form.notas = document.getElementById('inp-notas')?.value.trim() || '';
   buildCalendar();
   buildSummaryBand();
   showPage(2);
