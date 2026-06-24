@@ -603,8 +603,9 @@ async function doLogin(){
       document.getElementById("login-screen").style.display="none";
       document.getElementById("panel-screen").style.display="block";
       barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
-      buildSidebar(); showView("dashboard");
+      buildSidebar();
       await Promise.all([cargarDonacionesAPI(), cargarUsuariosAPI(), cargarReferenciasAPI()]);
+      showView("dashboard");
       return;
     }
     err.textContent = "⚠ " + data.error;
@@ -889,8 +890,19 @@ function closeDrawer(){
 // MODAL USUARIO
 // ═══════════════════════════════════════════════════════════════
 function toggleTelField(rol){
-  const wrap = document.getElementById("m-tel-wrap");
-  if(wrap) wrap.style.display = rol==="misionero" ? "block" : "none";
+  const wrap  = document.getElementById("m-tel-wrap");
+  const label = document.querySelector("#m-tel-wrap .form-label");
+  const hint  = document.querySelector("#m-tel-wrap p");
+  if(!wrap) return;
+  const show = rol==="misionero" || rol==="lider-misional";
+  wrap.style.display = show ? "block" : "none";
+  if(rol==="lider-misional"){
+    if(label) label.textContent="📱 Teléfono WhatsApp";
+    if(hint)  hint.textContent="Número de contacto del líder misional.";
+  } else {
+    if(label) label.textContent="📱 Teléfono WhatsApp de la pareja misionera";
+    if(hint)  hint.textContent="Este número recibirá las notificaciones de donación de su barrio.";
+  }
 }
 
 function openModalUsuario(uid){
@@ -922,7 +934,7 @@ async function saveUsuario(){
   const barrio=document.getElementById("m-barrio").value;
   const tel   =document.getElementById("m-tel").value.trim();
   if(!nombre||!email){toast("Completa nombre y correo.","#DC2626");return;}
-  if(rol==="misionero"&&!tel){toast("Ingresa el teléfono WhatsApp del misionero.","#DC2626");return;}
+  if((rol==="misionero"||rol==="lider-misional")&&!tel){toast("Ingresa el teléfono WhatsApp.","#DC2626");return;}
   try {
     if(editingUid){
       const body={nombre,email,rol,barrio,tel};
