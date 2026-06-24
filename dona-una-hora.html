@@ -168,7 +168,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
   <div class="site-header-inner">
     <p class="eyebrow">Obra de Salvación</p>
     <h1>Dona una Hora por la Obra</h1>
-    <p class="sub">Los miembros de la Estaca de Villa Alemana pueden donar una o más horas semanales para acompañar a los misioneros y enseñar el evangelio juntos.</p>
+    <p class="sub">Acompaña a los misioneros y enseña el evangelio en tu barrio.</p>
   </div>
   <div class="wave-wrap">
     <svg viewBox="0 0 1200 28" preserveAspectRatio="none"><path d="M0,0 C300,28 900,28 1200,0 L1200,28 L0,28 Z" fill="#F0F2F4"/></svg>
@@ -231,15 +231,17 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
           <p class="hint" id="hint-barrio" style="margin-top:.4rem"></p>
         </div>
         <div class="field">
-          <label>Notas para los misioneros <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
-          <input type="text" id="inp-notas" placeholder="Ej. Prefiero las citas en la tarde, tengo niños pequeños..."/>
-          <p class="hint">Puedes indicar cualquier detalle que ayude a los misioneros a preparar la cita.</p>
+          <label>¿Algo que los misioneros deban saber? <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
+          <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.3rem">
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Prefiero las tardes"/> Prefiero las tardes</label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Tengo niños pequeños"/> Tengo niños pequeños</label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Solo presencial"/> Solo presencial</label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;font-weight:400;color:#374151;cursor:pointer"><input type="checkbox" class="nota-check" value="Solo en línea"/> Solo en línea</label>
+          </div>
+          <input type="text" id="inp-notas" placeholder="Otra nota..." style="margin-top:.5rem;width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;outline:none"/>
+          <p class="hint">Selecciona las que apliquen o escribe una nota libre.</p>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid #E5E7EB">
-          <label style="display:flex;align-items:center;gap:.55rem;cursor:pointer;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;user-select:none">
-            <input type="checkbox" id="chk-referencia" style="width:17px;height:17px;accent-color:#006EB6;cursor:pointer;flex-shrink:0"/>
-            <span>¿Deseas darnos una referencia de alguien interesado en el evangelio?</span>
-          </label>
+        <div style="display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:.75rem;margin-top:1rem;padding-top:.9rem;border-top:1px solid #E5E7EB">
           <button class="btn-primary" onclick="goStep2()">Continuar →</button>
         </div>
       </div>
@@ -285,42 +287,12 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
       </div>
       <div class="cal-wrap" id="cal-grid-wrap"></div>
       <div class="divider"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
-        <p id="msg-selecciona" style="font-size:.82rem;color:#9CA3AF;font-style:italic">
-          👆 Toca un casillero disponible para seleccionar tu horario
-        </p>
+      <div style="display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:.5rem">
         <button class="btn-primary" id="btn-confirm" disabled onclick="goStep3()">Confirmar solicitud →</button>
       </div>
     </div>
   </div>
 </div>
-</div>
-
-<!-- ═══ MODAL: REFERENCIAS ═══ -->
-<div id="modal-ref-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;align-items:center;justify-content:center;padding:1rem">
-  <div style="background:#fff;border-radius:6px;width:100%;max-width:460px;box-shadow:0 8px 32px rgba(0,0,0,.18);overflow:hidden">
-    <div style="background:#006EB6;padding:1.1rem 1.4rem;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <p style="font-family:'Noto Sans',sans-serif;font-size:.72rem;color:rgba(255,255,255,.7);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.15rem">Opcional</p>
-        <h3 style="font-family:'Source Serif 4',serif;font-size:1.15rem;font-weight:700;color:#fff;margin:0">Referencias</h3>
-      </div>
-      <button onclick="cerrarModalRef()" style="background:none;border:none;color:rgba(255,255,255,.8);font-size:1.4rem;cursor:pointer;line-height:1;padding:.2rem .4rem">✕</button>
-    </div>
-    <div style="padding:1.4rem">
-      <p style="font-family:'Noto Sans',sans-serif;font-size:.84rem;color:#6B7280;margin-bottom:1.1rem">¿Conoces a alguien interesado en aprender más sobre el evangelio? Compártenos sus datos.</p>
-      <div class="field"><label>Nombres y Apellidos</label><input type="text" id="ref-nombre" placeholder="Nombre completo"/></div>
-      <div class="field"><label>Dirección</label><input type="text" id="ref-direccion" placeholder="Calle, número, ciudad"/></div>
-      <div class="field"><label>Teléfono</label><input type="tel" id="ref-telefono" placeholder="+56 9 XXXX XXXX"/></div>
-      <div class="field">
-        <label>Observaciones <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label>
-        <textarea id="ref-observaciones" rows="3" placeholder="Ej. Le interesó el tema de la familia, habla solo español..." style="width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;resize:vertical;outline:none;transition:border-color .15s"></textarea>
-      </div>
-      <div style="display:flex;gap:.7rem;justify-content:flex-end;margin-top:.4rem">
-        <button onclick="cerrarModalRef()" style="background:transparent;color:#6B7280;border:1px solid #D1D5DB;border-radius:4px;padding:.65rem 1.3rem;font-family:'Noto Sans',sans-serif;font-size:.85rem;cursor:pointer">Omitir</button>
-        <button onclick="guardarReferencia()" class="btn-primary">Enviar referencia →</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ═══ PAGE 3: CONFIRMACIÓN ═══ -->
@@ -336,6 +308,18 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
       <div id="gcal-links"></div>
       <div class="divider"></div>
       <div id="wa-links"></div>
+      <div style="margin-top:1.2rem;border-top:1px solid #E5E7EB;padding-top:1rem">
+        <button onclick="toggleRefForm()" style="background:none;border:none;color:#006EB6;font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;padding:0">
+          <span id="ref-toggle-icon">＋</span> ¿Conoces a alguien interesado en el evangelio? Danos una referencia
+        </button>
+        <div id="ref-form-inline" style="display:none;margin-top:1rem">
+          <div class="field"><label>Nombres y Apellidos</label><input type="text" id="ref-nombre" placeholder="Nombre completo"/></div>
+          <div class="field"><label>Dirección</label><input type="text" id="ref-direccion" placeholder="Calle, número, ciudad"/></div>
+          <div class="field"><label>Teléfono</label><input type="tel" id="ref-telefono" placeholder="+56 9 XXXX XXXX"/></div>
+          <div class="field"><label>Observaciones <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label><textarea id="ref-observaciones" rows="2" style="width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;resize:vertical;outline:none"></textarea></div>
+          <button onclick="guardarReferencia()" class="btn-primary" style="width:100%">Enviar referencia →</button>
+        </div>
+      </div>
       <button class="btn-secondary" style="width:100%;justify-content:center" onclick="reset()">Registrar otro miembro</button>
     </div>
     <div class="scripture" style="margin-top:1.2rem">
@@ -473,7 +457,9 @@ function goStep2(){
   else {hb.textContent='';}
 
   if(!ok) return;
-  form.notas = document.getElementById('inp-notas')?.value.trim() || '';
+  const checks = [...document.querySelectorAll('.nota-check:checked')].map(c=>c.value);
+  const libre = document.getElementById('inp-notas')?.value.trim() || '';
+  form.notas = [...checks, ...(libre ? [libre] : [])].join(' · ') || '';
   buildCalendar();
   buildSummaryBand();
   showPage(2);
@@ -582,18 +568,15 @@ function updateCounter(){
   const n=Object.values(selected).filter(Boolean).length;
   const pill=document.getElementById('counter-pill');
   const btn=document.getElementById('btn-confirm');
-  const msg=document.getElementById('msg-selecciona');
   if(n>0){
     pill.style.display='inline-flex';
     pill.textContent=`✔ ${n} hora${n!==1?'s':''} seleccionada${n!==1?'s':''}`;
     btn.disabled=false;
     btn.textContent=`Confirmar solicitud (${n} hora${n!==1?'s':''}) →`;
-    if(msg) msg.style.display='none';
   } else {
     pill.style.display='none';
     btn.disabled=true;
     btn.textContent='Confirmar solicitud →';
-    if(msg) msg.style.display='block';
   }
 }
 
@@ -610,14 +593,12 @@ function buildSummaryBand(){
 }
 
 // ── Step 3 ─────────────────────────────────────────────────────────
-function abrirModalRef(){
-  const ov = document.getElementById('modal-ref-overlay');
-  ov.style.display = 'flex';
-  document.getElementById('ref-nombre').focus();
-}
-function cerrarModalRef(){
-  document.getElementById('modal-ref-overlay').style.display = 'none';
-  _goStep3Real();
+function toggleRefForm(){
+  const f = document.getElementById('ref-form-inline');
+  const ico = document.getElementById('ref-toggle-icon');
+  const open = f.style.display === 'none';
+  f.style.display = open ? 'block' : 'none';
+  ico.textContent = open ? '－' : '＋';
 }
 function guardarReferencia(){
   const nombre = document.getElementById('ref-nombre').value.trim();
@@ -637,15 +618,12 @@ function guardarReferencia(){
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ref)
   }).catch(()=>{});
-  document.getElementById('modal-ref-overlay').style.display = 'none';
-  _goStep3Real();
+  const f = document.getElementById('ref-form-inline');
+  f.innerHTML = '<p style="color:#2D7A2D;font-weight:600">✅ Referencia enviada. ¡Gracias!</p>';
+  f.style.display = 'block';
 }
 
 function goStep3(){
-  if(document.getElementById('chk-referencia')?.checked){
-    abrirModalRef();
-    return;
-  }
   _goStep3Real();
 }
 function _goStep3Real(){

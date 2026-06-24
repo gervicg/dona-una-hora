@@ -99,7 +99,7 @@ tr:last-child td{border-bottom:none}
 .badge-pending   {background:#FEF3C7;color:#92400E}
 .badge-en-espera    {background:#DBEAFE;color:#1E40AF}
 .badge-confirm   {background:#D1FAE5;color:#065F46}
-.badge-realizada {background:#134E4A;color:#CCFBF1}
+.badge-realizada {background:#0D7A5F;color:#CCFBF1}
 .badge-cancel    {background:#FEE2E2;color:#991B1B}
 .badge-presencial{background:#DBEAFE;color:#1E40AF}
 .badge-online    {background:#EDE9FE;color:#5B21B6}
@@ -142,7 +142,7 @@ tr:last-child td{border-bottom:none}
 .acg-confirmed{background:#006EB6;border-color:#005A9E;color:#fff;cursor:pointer}
 .acg-confirmed:hover{background:#005A9E}
 .acg-en-espera{background:#DBEAFE;border-color:#3B82F6;color:#1E40AF;cursor:pointer;font-size:.6rem}
-.acg-cita-realizada{background:#134E4A;border-color:#0F766E;color:#CCFBF1;cursor:pointer;font-size:.6rem}
+.acg-cita-realizada{background:#0D7A5F;border-color:#0F766E;color:#CCFBF1;cursor:pointer;font-size:.6rem}
 .acg-cita-realizada:hover{background:#0F766E}
 .acg-en-espera:hover{background:#BFDBFE}
 .acg-pending{background:#FEF3C7;border-color:#D4A017;color:#92400E;cursor:pointer}
@@ -377,6 +377,7 @@ tr:last-child td{border-bottom:none}
           <option value="lider-misional">📊 Líder Misional</option>
           <option value="admin">🛡 Administrador</option>
         </select>
+        <p class="hint">Misionero: gestiona citas de su barrio · Líder Misional: reportes de su barrio · Admin: acceso completo</p>
       </div>
       <div class="form-field"><label class="form-label">Barrio asignado</label>
         <select class="form-select" id="m-barrio">
@@ -439,14 +440,7 @@ const canActuar  = ()=> isAdmin() || isMision();
 const mineFilter = d =>
   isAdmin() ? true : d.barrio === currentUser.barrio;
 
-const WA_HIST = [
-  {id:"W001",nombre:"Carlos Muñoz Soto",  tel:"+56 9 2345 6789",tipo:"aprobacion",estado:"enviado",fecha:"05/06/2026 14:35"},
-  {id:"W002",nombre:"Pedro Fuentes Araya",tel:"+56 9 4567 8901",tipo:"cita-confirmada",estado:"enviado",fecha:"04/06/2026 16:25"},
-  {id:"W003",nombre:"Luis Castillo Mora", tel:"+56 9 6789 0123",tipo:"aprobacion",estado:"enviado",fecha:"03/06/2026 08:20"},
-  {id:"W004",nombre:"Isabel Vargas Pinto",tel:"+56 9 7890 1234",tipo:"cita-confirmada",estado:"enviado",fecha:"02/06/2026 19:08"},
-  {id:"W005",nombre:"Roberto Díaz Flores",tel:"+56 9 8901 2345",tipo:"cita-cancelada",   estado:"enviado",fecha:"01/06/2026 12:05"},
-  {id:"W006",nombre:"Fernando Morales",   tel:"+56 9 0123 4567",tipo:"recordatorio",estado:"enviado",fecha:"01/06/2026 08:00"},
-];
+const WA_HIST = [];
 
 // ── API helpers ──────────────────────────────────────────────────
 function apiToken(){ return localStorage.getItem('dona_hora_token') || ''; }
@@ -642,8 +636,6 @@ function buildSidebar(){
     {id:"dashboard",  icon:"📊", label:"Dashboard"},
     {id:"solicitudes",icon:"📋", label:"Solicitudes"},
     {id:"calendario", icon:"📅", label:"Calendario"},
-    ...(!isMision()?[{id:"barrios", icon:"📍", label:"Por barrio"}]:[]),
-    {id:"miembros",   icon:"👥", label:"Miembros"},
     {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
     {id:"informes",   icon:"📈", label:"Informes"},
     {id:"referencias", icon:"🤝", label:"Referencias"},
@@ -655,14 +647,27 @@ function buildSidebar(){
   ];
 
   const s = getStats();
+  const gestionIds = ["misioneros","lideres","usuarios"];
+  const mainItems = navItems.filter(n=>!gestionIds.includes(n.id));
+  const gestionItems = navItems.filter(n=>gestionIds.includes(n.id));
+
   let html = `<div class="nav-section">Menú principal</div>`;
-  navItems.forEach(n=>{
+  mainItems.forEach(n=>{
     const badge = n.id==="solicitudes"&&s.pendientes>0 ? `<span class="nav-badge">${s.pendientes}</span>` : "";
     html += `<div class="nav-item${currentView===n.id?" active":""}" onclick="showView('${n.id}')">
       <span class="nav-icon">${n.icon}</span>
       <span class="nav-label">${n.label}</span>${badge}
     </div>`;
   });
+  if(isAdmin()&&gestionItems.length>0){
+    html += `<div class="nav-section" style="margin-top:.7rem">Gestión</div>`;
+    gestionItems.forEach(n=>{
+      html += `<div class="nav-item${currentView===n.id?" active":""}" onclick="showView('${n.id}')">
+        <span class="nav-icon">${n.icon}</span>
+        <span class="nav-label">${n.label}</span>
+      </div>`;
+    });
+  }
 
   if(isAdmin()){
     html += `<div class="nav-section" style="margin-top:.7rem">Barrios</div><div style="padding:.3rem .65rem">`;
@@ -757,7 +762,7 @@ async function aceptar(id){
   closeDrawer(); buildSidebar(); renderView();
 }
 async function sinDisponibilidad(id){
-  try { await cambiarEstadoAPI(id,"cita-cancelada"); toast("❌ Sin disponibilidad. Se notificó al miembro.","#DC2626"); }
+  try { await cambiarEstadoAPI(id,"cita-cancelada"); toast("❌ Rechazar solicitud. Se notificó al miembro.","#DC2626"); }
   catch(e){ toast("⚠ "+e.message,"#DC2626"); }
   closeDrawer(); buildSidebar(); renderView();
 }
@@ -801,7 +806,7 @@ function openDrawer(id){
        ...(d.notas?[["📝 Nota del miembro",d.notas]]:[]),
       ].map(([k,v])=>`<div class="detail-row"><span class="detail-label">${k}</span><span class="detail-value" style="max-width:220px;text-align:right;word-break:break-word">${v}</span></div>`).join("")}
     <div style="margin-top:1.1rem">
-      <label class="form-label">Notas del misionero</label>
+      <label class="form-label">Notas internas</label>
       <textarea id="drawer-notas" style="width:100%;padding:.55rem .8rem;border:1px solid #D1D5DB;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.83rem;min-height:75px;resize:vertical;outline:none;margin-top:.3rem;box-sizing:border-box" placeholder="Agrega notas internas...">${d.notas_misionero||localStorage.getItem('nota_'+d.id)||''}</textarea>
       <button onclick="guardarNotaDrawer('${d.id}')" style="margin-top:.4rem;background:#EEF5FB;border:1px solid #BFDBF7;color:#006EB6;border-radius:4px;padding:.35rem .85rem;font-size:.77rem;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif">💾 Guardar nota</button>
     </div>
@@ -816,7 +821,7 @@ function openDrawer(id){
   if(d.estado==="pendiente"){
     footer= canActuar() ? `
       <button class="btn-ghost" style="color:#DC2626;border-color:#DC2626"
-         onclick="sinDisponibilidad('${d.id}');mensajeWA('${d.id}','rechazar')">❌ Sin disponibilidad</button>
+         onclick="sinDisponibilidad('${d.id}');mensajeWA('${d.id}','rechazar')">❌ Rechazar solicitud</button>
       <button class="btn-primary"
          onclick="aceptar('${d.id}');mensajeWA('${d.id}','aceptar')">🕐 Aceptar solicitud</button>
     ` : `<span style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#9CA3AF;font-style:italic">👁️ Solo lectura — sin acciones disponibles</span>`;
@@ -966,19 +971,6 @@ function renderDashboard(){
   const pends=DONACIONES.filter(d=>mineFilter(d)&&d.estado==="pendiente");
 
   let html=`
-  <!-- Flujo de estados -->
-  <div style="display:flex;align-items:center;gap:0;margin-bottom:1.3rem;flex-wrap:wrap;font-family:'Noto Sans',sans-serif;font-size:.78rem">
-    <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:4px 0 0 4px;padding:.5rem 1rem;color:#92400E;font-weight:600">⏳ Pendiente</div>
-    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
-    <div style="background:#DBEAFE;border:1px solid #93C5FD;padding:.5rem 1rem;color:#1E40AF;font-weight:600">🕐 En espera de cita</div>
-    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
-    <div style="background:#D1FAE5;border:1px solid #6EE7B7;padding:.5rem 1rem;color:#065F46;font-weight:600">✅ Cita confirmada</div>
-    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">→</div>
-    <div style="background:#CCFBF1;border:1px solid #99F6E4;padding:.5rem 1rem;color:#134E4A;font-weight:600">🙏 Cita realizada</div>
-    <div style="background:#E5E7EB;padding:.5rem .4rem;color:#9CA3AF;font-size:.7rem">ó</div>
-    <div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:0 4px 4px 0;padding:.5rem 1rem;color:#991B1B;font-weight:600">❌ Cita cancelada</div>
-  </div>
-
   <div class="stats-row">
     <div class="stat-card" style="border-left:3px solid #D4A017">
       <div class="stat-label">⏳ Pendiente</div>
@@ -994,16 +986,6 @@ function renderDashboard(){
       <div class="stat-label">✅ Citas confirmadas</div>
       <div class="stat-value" style="color:#065F46">${s.confirmadas}</div>
       <div class="stat-sub">Cita agendada</div>
-    </div>
-    <div class="stat-card" style="border-left:3px solid #0F766E">
-      <div class="stat-label">🙏 Realizadas</div>
-      <div class="stat-value" style="color:#0F766E">${s.realizadas}</div>
-      <div class="stat-sub">Cita concretada</div>
-    </div>
-    <div class="stat-card" style="border-left:3px solid #DC2626">
-      <div class="stat-label">❌ Canceladas/Rechaz.</div>
-      <div class="stat-value" style="color:#991B1B">${s.canceladas}</div>
-      <div class="stat-sub">No se realizó</div>
     </div>
   </div>`;
 
@@ -1454,7 +1436,9 @@ function renderWhatsApp(){
      texto:"Hola *{nombre}*, lamentamos informarte que *no tenemos disponibilidad* de cita misionera en el horario que seleccionaste:\n📅 {dia}: {hora_inicio} – {hora_fin}\n\nTe invitamos a registrar otro horario en que podamos acompañarte. 🙏\n_Misioneros · Estaca de Villa Alemana · Misión Viña del Mar_"},
   ];
 
-  const hist=WA_HIST.map(w=>`<tr>
+  const hist=WA_HIST.length===0
+    ? `<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:#9CA3AF;font-style:italic">Sin mensajes enviados aún.</td></tr>`
+    : WA_HIST.map(w=>`<tr>
     <td class="td-name">${w.nombre}</td>
     <td style="font-size:.81rem">${w.tel}</td>
     <td><span class="badge badge-${w.tipo}">${w.tipo==="cita-confirmada"?"✅ Cita confirmada":w.tipo==="aprobacion"?"🕐 Solicitud aprobada":w.tipo==="cita-cancelada"?"🚫 Rechazada":w.tipo==="recordatorio"?"🔔 Recordatorio":"📩 "+w.tipo}</span></td>
@@ -1781,7 +1765,7 @@ function _genCoord(){
 
           <!-- Chips de estados -->
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding:.75rem 1.3rem;border-bottom:1px solid var(--color-border-tertiary);background:var(--color-background-secondary)">
-            ${realiz>0?`<span style="background:#134E4A;color:#CCFBF1;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">🙏 Realizadas: ${realiz}</span>`:''}
+            ${realiz>0?`<span style="background:#0D7A5F;color:#CCFBF1;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">🙏 Realizadas: ${realiz}</span>`:''}
             ${aprob>0 ?`<span style="background:#D1FAE5;color:#065F46;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">✅ Confirmadas: ${aprob}</span>`:''}
             ${espera>0?`<span style="background:#DBEAFE;color:#1E40AF;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">🕐 En espera: ${espera}</span>`:''}
             ${pend>0  ?`<span style="background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:500;font-family:'Noto Sans',sans-serif">⏳ Pendientes: ${pend}</span>`:''}
