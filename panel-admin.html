@@ -503,6 +503,16 @@ async function cargarUsuariosAPI(){
   } catch(e){ console.warn('No se pudo cargar usuarios:', e); }
 }
 
+async function cargarReferenciasAPI(){
+  try {
+    const res = await fetch(`${API_URL}/referencias.php`, {
+      headers: {'Authorization':'Bearer '+apiToken()}
+    });
+    const data = await res.json();
+    if(data.ok) REFERENCIAS = data.data || [];
+  } catch(e){ console.warn('No se pudo cargar referencias:', e); }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
@@ -600,8 +610,7 @@ async function doLogin(){
       document.getElementById("panel-screen").style.display="block";
       barrioView = (isMision()||isLider()) ? currentUser.barrio : "Olmué";
       buildSidebar(); showView("dashboard");
-      cargarDonacionesAPI();
-      cargarUsuariosAPI();
+      await Promise.all([cargarDonacionesAPI(), cargarUsuariosAPI(), cargarReferenciasAPI()]);
       return;
     }
     err.textContent = "⚠ " + data.error;
@@ -613,6 +622,8 @@ async function doLogin(){
 }
 function doLogout(){
   currentUser=null;
+  localStorage.removeItem('dona_hora_token');
+  DONACIONES=[]; USUARIOS=[]; MAPA_MISIONEROS={}; REFERENCIAS=[];
   document.getElementById("panel-screen").style.display="none";
   document.getElementById("login-screen").style.display="block";
   document.getElementById("login-email").value="";
@@ -1037,7 +1048,7 @@ function renderDashboard(){
   }
 
   // ── Cuadro resumen de Referencias ───────────────────────────────
-  if(true){
+  if(REFERENCIAS.length >= 0){
     const ahora   = new Date();
     const mesAct  = ahora.getMonth();
     const anioAct = ahora.getFullYear();
@@ -1684,9 +1695,6 @@ function _genCoord(){
       // Clasificar donaciones por semana usando el offset guardado en localStorage
       // Como los datos demo no tienen fecha real ISO, usamos DIA_SEMANA para simular:
       // - semana=0 → semana actual, semana=1 → próxima, semana=-1 (o sin semana) → pasada (demo)
-      const dPasada  = donacionesVis.filter(d=>!d.semana||d.semana<0  ||(!d.semana&&d.estado==="cita-realizada"));
-      const dActual  = donacionesVis.filter(d=>d.semana===0||(!d.semana&&d.estado!=="cita-realizada"));
-      const dSiguiente = donacionesVis.filter(d=>d.semana===1);
 
       // Para demo, repartir todos por estado en semana actual/pasada
       const pasadas  = donacionesVis.filter(d=>d.estado==="cita-realizada"||d.estado==="cita-cancelada");
@@ -2099,7 +2107,7 @@ function renderInformes(){
         <p style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;font-weight:600;margin-bottom:.5rem">Horas más solicitadas</p>
         ${(()=>{
           const hCount = {};
-          DONACIONES.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
+          donacionesVis.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
           return Object.entries(hCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
             .map(([h,v])=>hBar(`${h} – ${String(parseInt(h)+1).padStart(2,'0')}:00`,v,
               Math.max(...Object.values(hCount)),C.blue)).join('');
@@ -2450,7 +2458,7 @@ function renderInformes(){
         <p style="font-family:'Noto Sans',sans-serif;font-size:.8rem;color:#374151;font-weight:600;margin-bottom:.5rem">Horas más solicitadas</p>
         ${(()=>{
           const hCount = {};
-          DONACIONES.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
+          donacionesVis.forEach(d=>{ hCount[d.desde]=(hCount[d.desde]||0)+1; });
           return Object.entries(hCount).sort((a,b)=>b[1]-a[1]).slice(0,5)
             .map(([h,v])=>hBar(`${h} – ${String(parseInt(h)+1).padStart(2,'0')}:00`,v,
               Math.max(...Object.values(hCount)),C.blue)).join('');
@@ -2668,7 +2676,8 @@ function exportarCSV(){
 }
 
 function exportarResumen(){
-  const aprobadas = DONACIONES.filter(d=>d.estado==="cita-confirmada").length;
+  const exitosas  = d => d.estado==="cita-confirmada" || d.estado==="cita-realizada";
+  const aprobadas = DONACIONES.filter(exitosas).length;
   const canceladas= DONACIONES.filter(d=>d.estado==="cita-cancelada").length;
   const pendientes= DONACIONES.filter(d=>d.estado==="pendiente").length;
   const BARRIOS_L = ["Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
@@ -2680,7 +2689,7 @@ function exportarResumen(){
     ``,
     `RESUMEN GENERAL`,
     `Total solicitudes:   ${DONACIONES.length}`,
-    `Citas aprobadas:     ${aprobadas}`,
+    `Citas exitosas:      ${aprobadas} (confirmadas + realizadas)`,
     `En espera de cita:   ${DONACIONES.filter(d=>d.estado==="en-espera").length}`,
     `Pendientes:          ${pendientes}`,
     `Canceladas/Rechaz.:  ${canceladas}`,
@@ -2690,14 +2699,14 @@ function exportarResumen(){
     "─".repeat(50),
     ...BARRIOS_L.map(b=>{
       const bD = DONACIONES.filter(d=>d.barrio===b);
-      const bA = bD.filter(d=>d.estado==="cita-confirmada").length;
-      return `${b.padEnd(16)} Total:${String(bD.length).padStart(3)}  Aprobadas:${String(bA).padStart(3)}  (${bD.length?Math.round(bA/bD.length*100):0}%)`;
+      const bA = bD.filter(exitosas).length;
+      return `${b.padEnd(16)} Total:${String(bD.length).padStart(3)}  Exitosas:${String(bA).padStart(3)}  (${bD.length?Math.round(bA/bD.length*100):0}%)`;
     }),
     ``,
-    `LISTADO COMPLETO DE CITAS APROBADAS`,
+    `LISTADO COMPLETO DE CITAS EXITOSAS`,
     "─".repeat(50),
-    ...DONACIONES.filter(d=>d.estado==="cita-confirmada").map(d=>
-      `• ${d.nombre} · ${d.barrio} · ${d.dia} ${d.desde}–${d.hasta} · ${d.modalidad}`
+    ...DONACIONES.filter(exitosas).map(d=>
+      `• ${d.nombre} · ${d.barrio} · ${d.dia} ${d.desde}–${d.hasta} · ${d.modalidad} · ${d.estado}`
     ),
   ];
   const blob = new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8;'});
@@ -3331,13 +3340,9 @@ function renderUsuarios(){
         Cuando un miembro selecciona un barrio en el front-end, el mensaje de WhatsApp se envía automáticamente al número de la pareja misionera asignada a ese barrio.
       </p>
       <div style="margin-bottom:.9rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-        <button onclick="cargarDonacionesLS();buildSidebar();renderView();toast('🔄 Donaciones del front-end cargadas.');"
+        <button onclick="cargarDonacionesAPI();toast('🔄 Donaciones actualizadas desde el servidor.');"
           class="btn-ghost" style="font-size:.76rem;padding:.38rem .85rem">
-          🔄 Recargar donaciones del front-end
-        </button>
-        <button onclick="if(confirm('¿Eliminar los datos de demostración y dejar solo las donaciones reales?'))limpiarDonacionesDemo();"
-          class="btn-ghost" style="font-size:.76rem;padding:.38rem .85rem;color:#DC2626;border-color:#DC2626">
-          🗑 Limpiar datos demo
+          🔄 Actualizar donaciones
         </button>
       </div>
       <div class="table-wrap"><table>

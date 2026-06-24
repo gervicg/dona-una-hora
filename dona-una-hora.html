@@ -398,7 +398,7 @@ async function cargarSlotsOcupados(barrio){
   try {
     const res = await fetch(`${API_URL}/donaciones.php?action=slots&barrio=${encodeURIComponent(barrio)}`);
     const data = await res.json();
-    ocupados = data.data || data || [];
+    ocupados = data.ok ? (data.data || []) : [];
   } catch(e){ ocupados = []; }
   // Cargar mapa de misioneros (para WA multi-pareja)
   try {
