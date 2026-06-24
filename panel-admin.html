@@ -314,7 +314,10 @@ tr:last-child td{border-bottom:none}
         </div>
       </div>
       <div id="logout-wrap">
-        <button onclick="doLogout()" style="margin-top:.6rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
+        <button onclick="openCambiarPass()" style="margin-top:.6rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
+          🔑 Cambiar contraseña
+        </button>
+        <button onclick="doLogout()" style="margin-top:.4rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
           Cerrar sesión
         </button>
       </div>
@@ -389,6 +392,35 @@ tr:last-child td{border-bottom:none}
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
       <button class="btn-primary" onclick="saveUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cambiar contraseña -->
+<div id="modal-pass-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center" onclick="closeCambiarPass()">
+  <div style="background:#fff;border-radius:8px;width:100%;max-width:380px;margin:1rem;box-shadow:0 8px 32px rgba(0,0,0,.18)" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Cambiar contraseña</h3>
+      <button class="drawer-close" onclick="closeCambiarPass()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label">Contraseña actual</label>
+        <input class="form-input" id="cp-actual" type="password" placeholder="••••••••"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Nueva contraseña</label>
+        <input class="form-input" id="cp-nueva" type="password" placeholder="Mínimo 8 caracteres"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Repetir nueva contraseña</label>
+        <input class="form-input" id="cp-nueva2" type="password" placeholder="Repite la nueva contraseña"/>
+      </div>
+      <p id="cp-err" style="display:none;color:#DC2626;font-size:.82rem;margin-top:.25rem"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeCambiarPass()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarCambioPass()">Guardar</button>
     </div>
   </div>
 </div>
@@ -615,6 +647,38 @@ async function doLogin(){
     err.style.display="block";
   }
 }
+function openCambiarPass(){
+  ["cp-actual","cp-nueva","cp-nueva2"].forEach(id=>document.getElementById(id).value="");
+  const err=document.getElementById("cp-err"); err.style.display="none"; err.textContent="";
+  document.getElementById("modal-pass-overlay").style.display="flex";
+}
+function closeCambiarPass(){
+  document.getElementById("modal-pass-overlay").style.display="none";
+}
+async function guardarCambioPass(){
+  const actual = document.getElementById("cp-actual").value;
+  const nueva  = document.getElementById("cp-nueva").value;
+  const nueva2 = document.getElementById("cp-nueva2").value;
+  const errEl  = document.getElementById("cp-err");
+  const showErr = msg => { errEl.textContent=msg; errEl.style.display="block"; };
+
+  if(!actual||!nueva||!nueva2){ showErr("Completa todos los campos."); return; }
+  if(nueva.length < 8){ showErr("La nueva contraseña debe tener al menos 8 caracteres."); return; }
+  if(nueva !== nueva2){ showErr("Las contraseñas no coinciden."); return; }
+
+  try {
+    const res  = await fetch(`${API_URL}/usuarios.php?action=cambiar-pass`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiToken()},
+      body: JSON.stringify({ password_actual: actual, password: nueva })
+    });
+    const data = await res.json();
+    if(!data.ok){ showErr(data.error||"Error al cambiar la contraseña."); return; }
+    closeCambiarPass();
+    toast("✅ Contraseña actualizada correctamente.");
+  } catch(e){ showErr("No se pudo conectar al servidor."); }
+}
+
 function doLogout(){
   currentUser=null;
   localStorage.removeItem('dona_hora_token');
