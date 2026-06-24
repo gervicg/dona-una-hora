@@ -634,8 +634,8 @@ function buildSidebar(){
     ...(!isMision()?[{id:"barrios", icon:"📍", label:"Por barrio"}]:[]),
     {id:"miembros",   icon:"👥", label:"Miembros"},
     {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
-    // Informes: admin + lider-misional + misionero (solo su barrio)
     {id:"informes",   icon:"📈", label:"Informes"},
+    ...(!isMision()?[{id:"referencias", icon:"🤝", label:"Referencias"}]:[]),
     ...(isAdmin()?[
       {id:"misioneros", icon:"⛪", label:"Misioneros"},
       {id:"lideres",    icon:"👔", label:"Líderes Misionales"},
@@ -702,7 +702,7 @@ function setBarrioView(b){ barrioView=b; if(currentView==="barrios") renderView(
 const VIEW_TITLES = {
   dashboard:"Dashboard", solicitudes:"Solicitudes", calendario:"Calendario semanal",
   barrios:"Vista por barrio", miembros:"Miembros", whatsapp:"WhatsApp",
-  informes:"Informes y estadísticas", lideres:"Líderes Misionales",
+  informes:"Informes y estadísticas", referencias:"Referencias de miembros", lideres:"Líderes Misionales",
   misioneros:"Misioneros por barrio",
   usuarios:"Usuarios administradores",
 };
@@ -733,6 +733,7 @@ function renderView(){
     case "misioneros":  pc.innerHTML=renderMisioneros();  break;
     case "lideres":     pc.innerHTML=renderLideres();     break;
     case "usuarios":    pc.innerHTML=renderUsuarios();    break;
+    case "referencias": renderReferencias();              break;
   }
 }
 
@@ -2991,6 +2992,171 @@ function probarEnrutamiento(barrio){
       </div>`;
   } else {
     el.innerHTML=`<div style="font-size:.78rem;color:#92400E;background:#FEF3C7;border-radius:3px;padding:.4rem .7rem">⚠ Sin misionero con teléfono configurado para este barrio.</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REFERENCIAS
+// ═══════════════════════════════════════════════════════════════
+let REFERENCIAS = [];
+let refFiltroBarrio = 'Todos';
+let refFiltroEstado = 'todos';
+
+async function renderReferencias(){
+  const pc = document.getElementById('page-content');
+
+  // Esqueleto mientras carga
+  pc.innerHTML = `
+    <div style="padding:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.2rem">
+        <h2 style="font-family:'Source Serif 4',serif;font-size:1.3rem;color:#003E6B;margin:0">Referencias de miembros</h2>
+      </div>
+      <div style="color:#9CA3AF;font-size:.9rem;padding:2rem 0;text-align:center">Cargando referencias…</div>
+    </div>`;
+
+  try {
+    const token = localStorage.getItem('dona_hora_token');
+    const res = await fetch(`${API_URL}/referencias.php`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    REFERENCIAS = json.data || [];
+  } catch(e) {
+    pc.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Error al cargar referencias: ${e.message}</p></div>`;
+    return;
+  }
+
+  _paintReferencias();
+}
+
+function _paintReferencias(){
+  const pc = document.getElementById('page-content');
+
+  // Barrios disponibles en las referencias
+  const barriosEnRefs = ['Todos', ...new Set(REFERENCIAS.map(r=>r.barrio).filter(Boolean).sort())];
+
+  // Filtrar
+  let lista = REFERENCIAS.filter(r => {
+    const byBarrio = refFiltroBarrio === 'Todos' || r.barrio === refFiltroBarrio;
+    const byEstado = refFiltroEstado === 'todos' || r.estado === refFiltroEstado;
+    return byBarrio && byEstado;
+  });
+
+  // Agrupar por barrio
+  const grupos = {};
+  lista.forEach(r => {
+    const key = r.barrio || 'Sin barrio';
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(r);
+  });
+
+  const estadoBadge = e => {
+    const cfg = { nueva:{bg:'#FEF3C7',color:'#92400E',label:'Nueva'},
+                  contactada:{bg:'#D1FAE5',color:'#065F46',label:'Contactada'},
+                  archivada:{bg:'#F3F4F6',color:'#6B7280',label:'Archivada'} };
+    const c = cfg[e] || cfg.nueva;
+    return `<span style="background:${c.bg};color:${c.color};font-size:.7rem;font-weight:600;padding:.15rem .55rem;border-radius:99px;white-space:nowrap">${c.label}</span>`;
+  };
+
+  const tarjetasHTML = Object.keys(grupos).sort().map(barrio => {
+    const rows = grupos[barrio].map(r => `
+      <tr>
+        <td style="padding:.65rem .8rem;vertical-align:top">
+          <div style="font-weight:600;color:#1A1A1A;font-size:.88rem">${r.nombre}</div>
+          ${r.referido_por ? `<div style="font-size:.74rem;color:#9CA3AF;margin-top:.1rem">Referido por: ${r.referido_por}</div>` : ''}
+        </td>
+        <td style="padding:.65rem .8rem;font-size:.84rem;color:#374151;vertical-align:top">${r.direccion}</td>
+        <td style="padding:.65rem .8rem;font-size:.84rem;vertical-align:top">
+          <a href="tel:${r.telefono}" style="color:#006EB6;text-decoration:none">${r.telefono}</a>
+        </td>
+        <td style="padding:.65rem .8rem;font-size:.82rem;color:#6B7280;vertical-align:top;max-width:160px">${r.observaciones || '—'}</td>
+        <td style="padding:.65rem .8rem;vertical-align:top">${estadoBadge(r.estado)}</td>
+        <td style="padding:.65rem .8rem;vertical-align:top;white-space:nowrap">
+          <select onchange="cambiarEstadoRef(${r.id},this.value)"
+            style="font-size:.75rem;padding:.25rem .4rem;border:1px solid #D1D5DB;border-radius:3px;color:#374151;cursor:pointer">
+            <option value="">Cambiar…</option>
+            <option value="nueva"      ${r.estado==='nueva'      ?'disabled':''}>Nueva</option>
+            <option value="contactada" ${r.estado==='contactada' ?'disabled':''}>Contactada</option>
+            <option value="archivada"  ${r.estado==='archivada'  ?'disabled':''}>Archivada</option>
+          </select>
+        </td>
+      </tr>`).join('');
+
+    return `
+      <div style="background:#fff;border:1px solid #D8DCE1;border-radius:4px;margin-bottom:1.1rem;overflow:hidden">
+        <div style="background:#EEF5FB;padding:.65rem 1rem;border-bottom:1px solid #D8DCE1;display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.85rem;font-weight:700;color:#003E6B">📍 ${barrio}</span>
+          <span style="font-size:.75rem;color:#6B7280">(${grupos[barrio].length} referencia${grupos[barrio].length!==1?'s':''})</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-family:'Noto Sans',sans-serif">
+            <thead>
+              <tr style="border-bottom:1px solid #E5E7EB">
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Nombre</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Dirección</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Teléfono</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Observaciones</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Estado</th>
+                <th style="padding:.5rem .8rem;text-align:left;font-size:.72rem;color:#6B7280;font-weight:600;letter-spacing:.05em;text-transform:uppercase">Acción</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  pc.innerHTML = `
+    <div style="padding:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.2rem">
+        <h2 style="font-family:'Source Serif 4',serif;font-size:1.3rem;color:#003E6B;margin:0">
+          Referencias de miembros
+          <span style="font-size:.82rem;font-weight:400;color:#6B7280;margin-left:.5rem">(${lista.length} total)</span>
+        </h2>
+        <button onclick="renderReferencias()" style="background:transparent;border:1px solid #D1D5DB;border-radius:4px;padding:.4rem .9rem;font-size:.8rem;color:#374151;cursor:pointer">↺ Actualizar</button>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.2rem;align-items:center">
+        <span style="font-size:.8rem;color:#6B7280;font-weight:600">Filtrar:</span>
+        <select onchange="refFiltroBarrio=this.value;_paintReferencias()"
+          style="font-size:.82rem;padding:.35rem .6rem;border:1px solid #D1D5DB;border-radius:4px;color:#374151">
+          ${barriosEnRefs.map(b=>`<option value="${b}" ${b===refFiltroBarrio?'selected':''}>${b}</option>`).join('')}
+        </select>
+        <select onchange="refFiltroEstado=this.value;_paintReferencias()"
+          style="font-size:.82rem;padding:.35rem .6rem;border:1px solid #D1D5DB;border-radius:4px;color:#374151">
+          <option value="todos"      ${refFiltroEstado==='todos'      ?'selected':''}>Todos los estados</option>
+          <option value="nueva"      ${refFiltroEstado==='nueva'      ?'selected':''}>Nueva</option>
+          <option value="contactada" ${refFiltroEstado==='contactada' ?'selected':''}>Contactada</option>
+          <option value="archivada"  ${refFiltroEstado==='archivada'  ?'selected':''}>Archivada</option>
+        </select>
+      </div>
+
+      ${lista.length === 0
+        ? `<div class="empty-state"><div class="empty-icon">🤝</div><p>No hay referencias${refFiltroBarrio!=='Todos'?' para este barrio':''}.</p></div>`
+        : tarjetasHTML
+      }
+    </div>`;
+}
+
+async function cambiarEstadoRef(id, estado){
+  if(!estado) return;
+  try {
+    const token = localStorage.getItem('dona_hora_token');
+    const res = await fetch(`${API_URL}/referencias.php?action=update&id=${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+      body: JSON.stringify({ estado })
+    });
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error);
+    const ref = REFERENCIAS.find(r=>r.id===id||r.id===String(id));
+    if(ref) ref.estado = estado;
+    toast('✅ Estado actualizado');
+    _paintReferencias();
+  } catch(e){
+    toast('⚠ '+e.message,'#DC2626');
   }
 }
 
