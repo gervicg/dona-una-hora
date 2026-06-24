@@ -315,8 +315,8 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
         </button>
         <div id="ref-form-inline" style="display:none;margin-top:1rem">
           <div class="field"><label>Nombres y Apellidos</label><input type="text" id="ref-nombre" placeholder="Nombre completo"/></div>
-          <div class="field"><label>Dirección</label><input type="text" id="ref-direccion" placeholder="Calle, número, ciudad"/></div>
-          <div class="field"><label>Teléfono</label><input type="tel" id="ref-telefono" placeholder="+56 9 XXXX XXXX"/></div>
+          <div class="field"><label>Dirección <span style="font-weight:400;color:#9CA3AF">(opcional si ingresa teléfono)</span></label><input type="text" id="ref-direccion" placeholder="Calle, número, ciudad"/></div>
+          <div class="field"><label>Teléfono <span style="font-weight:400;color:#9CA3AF">(opcional si ingresa dirección)</span></label><input type="tel" id="ref-telefono" placeholder="+56 9 XXXX XXXX"/></div>
           <div class="field"><label>Observaciones <span style="font-weight:400;color:#9CA3AF">(opcional)</span></label><textarea id="ref-observaciones" rows="2" style="width:100%;padding:.65rem .9rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.93rem;resize:vertical;outline:none"></textarea></div>
           <button onclick="guardarReferencia()" class="btn-primary" style="width:100%">Enviar referencia →</button>
         </div>
@@ -606,8 +606,12 @@ function guardarReferencia(){
   const dir    = document.getElementById('ref-direccion').value.trim();
   const tel    = document.getElementById('ref-telefono').value.trim();
   const obs    = document.getElementById('ref-observaciones').value.trim();
-  if(!nombre || !dir || !tel){
-    alert('Por favor completa Nombres, Dirección y Teléfono.');
+  if(!nombre){
+    alert('Por favor ingresa el nombre completo.');
+    return;
+  }
+  if(!dir && !tel){
+    alert('Por favor ingresa al menos la dirección o el teléfono.');
     return;
   }
   // Guardar localmente y enviar a API si existe
