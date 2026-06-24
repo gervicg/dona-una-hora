@@ -2534,11 +2534,12 @@ function renderInformes(){
 
   const _nav=(function(){
     const items=[
-      {id:"semanal",  icon:"📊", label:"Informe semanal barrio"},
-      {id:"miembros", icon:"👥", label:"Miembros"},
-      {id:"barrios",  icon:"📍", label:"Barrios"},
-      {id:"coord",    icon:"📋", label:"Coordinación misional"},
-      {id:"estaca",   icon:"🏛️",  label:"Estaca"},
+      {id:"semanal",     icon:"📊", label:"Informe semanal barrio"},
+      {id:"miembros",    icon:"👥", label:"Miembros"},
+      {id:"barrios",     icon:"📍", label:"Barrios"},
+      {id:"coord",       icon:"📋", label:"Coordinación misional"},
+      {id:"referencias", icon:"🤝", label:"Referencias"},
+      {id:"estaca",      icon:"🏛️",  label:"Estaca"},
     ];
     let h='<div style="display:flex;gap:0;margin-bottom:1.5rem;flex-wrap:wrap;border-bottom:2px solid #D8DCE1">';
     items.forEach(function(s){
@@ -2556,12 +2557,99 @@ function renderInformes(){
     return h;
   })();
 
+  // ── Informe de Referencias de la semana ─────────────────────────
+  const _sub_referencias=(()=>{
+    const ahora   = new Date();
+    const iniSem  = new Date(ahora); iniSem.setDate(ahora.getDate()-ahora.getDay()+1); iniSem.setHours(0,0,0,0);
+    const finSem  = new Date(iniSem); finSem.setDate(iniSem.getDate()+6); finSem.setHours(23,59,59,999);
+    const mesAct  = ahora.getMonth();
+    const anioAct = ahora.getFullYear();
+
+    const refVis = (isMision()||isLider())
+      ? REFERENCIAS.filter(r=>r.barrio===currentUser.barrio)
+      : REFERENCIAS;
+
+    const refSem  = refVis.filter(r=>{ const f=new Date(r.creado_en); return f>=iniSem&&f<=finSem; });
+    const refMes  = refVis.filter(r=>{ const f=new Date(r.creado_en); return f.getMonth()===mesAct&&f.getFullYear()===anioAct; });
+    const refAnio = refVis.filter(r=>new Date(r.creado_en).getFullYear()===anioAct);
+
+    const cnt = (arr,e) => arr.filter(r=>r.estado===e).length;
+
+    const kpiBox = (label,val,color,sub='') =>
+      `<div class="stat-card" style="border-left:3px solid ${color}">
+        <div class="stat-label">${label}</div>
+        <div class="stat-value" style="color:${color}">${val}</div>
+        ${sub?`<div class="stat-sub">${sub}</div>`:''}
+      </div>`;
+
+    const estadoBadge = e => {
+      const m={nueva:'#FEF3C7|#92400E|Nueva',contactada:'#D1FAE5|#065F46|Contactada',archivada:'#F3F4F6|#6B7280|Archivada'};
+      const [bg,color,label]=(m[e]||m.nueva).split('|');
+      return `<span style="background:${bg};color:${color};font-size:.7rem;font-weight:600;padding:.15rem .5rem;border-radius:99px">${label}</span>`;
+    };
+
+    // Filas de tabla para referencias de la semana
+    const filasHTML = refSem.length
+      ? refSem.map(r=>`<tr>
+          <td><div class="td-name">${r.nombre}</div>${r.referido_por?`<div class="td-sub">Por: ${r.referido_por}</div>`:''}</td>
+          <td style="font-size:.82rem">${r.barrio||'—'}</td>
+          <td style="font-size:.82rem">${r.direccion}</td>
+          <td><a href="tel:${r.telefono}" style="color:#006EB6;font-size:.84rem">${r.telefono}</a></td>
+          <td style="font-size:.8rem;color:#6B7280;max-width:140px">${r.observaciones||'—'}</td>
+          <td>${estadoBadge(r.estado)}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:#9CA3AF;font-style:italic">Sin referencias esta semana</td></tr>`;
+
+    // Distribución por barrio (solo admin)
+    const porBarrioRef = isAdmin()
+      ? `<div class="section-card" style="margin-bottom:1.1rem">
+          <div class="section-header"><span>📍</span><span class="section-title">Referencias por barrio (año ${anioAct})</span></div>
+          <div style="padding:1rem 1.3rem">
+            ${BARRIOS_LISTA.map(b=>{
+              const n = refAnio.filter(r=>r.barrio===b).length;
+              const max = Math.max(...BARRIOS_LISTA.map(b2=>refAnio.filter(r=>r.barrio===b2).length),1);
+              return hBar(`📍 ${b}`,n,max,C.blue,`referencia${n!==1?'s':''}`);
+            }).join('')}
+          </div>
+        </div>`
+      : '';
+
+    return `
+      <!-- KPIs -->
+      <div class="stats-row" style="margin-bottom:1.2rem">
+        ${kpiBox('🤝 Esta semana', refSem.length,  '#006EB6', `${cnt(refSem,'nueva')} nueva${cnt(refSem,'nueva')!==1?'s':''}`)}
+        ${kpiBox('📅 Este mes',    refMes.length,  '#7C3AED', `${cnt(refMes,'contactada')} contactada${cnt(refMes,'contactada')!==1?'s':''}`)}
+        ${kpiBox('📆 Año ${anioAct}', refAnio.length,'#003E6B', `${cnt(refAnio,'archivada')} archivada${cnt(refAnio,'archivada')!==1?'s':''}`)}
+        ${kpiBox('✅ Contactadas', cnt(refVis,'contactada'), '#2D7A2D', 'total histórico')}
+      </div>
+
+      <!-- Tabla semana -->
+      <div class="section-card" style="margin-bottom:1.1rem">
+        <div class="section-header">
+          <span>🤝</span>
+          <span class="section-title">Referencias recibidas esta semana</span>
+          <span class="badge badge-pending" style="margin-left:auto">${refSem.length} referencia${refSem.length!==1?'s':''}</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nombre</th><th>Barrio</th><th>Dirección</th><th>Teléfono</th><th>Observaciones</th><th>Estado</th>
+            </tr></thead>
+            <tbody>${filasHTML}</tbody>
+          </table>
+        </div>
+      </div>
+
+      ${porBarrioRef}`;
+  })();
+
   let _body='';
-  if(informeSubview==='semanal')  _body=_sub_semanal;
-  if(informeSubview==='miembros') _body=_sub_miembros;
-  if(informeSubview==='barrios')  _body=_sub_barrios;
-  if(informeSubview==='coord')    _body=_genCoord();
-  if(informeSubview==='estaca')   _body=_kpiStrip+_barrioGrid+_sub_estaca_extra;
+  if(informeSubview==='semanal')     _body=_sub_semanal;
+  if(informeSubview==='miembros')    _body=_sub_miembros;
+  if(informeSubview==='barrios')     _body=_sub_barrios;
+  if(informeSubview==='coord')       _body=_genCoord();
+  if(informeSubview==='referencias') _body=_sub_referencias;
+  if(informeSubview==='estaca')      _body=_kpiStrip+_barrioGrid+_sub_estaca_extra;
 
   return _liderBanner+_nav+_body+_sub_export;
 }
