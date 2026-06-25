@@ -137,7 +137,10 @@ tr:last-child td{border-bottom:none}
 .acg-label{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-right:7px;gap:1px}
 .acg-label span{font-family:'Noto Sans',sans-serif;font-size:.59rem;color:#9CA3AF}
 .acg-sep{color:#D1D5DB;font-size:.5rem}
-.acg-cell{height:36px;border:1px solid #E5E7EB;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:600;transition:all .11s;cursor:default;position:relative;user-select:none}
+.acg-cell{height:42px;border:1px solid #E5E7EB;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:600;transition:all .11s;cursor:default;position:relative;user-select:none;overflow:hidden}
+.acg-confirmed-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.15;padding:2px 3px;width:100%;text-align:center}
+.acg-confirmed-mod{font-size:.75rem;line-height:1}
+.acg-confirmed-name{font-size:.58rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
 .acg-free{background:#fff;color:transparent}
 .acg-confirmed{background:#006EB6;border-color:#005A9E;color:#fff;cursor:pointer}
 .acg-confirmed:hover{background:#005A9E}
@@ -1372,7 +1375,12 @@ function renderCalendario(){
       if(blk){ cls="acg-blocked"; }
       else if(don){
         if(don.estado==="cita-realizada")   { cls="acg-cita-realizada"; content="🙏"; }
-        else if(don.estado==="cita-confirmada")    { cls="acg-confirmed"; content="✔"; }
+        else if(don.estado==="cita-confirmada")    {
+          cls="acg-confirmed";
+          const modIcon = don.modalidad==="presencial" ? "🏠" : "💻";
+          const nombre  = (don.nombre||"").split(" ")[0];
+          content=`<div class="acg-confirmed-inner"><span class="acg-confirmed-mod">${modIcon}</span><span class="acg-confirmed-name">${nombre}</span></div>`;
+        }
         else if(don.estado==="en-espera") { cls="acg-en-espera"; content="🕐"; }
         else                                { cls="acg-pending";  content="?"; }
         click=`onclick="openDrawer('${don.id}')" title="${don.nombre} · ${don.barrio} · ${don.estado}"`;
