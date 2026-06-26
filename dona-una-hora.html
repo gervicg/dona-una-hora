@@ -215,7 +215,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
         <div class="field">
           <label>Modalidad de participación *</label>
           <div class="modal-grid" id="modal-grid">
-            <div class="modal-card" data-value="presencial" onclick="alert('CLICK OK presencial');selectModalidad(this.dataset.value,this)">
+            <div class="modal-card" data-value="presencial" onclick="selectModalidad(this.dataset.value,this)">
               <div class="mc-icon"><i class="ti ti-home" style="font-size:1.5rem;pointer-events:none" aria-hidden="true"></i></div>
               <div class="mc-label" style="pointer-events:none">Presencial</div>
               <div class="mc-desc" style="pointer-events:none">Junto a los misioneros en persona</div>
@@ -227,7 +227,6 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
             </div>
           </div>
           <p class="hint" id="hint-modal" style="margin-top:.4rem"></p>
-          <p id="dbg-sel" style="font-size:.75rem;color:#059669;font-weight:600;margin-top:.3rem;display:none"></p>
         </div>
         <div class="field">
           <label>Barrio *</label>
@@ -427,8 +426,6 @@ function selectModalidad(id,el){
   form.modalidad=id;
   document.querySelectorAll('.modal-card').forEach(c=>c.removeAttribute('data-sel'));
   el.setAttribute('data-sel','1');
-  const dbg=document.getElementById('dbg-sel');
-  if(dbg){dbg.style.display='block';dbg.textContent='✓ JS OK — modalidad: '+id+' | data-sel: '+el.getAttribute('data-sel');}
 }
 async function selectBarrio(b,el){
   form.barrio=b;
