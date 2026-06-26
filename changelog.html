@@ -71,6 +71,12 @@ body{font-family:'Noto Sans',sans-serif;background:#F0F2F4;color:#374151;min-hei
   .site-header{padding:1.5rem .9rem 0}
 }
 </style>
+<script>
+  // Protección: solo accesible con sesión activa
+  if (!localStorage.getItem('dona_hora_token')) {
+    window.location.replace('panel-admin.html');
+  }
+</script>
 </head>
 <body>
 
