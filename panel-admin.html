@@ -312,10 +312,6 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
     <nav class="sidebar-nav" id="sidebar-nav"></nav>
-    <a href="changelog.html" style="display:flex;align-items:center;gap:.7rem;padding:.52rem .85rem;color:rgba(255,255,255,.45);font-size:.82rem;text-decoration:none;border-left:3px solid transparent;transition:all .14s;white-space:nowrap" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.color='rgba(255,255,255,.45)';this.style.background=''">
-      <i class="ti ti-history" style="font-size:1rem;width:20px;text-align:center;flex-shrink:0"></i>
-      <span class="nav-label">Versiones</span>
-    </a>
     <div class="sidebar-user">
       <div class="user-card">
         <div class="user-avatar" id="user-avatar"></div>
@@ -782,6 +778,11 @@ function buildSidebar(){
     });
     html+=`</div>`;
   }
+  html += `<div class="nav-section" style="margin-top:.7rem">Sistema</div>`;
+  html += `<div class="nav-item${currentView==="changelog"?" active":""}" onclick="showView('changelog')">
+    <span class="nav-icon"><i class="ti ti-history" aria-hidden="true"></i></span>
+    <span class="nav-label">Versiones</span>
+  </div>`;
   document.getElementById("sidebar-nav").innerHTML=html;
   updateAlert();
 }
@@ -824,6 +825,7 @@ const VIEW_TITLES = {
   informes:"Informes y estadísticas", referencias:"Referencias de miembros", lideres:"Líderes Misionales",
   misioneros:"Misioneros por barrio",
   usuarios:"Usuarios administradores",
+  changelog:"Historial de versiones",
 };
 
 function showView(v){
@@ -853,6 +855,7 @@ function renderView(){
     case "lideres":     pc.innerHTML=renderLideres();     break;
     case "usuarios":    pc.innerHTML=renderUsuarios();    break;
     case "referencias": renderReferencias();              break;
+    case "changelog":   pc.innerHTML=renderChangelog();   break;
   }
 }
 
@@ -3492,6 +3495,53 @@ function renderUsuarios(){
         </div></td>
       </tr>`).join("")}</tbody>
     </table></div>
+  </div>`;
+}
+
+function renderChangelog(){
+  const VERSIONS = [
+    {v:"v1.3.1", fecha:"26/06/2026", tipo:"ui",    desc:"Aumento general de tamaños de fuente en etiquetas, botones, inputs y navegación para mejor legibilidad desde dispositivos móviles."},
+    {v:"v1.3.0", fecha:"26/06/2026", tipo:"feat",  desc:"Ícono de capilla SUD en login. Modal de credenciales temporales al crear un misionero. Corrección del bug que bloqueaba la selección de modalidad y barrio (elemento <code>#yr</code> inexistente crasheaba el script). Migración a event delegation."},
+    {v:"v1.2.9", fecha:"25/06/2026", tipo:"fix",   desc:"Mejoras al estado visual seleccionado en tarjetas de modalidad y botones de barrio. Uso de atributo <code>data-sel</code> para mayor confiabilidad en móvil."},
+    {v:"v1.2.8", fecha:"25/06/2026", tipo:"ui",    desc:"Reemplazo de emojis por iconografía Tabler Icons (outline) en todo el sistema."},
+    {v:"v1.2.7", fecha:"25/06/2026", tipo:"ui",    desc:"Footer actualizado con «Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana» en ambas páginas."},
+    {v:"v1.2.6", fecha:"25/06/2026", tipo:"fix",   desc:"Eliminación de las cuentas de demostración visibles en la pantalla de login por razones de seguridad."},
+    {v:"v1.2.5", fecha:"25/06/2026", tipo:"feat",  desc:"El calendario muestra nombre del voluntario y modalidad directamente en las celdas de citas confirmadas."},
+    {v:"v1.2.4", fecha:"24/06/2026", tipo:"feat",  desc:"Cambio de contraseña disponible para todos los roles: administrador, misionero y líder misional."},
+    {v:"v1.2.3", fecha:"24/06/2026", tipo:"fix",   desc:"Correcciones en el dashboard: referencias a variables incorrectas, mejoras de UX y correcciones en gestión de usuarios."},
+    {v:"v1.2.2", fecha:"24/06/2026", tipo:"fix",   desc:"Campo de notas del misionero revertido a caja de texto simple (textarea)."},
+    {v:"v1.2.1", fecha:"24/06/2026", tipo:"feat",  desc:"Simplificación del flujo de registro: vistas fusionadas, referencias en paso 3. Dirección y teléfono opcionales. Desactivada la detección automática de direcciones en iOS."},
+    {v:"v1.2.0", fecha:"24/06/2026", tipo:"feat",  desc:"Nueva sección Referencias con filtros por barrio y estado, KPIs semana/mes/año, tabla detallada y botón WhatsApp por referencia. Cuadro resumen en el dashboard."},
+    {v:"v1.1.0", fecha:"16/06/2026", tipo:"feat",  desc:"Plantillas WhatsApp para contactar miembros, perfil de líder misional con vista restringida, recuperación de contraseña, múltiples misioneros por barrio, botones de acción con apertura automática de WhatsApp, corrección de layout móvil y conexión a la API real."},
+    {v:"v1.0.0", fecha:"15/06/2026", tipo:"feat",  desc:"Versión inicial: formulario público de reserva, panel de administración con calendario semanal, gestión de solicitudes y usuarios, autenticación JWT."},
+  ];
+  const badge = {
+    feat:  `<span style="background:#D1FAE5;color:#065F46;border-radius:3px;padding:.14rem .48rem;font-size:.7rem;font-weight:700;letter-spacing:.04em">FEAT</span>`,
+    fix:   `<span style="background:#FEF3C7;color:#92400E;border-radius:3px;padding:.14rem .48rem;font-size:.7rem;font-weight:700;letter-spacing:.04em">FIX</span>`,
+    ui:    `<span style="background:#EDE9FE;color:#5B21B6;border-radius:3px;padding:.14rem .48rem;font-size:.7rem;font-weight:700;letter-spacing:.04em">UI</span>`,
+    chore: `<span style="background:#F3F4F6;color:#6B7280;border-radius:3px;padding:.14rem .48rem;font-size:.7rem;font-weight:700;letter-spacing:.04em">CHORE</span>`,
+  };
+  const rows = VERSIONS.map((r,i)=>`
+    <tr>
+      <td style="font-family:'Source Serif 4',serif;font-size:.95rem;font-weight:700;color:#003E6B;white-space:nowrap">${r.v}${i===0?` <span style="background:#006EB6;color:#fff;border-radius:3px;padding:.1rem .4rem;font-size:.65rem;font-weight:700;vertical-align:middle;margin-left:.3rem">ACTUAL</span>`:""}</td>
+      <td style="color:#9CA3AF;font-size:.82rem;white-space:nowrap">${r.fecha}</td>
+      <td style="white-space:nowrap">${badge[r.tipo]||""}</td>
+      <td style="font-size:.88rem;line-height:1.55;color:#374151">${r.desc}</td>
+    </tr>`).join("");
+  return `
+  <div class="section-card">
+    <div class="section-header">
+      <i class="ti ti-history" style="color:#006EB6;font-size:1.1rem"></i>
+      <span class="section-title">Historial de versiones</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Versión</th><th>Fecha</th><th>Tipo</th><th>Descripción</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   </div>`;
 }
 </script>
