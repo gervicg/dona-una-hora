@@ -830,6 +830,10 @@ const VIEW_TITLES = {
 
 function showView(v){
   currentView=v;
+  // En móvil, cerrar el sidebar al cambiar de vista
+  if(window.innerWidth<=768){
+    document.getElementById("sidebar").classList.remove("open");
+  }
   // Reset filters when changing views to avoid confusion
   if(v!=='solicitudes') { filtroEstado='todos'; filtroBarrio='Todos'; }
   const barrioLabel = isAdmin() ? "Todos los barrios" : currentUser.barrio;
