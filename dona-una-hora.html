@@ -63,19 +63,21 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 .modal-grid{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.3rem}
 .modal-card{flex:1;min-width:140px;padding:.9rem 1rem;border:2px solid #D8DCE1;border-radius:4px;cursor:pointer;background:#fff;text-align:center;transition:all .16s}
 .modal-card:hover{border-color:#006EB6;background:#EEF5FB}
-.modal-card.on{border:2px solid #006EB6;background:#006EB6}
+.modal-card.on{border:2px solid #006EB6 !important;background:#006EB6 !important}
+.modal-card.on:hover{background:#005A9E !important;border-color:#005A9E !important}
 .modal-card .mc-icon{font-size:1.5rem;margin-bottom:.3rem}
 .modal-card .mc-label{font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;color:#003E6B}
 .modal-card .mc-desc{font-family:'Noto Sans',sans-serif;font-size:.75rem;color:#6B7280;margin-top:.15rem}
-.modal-card.on .mc-label{color:#fff}
-.modal-card.on .mc-desc{color:rgba(255,255,255,.8)}
+.modal-card.on .mc-label{color:#fff !important}
+.modal-card.on .mc-desc{color:rgba(255,255,255,.8) !important}
 .modal-card.on .mc-icon i{color:#fff !important}
 
 /* Barrios */
 .barrio-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.3rem}
 .barrio-btn{padding:.6rem 1.1rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;background:#fff;cursor:pointer;transition:all .15s}
 .barrio-btn:hover{border-color:#006EB6;color:#006EB6;background:#EEF5FB}
-.barrio-btn.on{border-color:#006EB6;color:#fff;background:#006EB6}
+.barrio-btn.on{border-color:#006EB6 !important;color:#fff !important;background:#006EB6 !important}
+.barrio-btn.on:hover{background:#005A9E !important;border-color:#005A9E !important;color:#fff !important}
 
 /* Buttons */
 .btn-primary{background:#006EB6;color:#fff;border:none;border-radius:4px;padding:.7rem 2rem;font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:background .16s}
