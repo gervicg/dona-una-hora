@@ -61,7 +61,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 /* Modalidad */
 .modal-grid{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.3rem}
-.modal-card{flex:1;min-width:140px;padding:.9rem 1rem;border:2px solid #D8DCE1;border-radius:4px;cursor:pointer;background:#fff;text-align:center;transition:all .16s;font-family:inherit;appearance:none;-webkit-appearance:none}
+.modal-card{flex:1;min-width:140px;padding:.9rem 1rem;border:2px solid #D8DCE1;border-radius:4px;cursor:pointer;background:#fff;text-align:center;transition:background .16s,border-color .16s;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .modal-card:hover{border-color:#006EB6;background:#EEF5FB}
 .modal-card.on{border:2px solid #006EB6 !important;background:#006EB6 !important}
 .modal-card.on:hover{background:#005A9E !important;border-color:#005A9E !important}
@@ -74,7 +74,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 /* Barrios */
 .barrio-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.3rem}
-.barrio-btn{padding:.6rem 1.1rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;background:#fff;cursor:pointer;transition:all .15s}
+.barrio-btn{padding:.6rem 1.1rem;border:1px solid #9CA3AF;border-radius:4px;font-family:'Noto Sans',sans-serif;font-size:.88rem;color:#374151;background:#fff;cursor:pointer;transition:background .15s,border-color .15s,color .15s;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .barrio-btn:hover{border-color:#006EB6;color:#006EB6;background:#EEF5FB}
 .barrio-btn.on{border-color:#006EB6 !important;color:#fff !important;background:#006EB6 !important}
 .barrio-btn.on:hover{background:#005A9E !important;border-color:#005A9E !important;color:#fff !important}
@@ -214,27 +214,27 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
         <div class="field">
           <label>Modalidad de participación *</label>
           <div class="modal-grid" id="modal-grid">
-            <button type="button" class="modal-card" onclick="selectModalidad('presencial',this)">
+            <div class="modal-card" onclick="selectModalidad('presencial',this)">
               <div class="mc-icon"><i class="ti ti-home" style="font-size:1.5rem;color:#003E6B" aria-hidden="true"></i></div>
               <div class="mc-label">Presencial</div>
               <div class="mc-desc">Junto a los misioneros en persona</div>
-            </button>
-            <button type="button" class="modal-card" onclick="selectModalidad('online',this)">
+            </div>
+            <div class="modal-card" onclick="selectModalidad('online',this)">
               <div class="mc-icon"><i class="ti ti-device-laptop" style="font-size:1.5rem;color:#003E6B" aria-hidden="true"></i></div>
               <div class="mc-label">En línea</div>
               <div class="mc-desc">Participación desde tu hogar</div>
-            </button>
+            </div>
           </div>
           <p class="hint" id="hint-modal" style="margin-top:.4rem"></p>
         </div>
         <div class="field">
           <label>Barrio *</label>
           <div class="barrio-grid" id="barrio-grid">
-            <button type="button" class="barrio-btn" onclick="selectBarrio('Olmué',this)">Olmué</button>
-            <button type="button" class="barrio-btn" onclick="selectBarrio('Limache',this)">Limache</button>
-            <button type="button" class="barrio-btn" onclick="selectBarrio('Peñablanca 1',this)">Peñablanca 1</button>
-            <button type="button" class="barrio-btn" onclick="selectBarrio('Peñablanca 2',this)">Peñablanca 2</button>
-            <button type="button" class="barrio-btn" onclick="selectBarrio('Villa Alemana',this)">Villa Alemana</button>
+            <div class="barrio-btn" onclick="selectBarrio('Olmué',this)">Olmué</div>
+            <div class="barrio-btn" onclick="selectBarrio('Limache',this)">Limache</div>
+            <div class="barrio-btn" onclick="selectBarrio('Peñablanca 1',this)">Peñablanca 1</div>
+            <div class="barrio-btn" onclick="selectBarrio('Peñablanca 2',this)">Peñablanca 2</div>
+            <div class="barrio-btn" onclick="selectBarrio('Villa Alemana',this)">Villa Alemana</div>
           </div>
           <p class="hint" id="hint-barrio" style="margin-top:.4rem"></p>
         </div>
