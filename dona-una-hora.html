@@ -6,6 +6,7 @@
 <meta name="format-detection" content="telephone=no,address=no,email=no"/>
 <title>Dona una Hora por la Obra</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{overflow-x:hidden;max-width:100vw}
@@ -208,12 +209,12 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
           <label>Modalidad de participación *</label>
           <div class="modal-grid" id="modal-grid">
             <div class="modal-card" onclick="selectModalidad('presencial',this)">
-              <div class="mc-icon">🏠</div>
+              <div class="mc-icon"><i class="ti ti-home" style="font-size:1.5rem;color:#003E6B" aria-hidden="true"></i></div>
               <div class="mc-label">Presencial</div>
               <div class="mc-desc">Junto a los misioneros en persona</div>
             </div>
             <div class="modal-card" onclick="selectModalidad('online',this)">
-              <div class="mc-icon">💻</div>
+              <div class="mc-icon"><i class="ti ti-device-laptop" style="font-size:1.5rem;color:#003E6B" aria-hidden="true"></i></div>
               <div class="mc-label">En línea</div>
               <div class="mc-desc">Participación desde tu hogar</div>
             </div>
@@ -305,7 +306,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
       <div id="wa-links"></div>
       <div style="margin-top:1.4rem">
         <div onclick="toggleRefForm()" style="background:linear-gradient(135deg,#0D7A5F 0%,#134E4A 100%);border-radius:10px;padding:1.1rem 1.2rem;cursor:pointer;user-select:none;display:flex;align-items:center;gap:.9rem">
-          <div style="font-size:1.7rem;line-height:1;flex-shrink:0">🙏</div>
+          <div style="font-size:1.7rem;line-height:1;flex-shrink:0"><i class="ti ti-user-heart" style="color:#fff;font-size:1.7rem" aria-hidden="true"></i></div>
           <div style="flex:1;text-align:left">
             <p style="margin:0 0 .15rem;font-family:'Noto Sans',sans-serif;font-size:.95rem;font-weight:700;color:#fff;line-height:1.3">¿Conoces a alguien interesado en el evangelio?</p>
             <p style="margin:0;font-family:'Noto Sans',sans-serif;font-size:.78rem;color:rgba(255,255,255,.75)">Danos su contacto y los misioneros lo visitarán</p>

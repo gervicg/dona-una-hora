@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
 <title>Panel Admin · Dona una Hora por la Obra</title>
 <meta name="title" content="Panel Admin · Dona una Hora por la Obra"/>
 <meta name="description" content="Panel de coordinación de voluntarios — Estaca de Villa Alemana · Misión Viña del Mar"/>
@@ -313,10 +314,10 @@ tr:last-child td{border-bottom:none}
       </div>
       <div id="logout-wrap">
         <button onclick="openCambiarPass()" style="margin-top:.6rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
-          🔑 Cambiar contraseña
+          <i class="ti ti-key" style="font-size:.85rem;vertical-align:-1px"></i> Cambiar contraseña
         </button>
         <button onclick="doLogout()" style="margin-top:.4rem;width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:4px;padding:.38rem;font-size:.73rem;cursor:pointer;font-family:'Noto Sans',sans-serif">
-          Cerrar sesión
+          <i class="ti ti-logout" style="font-size:.85rem;vertical-align:-1px"></i> Cerrar sesión
         </button>
       </div>
     </div>
@@ -573,17 +574,17 @@ function getStats(){
   };
 }
 function badgeEstado(est){
-  if(est==="pendiente")       return `<span class="badge badge-pending">⏳ Pendiente</span>`;
-  if(est==="en-espera")       return `<span class="badge badge-en-espera">🕐 En espera de cita</span>`;
-  if(est==="cita-confirmada") return `<span class="badge badge-confirm">✅ Cita confirmada</span>`;
-  if(est==="cita-realizada")  return `<span class="badge badge-realizada">🙏 Cita realizada</span>`;
-  if(est==="cita-cancelada")  return `<span class="badge badge-cancel">❌ Cita cancelada</span>`;
+  if(est==="pendiente")       return `<span class="badge badge-pending"><i class="ti ti-hand-stop" style="font-size:.8rem;vertical-align:-1px"></i> Pendiente</span>`;
+  if(est==="en-espera")       return `<span class="badge badge-en-espera"><i class="ti ti-clock-hour-4" style="font-size:.8rem;vertical-align:-1px"></i> En espera de cita</span>`;
+  if(est==="cita-confirmada") return `<span class="badge badge-confirm"><i class="ti ti-check-circle" style="font-size:.8rem;vertical-align:-1px"></i> Cita confirmada</span>`;
+  if(est==="cita-realizada")  return `<span class="badge badge-realizada"><i class="ti ti-heart-handshake" style="font-size:.8rem;vertical-align:-1px"></i> Cita realizada</span>`;
+  if(est==="cita-cancelada")  return `<span class="badge badge-cancel"><i class="ti ti-circle-x" style="font-size:.8rem;vertical-align:-1px"></i> Cita cancelada</span>`;
   return `<span class="badge">${est}</span>`;
 }
 function badgeModal(m){
   return m==="presencial"
-    ? `<span class="badge badge-presencial">🏠 Presencial</span>`
-    : `<span class="badge badge-online">💻 En línea</span>`;
+    ? `<span class="badge badge-presencial"><i class="ti ti-home" style="font-size:.8rem;vertical-align:-1px"></i> Presencial</span>`
+    : `<span class="badge badge-online"><i class="ti ti-device-laptop" style="font-size:.8rem;vertical-align:-1px"></i> En línea</span>`;
 }
 function toast(msg, color="#2D7A2D"){
   const el=document.getElementById("toast");
@@ -696,16 +697,16 @@ function buildSidebar(){
   document.getElementById("user-role").textContent = isAdmin()?"Administrador":isLider()?"Líder Misional · "+currentUser.barrio:"Misionero · "+currentUser.barrio;
 
   const navItems = [
-    {id:"dashboard",  icon:"📊", label:"Dashboard"},
-    {id:"solicitudes",icon:"📋", label:"Solicitudes"},
-    {id:"calendario", icon:"📅", label:"Calendario"},
-    {id:"whatsapp",   icon:"💬", label:"WhatsApp"},
-    {id:"informes",   icon:"📈", label:"Informes"},
-    {id:"referencias", icon:"🤝", label:"Referencias"},
+    {id:"dashboard",   icon:`<i class="ti ti-layout-dashboard" aria-hidden="true"></i>`, label:"Dashboard"},
+    {id:"solicitudes", icon:`<i class="ti ti-inbox" aria-hidden="true"></i>`,            label:"Solicitudes"},
+    {id:"calendario",  icon:`<i class="ti ti-calendar-week" aria-hidden="true"></i>`,    label:"Calendario"},
+    {id:"whatsapp",    icon:`<i class="ti ti-brand-whatsapp" aria-hidden="true"></i>`,   label:"WhatsApp"},
+    {id:"informes",    icon:`<i class="ti ti-chart-bar" aria-hidden="true"></i>`,        label:"Informes"},
+    {id:"referencias", icon:`<i class="ti ti-address-book" aria-hidden="true"></i>`,     label:"Referencias"},
     ...(isAdmin()?[
-      {id:"misioneros", icon:"⛪", label:"Misioneros"},
-      {id:"lideres",    icon:"👔", label:"Líderes Misionales"},
-      {id:"usuarios",   icon:"🔐", label:"Usuarios admin"},
+      {id:"misioneros", icon:`<i class="ti ti-building-church" aria-hidden="true"></i>`, label:"Misioneros"},
+      {id:"lideres",    icon:`<i class="ti ti-user-star" aria-hidden="true"></i>`,        label:"Líderes Misionales"},
+      {id:"usuarios",   icon:`<i class="ti ti-users" aria-hidden="true"></i>`,            label:"Usuarios admin"},
     ]:[]),
   ];
 
@@ -737,7 +738,7 @@ function buildSidebar(){
     BARRIOS.filter(b=>b!=="Todos").forEach(b=>{
       const n=DONACIONES.filter(d=>d.barrio===b&&d.estado==="pendiente").length;
       html+=`<div class="barrio-row" onclick="setBarrioView('${b}');showView('barrios')">
-        📍 ${b}${n>0?`<span class="barrio-count">${n}</span>`:""}
+        <i class="ti ti-map-pin" aria-hidden="true"></i> ${b}${n>0?`<span class="barrio-count">${n}</span>`:""}
       </div>`;
     });
     html+=`</div>`;
@@ -2859,7 +2860,7 @@ function renderLideres(){
     <td><div class="td-name">${u.nombre}</div></td>
     <td style="font-size:.82rem;color:#6B7280">${u.email}</td>
     <td>${u.barrio||'—'}</td>
-    <td><span class="badge ${u.activo?'badge-confirm':'badge-cancel'}">${u.activo?'✅ Activo':'❌ Inactivo'}</span></td>
+    <td><span class="badge ${u.activo?'badge-confirm':'badge-cancel'}">${u.activo?'<i class="ti ti-check-circle" style="font-size:.8rem;vertical-align:-1px"></i> Activo':'<i class="ti ti-circle-x" style="font-size:.8rem;vertical-align:-1px"></i> Inactivo'}</span></td>
     <td>
       <div style="display:flex;gap:.4rem">
         <button class="btn-sm btn-confirm" onclick="editarLider(${u.id})">✏️ Editar</button>
@@ -3008,7 +3009,7 @@ function renderMisioneros(){
             <td><div style="font-size:.85rem;font-weight:600;color:#003E6B">${m.nombre}</div></td>
             <td>${t?`<a href="https://wa.me/${t}" target="_blank" style="color:#006EB6;text-decoration:none;font-size:.82rem">💬 ${m.tel}</a>`:'—'}</td>
             <td style="font-size:.82rem;color:#6B7280">${m.email||'—'}</td>
-            <td><span class="badge ${m.tel?'badge-confirm':'badge-cancel'}">${m.tel?'✅ Enlazado':'⚠ Sin tel'}</span></td>
+            <td><span class="badge ${m.tel?'badge-confirm':'badge-cancel'}">${m.tel?'<i class="ti ti-check-circle" style="font-size:.8rem;vertical-align:-1px"></i> Enlazado':'<i class="ti ti-alert-triangle" style="font-size:.8rem;vertical-align:-1px"></i> Sin tel'}</span></td>
             <td></td>
           </tr>`;
         }).join('')}
