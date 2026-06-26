@@ -63,15 +63,10 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 .modal-grid{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.3rem}
 .modal-card{flex:1;min-width:140px;padding:.9rem 1rem;border:2px solid #D8DCE1;border-radius:4px;cursor:pointer;background:#fff;text-align:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .modal-card:hover{border-color:#006EB6;background:#EEF5FB}
-.modal-card[data-sel]{background:#006EB6;border:2px solid #006EB6}
-.modal-card[data-sel]:hover{background:#005A9E;border-color:#005A9E}
+.modal-card[data-sel]{background:#006EB6!important;border:2px solid #006EB6!important}
+.modal-card[data-sel]:hover{background:#005A9E!important;border-color:#005A9E!important}
 .modal-card .mc-icon{font-size:1.5rem;margin-bottom:.3rem;color:#003E6B}
-.modal-card[data-sel] .mc-icon{color:#fff}
-.modal-card .mc-label{font-family:'Noto Sans',sans-serif;font-size:.85rem;font-weight:600;color:#003E6B}
-.modal-card .mc-desc{font-family:'Noto Sans',sans-serif;font-size:.75rem;color:#6B7280;margin-top:.15rem}
-.modal-card[data-sel] .mc-label{color:#fff}
-.modal-card[data-sel] .mc-desc{color:rgba(255,255,255,.8)}
-.modal-card[data-sel] .mc-icon i{color:#fff}
+.modal-card[data-sel] .mc-icon,.modal-card[data-sel] .mc-icon i,.modal-card[data-sel] .mc-label,.modal-card[data-sel] .mc-desc{color:#fff!important}
 
 /* Barrios */
 .barrio-grid{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.3rem}
