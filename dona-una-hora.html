@@ -423,13 +423,28 @@ function showPage(n){
 // ── Page 1 ─────────────────────────────────────────────────────────
 function selectModalidad(id,el){
   form.modalidad=id;
-  document.querySelectorAll('.modal-card').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.modal-card').forEach(c=>{
+    c.classList.remove('on');
+    c.style.background='';c.style.border='';
+    c.querySelectorAll('.mc-label,.mc-desc').forEach(t=>t.style.color='');
+    c.querySelectorAll('.mc-icon i').forEach(i=>i.style.color='');
+  });
   el.classList.add('on');
+  el.style.background='#006EB6';
+  el.style.border='2px solid #006EB6';
+  el.querySelectorAll('.mc-label,.mc-desc').forEach(t=>t.style.color='#fff');
+  el.querySelectorAll('.mc-icon i').forEach(i=>i.style.color='#fff');
 }
 async function selectBarrio(b,el){
   form.barrio=b;
-  document.querySelectorAll('.barrio-btn').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.barrio-btn').forEach(c=>{
+    c.classList.remove('on');
+    c.style.background='';c.style.borderColor='';c.style.color='';
+  });
   el.classList.add('on');
+  el.style.background='#006EB6';
+  el.style.borderColor='#006EB6';
+  el.style.color='#fff';
   await cargarSlotsOcupados(b);
 }
 
