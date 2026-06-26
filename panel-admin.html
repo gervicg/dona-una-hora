@@ -403,6 +403,28 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<!-- Modal credenciales nuevo misionero -->
+<div id="modal-cred-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center" onclick="document.getElementById('modal-cred-overlay').style.display='none'">
+  <div style="background:#fff;border-radius:8px;width:100%;max-width:400px;margin:1rem;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:1.5rem" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem">
+      <i class="ti ti-key" style="font-size:1.3rem;color:#006EB6"></i>
+      <h3 style="margin:0;font-size:1rem;color:#003E6B">Credenciales del nuevo misionero</h3>
+    </div>
+    <p style="font-size:.85rem;color:#6B7280;margin-bottom:1rem">Comparte estos datos con el misionero para que pueda ingresar al panel y cambiar su contraseña.</p>
+    <div style="background:#F0F7FF;border:1px solid #B8D9F5;border-radius:6px;padding:1rem;margin-bottom:1.2rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <span style="font-size:.8rem;color:#6B7280">Correo</span>
+        <span id="cred-email" style="font-size:.88rem;font-weight:600;color:#003E6B"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.8rem;color:#6B7280">Contraseña temporal</span>
+        <span id="cred-pass" style="font-size:.88rem;font-weight:600;color:#003E6B;font-family:monospace"></span>
+      </div>
+    </div>
+    <button onclick="document.getElementById('modal-cred-overlay').style.display='none'" style="width:100%;background:#006EB6;color:#fff;border:none;border-radius:6px;padding:.65rem;font-size:.9rem;font-weight:600;cursor:pointer">Entendido</button>
+  </div>
+</div>
+
 <!-- Modal cambiar contraseña -->
 <div id="modal-pass-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center" onclick="closeCambiarPass()">
   <div style="background:#fff;border-radius:8px;width:100%;max-width:380px;margin:1rem;box-shadow:0 8px 32px rgba(0,0,0,.18)" onclick="event.stopPropagation()">
@@ -653,6 +675,11 @@ async function doLogin(){
     err.textContent="⚠ No se pudo conectar al servidor.";
     err.style.display="block";
   }
+}
+function mostrarCredenciales(email, pass){
+  document.getElementById('cred-email').textContent = email;
+  document.getElementById('cred-pass').textContent  = pass;
+  document.getElementById('modal-cred-overlay').style.display = 'flex';
 }
 function openCambiarPass(){
   ["cp-actual","cp-nueva","cp-nueva2"].forEach(id=>document.getElementById(id).value="");
@@ -3182,6 +3209,8 @@ async function guardarMisionero(barrio){
       });
       const data = await res.json();
       if(!data.ok) throw new Error(data.error||'Error');
+      const emailFinal = email||`misionero.${barrio.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s/g,'.')}@ijsud.cl`;
+      mostrarCredenciales(emailFinal, pass);
     }
     editandoBarrio = null; editandoMisioneroId = null;
     toast(`✅ Misionero de ${barrio} guardado.`);
