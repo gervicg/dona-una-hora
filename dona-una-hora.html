@@ -339,7 +339,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.3</span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.4</span>
 </div>
 
 <script>
@@ -358,16 +358,16 @@ function getWAByBarrio(barrio){
   return MISIONEROS_POR_BARRIO[barrio] || "56912345678"; // fallback admin
 }
 const DAYS  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-const HOURS = Array.from({length:12},(_,i)=>i+10); // 10..21
+const HOURS = Array.from({length:9},(_,i)=>i+12); // 12..20
 
 const DAY_CFG = {
-  Lunes:     {start:10, end:22, blocked:[10,11,12,13,14,15]},
-  Martes:    {start:10, end:22, blocked:[]},
-  Miércoles: {start:10, end:22, blocked:[]},
-  Jueves:    {start:10, end:22, blocked:[]},
-  Viernes:   {start:10, end:22, blocked:[]},
-  Sábado:    {start:10, end:22, blocked:[]},
-  Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
+  Lunes:     {start:0,  end:0,  blocked:[]},          // día libre
+  Martes:    {start:12, end:20, blocked:[13,14]},      // almuerzo 13:30–15:00
+  Miércoles: {start:12, end:20, blocked:[13,14]},
+  Jueves:    {start:12, end:20, blocked:[13,14]},
+  Viernes:   {start:12, end:20, blocked:[13,14]},
+  Sábado:    {start:12, end:20, blocked:[13,14]},
+  Domingo:   {start:15, end:20, blocked:[]},
 };
 
 const API_URL = 'https://api.faroalasnaciones.com';
