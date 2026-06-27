@@ -10,7 +10,7 @@
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Panel Admin · Dona una Hora por la Obra"/>
 <meta property="og:description" content="Panel de coordinación de voluntarios — Estaca de Villa Alemana · Misión Viña del Mar"/>
-<meta property="og:url" content="https://gervicg.github.io/dona-una-hora/panel-admin.html"/>
+<meta property="og:url" content="https://donahora.appsud.net/eva/panel.html"/>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -578,7 +578,7 @@ let editingUid  = null;
 let calBarrio   = "Todos";
 let calSemanaOffset = 0;
 let barrioView  = "Olmué";
-const API_URL = 'https://api.faroalasnaciones.com';
+const API_URL = 'https://donahora.appsud.net/eva/api';
 let informeBarrioSel = "Olmué";
 let informeSubview   = "semanal"; // semanal | miembros | barrios | coord | estaca
 let filtroBarrio = "Todos";
@@ -3504,6 +3504,7 @@ function renderUsuarios(){
 
 function renderChangelog(){
   const VERSIONS = [
+    {v:"v1.3.8", fecha:"27/06/2026", tipo:"fix",   desc:"Migración a producción: API_URL apunta a donahora.appsud.net/eva/api. og:url actualizado."},
     {v:"v1.3.7", fecha:"27/06/2026", tipo:"ui",    desc:"Lunes eliminado del calendario público — los misioneros no trabajan ese día. El calendario ahora muestra Mar–Dom."},
     {v:"v1.3.6", fecha:"27/06/2026", tipo:"ui",    desc:"Confirmación muestra que la solicitud ya quedó guardada en el sistema. Botones WhatsApp separados por pareja de misioneros con aviso de que la notificación es opcional."},
     {v:"v1.3.5", fecha:"27/06/2026", tipo:"fix",   desc:"Corrección: el botón de WhatsApp ahora abre todos los chats de misioneros del barrio simultáneamente (sin setTimeout que era bloqueado por el navegador móvil)."},
@@ -3555,6 +3556,6 @@ function renderChangelog(){
   </div>`;
 }
 </script>
-<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.3.7</div>
+<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.3.8</div>
 </body>
 </html>
