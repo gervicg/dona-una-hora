@@ -339,7 +339,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.4</span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.5</span>
 </div>
 
 <script>
@@ -691,10 +691,7 @@ function _goStep3Real(){
     btn.style.cssText = 'display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem';
     btn.textContent = '📲 Notificar a los misioneros por WhatsApp';
     btn.onclick = () => {
-      waUrls.forEach((url, i) => {
-        if(i === 0) window.open(url, '_blank');
-        else setTimeout(() => window.open(url, '_blank'), i * 600);
-      });
+      waUrls.forEach(url => window.open(url, '_blank'));
     };
     waContainer.appendChild(btn);
   }
