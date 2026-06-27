@@ -339,7 +339,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.1</span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.3</span>
 </div>
 
 <script>
@@ -542,13 +542,20 @@ function buildCalendar(){
     lbl.innerHTML=`<span>${from}</span><span class="sep">│</span><span class="sep">${to}</span>`;
     grid.appendChild(lbl);
 
-    DAYS.forEach(day=>{
+    DAYS.forEach((day,dayIdx)=>{
       const cell=document.createElement('div');
       cell.className='cal-cell';
       const blk=isBlocked(day,h);
-      if(blk){
+      // Bloquear horas pasadas: días anteriores a hoy, o hoy con hora ya transcurrida
+      const cellDate=fechasDia[dayIdx];
+      const ahora=new Date();
+      const soloFechaHoy=new Date(ahora.getFullYear(),ahora.getMonth(),ahora.getDate());
+      const soloFechaCelda=new Date(cellDate.getFullYear(),cellDate.getMonth(),cellDate.getDate());
+      const esPasado = soloFechaCelda < soloFechaHoy ||
+        (soloFechaCelda.getTime()===soloFechaHoy.getTime() && h < ahora.getHours());
+      if(blk||esPasado){
         cell.classList.add('blk');
-        cell.title='No disponible';
+        cell.title=esPasado?'Hora pasada':'No disponible';
       } else {
         // Clave incluye semana para distinguir actual de próxima
         const key=`${semanaOffset}|${slotKey(day,h)}`;
@@ -673,21 +680,24 @@ function _goStep3Real(){
   const gcal=document.getElementById('gcal-links');
   gcal.innerHTML=buildGCalHTML(list);
 
-  // WhatsApp (multi-misionero) — usar botones con onclick para evitar corrupción de caracteres via innerHTML
+  // WhatsApp — un solo botón que abre el chat de todos los misioneros del barrio
   const waUrls = buildWA(list,n);
   window._waUrls = waUrls;
   const waContainer = document.getElementById('wa-links');
   waContainer.innerHTML = '';
-  waUrls.forEach((url, i) => {
+  if(waUrls.length > 0){
     const btn = document.createElement('button');
     btn.className = 'btn-wa';
     btn.style.cssText = 'display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem';
-    btn.textContent = waUrls.length === 1
-      ? '📲 Notificar a los misioneros por WhatsApp'
-      : `📲 Notificar misionero ${i+1} por WhatsApp`;
-    btn.onclick = () => window.open(waUrls[i], '_blank');
+    btn.textContent = '📲 Notificar a los misioneros por WhatsApp';
+    btn.onclick = () => {
+      waUrls.forEach((url, i) => {
+        if(i === 0) window.open(url, '_blank');
+        else setTimeout(() => window.open(url, '_blank'), i * 600);
+      });
+    };
     waContainer.appendChild(btn);
-  });
+  }
 
   // ── Guardar en localStorage para que el panel admin lo lea ──────
   // Cuando exista la API, esta función se reemplazará por un fetch POST.
