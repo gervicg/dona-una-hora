@@ -339,7 +339,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.6</span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.7</span>
 </div>
 
 <script>
@@ -357,11 +357,10 @@ const MISIONEROS_POR_BARRIO = {
 function getWAByBarrio(barrio){
   return MISIONEROS_POR_BARRIO[barrio] || "56912345678"; // fallback admin
 }
-const DAYS  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const DAYS  = ['Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const HOURS = Array.from({length:9},(_,i)=>i+12); // 12..20
 
 const DAY_CFG = {
-  Lunes:     {start:0,  end:0,  blocked:[]},          // día libre
   Martes:    {start:12, end:20, blocked:[13,14]},      // almuerzo 13:30–15:00
   Miércoles: {start:12, end:20, blocked:[13,14]},
   Jueves:    {start:12, end:20, blocked:[13,14]},
@@ -488,18 +487,19 @@ function buildCalendar(){
   lunes.setDate(hoy.getDate() + lunesDiff + (semanaOffset * 7));
   const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
-  // Fecha real de cada columna (Lun=0 … Dom=6)
+  // Fecha real de cada columna (Mar=0 … Dom=5); +1 porque lunes es la base
   const fechasDia = DAYS.map((_,i)=>{
     const d = new Date(lunes);
-    d.setDate(lunes.getDate() + i);
+    d.setDate(lunes.getDate() + i + 1);
     return d;
   });
 
   // Actualizar texto del rango de semana
-  const domingo  = fechasDia[6];
+  const martes   = fechasDia[0];
+  const domingo  = fechasDia[5];
   const rangoTxt = semanaOffset === 0
-    ? `Semana actual · ${lunes.getDate()} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`
-    : `Próxima semana · ${lunes.getDate()} ${MESES[lunes.getMonth()]} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`;
+    ? `Semana actual · ${martes.getDate()} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`
+    : `Próxima semana · ${martes.getDate()} ${MESES[martes.getMonth()]} – ${domingo.getDate()} ${MESES[domingo.getMonth()]} ${domingo.getFullYear()}`;
   const rangoEl = document.getElementById('cal-semana-rango');
   if(rangoEl) rangoEl.textContent = rangoTxt;
 
@@ -735,7 +735,7 @@ function getSelectedList(){
 }
 
 function buildGCalHTML(list){
-  const dayIdx={Lunes:1,Martes:2,Miércoles:3,Jueves:4,Viernes:5,Sábado:6,Domingo:0};
+  const dayIdx={Martes:2,Miércoles:3,Jueves:4,Viernes:5,Sábado:6,Domingo:0};
   const today=new Date();
   return list.map(({day,from,to,week=0})=>{
     const diff=(dayIdx[day]-today.getDay()+7)%7;
