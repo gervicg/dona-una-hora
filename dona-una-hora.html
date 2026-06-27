@@ -339,7 +339,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.5</span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.3.6</span>
 </div>
 
 <script>
@@ -653,9 +653,9 @@ function _goStep3Real(){
   // Title
   document.getElementById('confirm-title').textContent=`¡Gracias, ${form.nombre.split(' ')[0]}!`;
   document.getElementById('confirm-sub').innerHTML=
-    `Tu solicitud de <strong style="color:#006EB6">${n} hora${n!==1?'s':''}</strong> fue enviada a los misioneros.<br>
-     Ellos te contactarán para <strong>confirmar su disponibilidad</strong><br>
-     en el horario que seleccionaste.`;
+    `Tu solicitud de <strong style="color:#006EB6">${n} hora${n!==1?'s':''}</strong>
+     <strong>quedó guardada en el sistema</strong>.<br>
+     Los misioneros podrán verla desde su panel y contactarte para confirmar.`;
 
   // Summary
   const sum=document.getElementById('confirm-summary');
@@ -680,20 +680,33 @@ function _goStep3Real(){
   const gcal=document.getElementById('gcal-links');
   gcal.innerHTML=buildGCalHTML(list);
 
-  // WhatsApp — un solo botón que abre el chat de todos los misioneros del barrio
+  // WhatsApp — un botón por pareja de misioneros (opcional)
   const waUrls = buildWA(list,n);
   window._waUrls = waUrls;
   const waContainer = document.getElementById('wa-links');
   waContainer.innerHTML = '';
   if(waUrls.length > 0){
-    const btn = document.createElement('button');
-    btn.className = 'btn-wa';
-    btn.style.cssText = 'display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem';
-    btn.textContent = '📲 Notificar a los misioneros por WhatsApp';
-    btn.onclick = () => {
-      waUrls.forEach(url => window.open(url, '_blank'));
-    };
-    waContainer.appendChild(btn);
+    const intro = document.createElement('div');
+    intro.style.cssText = 'background:#F0F7FF;border:1px solid #B8D9F5;border-radius:6px;padding:.85rem 1rem;margin-bottom:.9rem';
+    intro.innerHTML = `
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.88rem;font-weight:600;color:#003E6B;margin-bottom:.25rem">
+        ✅ Tu solicitud ya quedó registrada en el sistema
+      </p>
+      <p style="font-family:'Noto Sans',sans-serif;font-size:.82rem;color:#374151;margin:0">
+        Si deseas, puedes notificar directamente por WhatsApp a ${waUrls.length > 1 ? 'una de las parejas de misioneros de tu barrio' : 'los misioneros de tu barrio'}:
+      </p>`;
+    waContainer.appendChild(intro);
+
+    waUrls.forEach((url, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn-wa';
+      btn.style.cssText = 'display:inline-flex;width:100%;justify-content:center;margin-bottom:.5rem';
+      btn.textContent = waUrls.length === 1
+        ? '📲 Notificar a los misioneros por WhatsApp'
+        : `📲 Notificar pareja ${i + 1} por WhatsApp`;
+      btn.onclick = () => window.open(url, '_blank');
+      waContainer.appendChild(btn);
+    });
   }
 
   // ── Guardar en localStorage para que el panel admin lo lea ──────
