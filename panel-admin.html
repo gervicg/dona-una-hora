@@ -578,7 +578,7 @@ let editingUid  = null;
 let calBarrio   = "Todos";
 let calSemanaOffset = 0;
 let barrioView  = "Olmué";
-const API_URL = 'https://donahora.appsud.net/eva/api';
+const API_URL = 'https://donahora.appsud.net/eva';
 let informeBarrioSel = "Olmué";
 let informeSubview   = "semanal"; // semanal | miembros | barrios | coord | estaca
 let filtroBarrio = "Todos";
@@ -3504,7 +3504,8 @@ function renderUsuarios(){
 
 function renderChangelog(){
   const VERSIONS = [
-    {v:"v1.3.8", fecha:"27/06/2026", tipo:"fix",   desc:"Migración a producción: API_URL apunta a donahora.appsud.net/eva/api. og:url actualizado."},
+    {v:"v1.3.9", fecha:"27/06/2026", tipo:"fix",   desc:"API_URL ajustada a donahora.appsud.net/eva (PHP directo en carpeta raíz del sitio, sin subcarpeta api/)."},
+    {v:"v1.3.8", fecha:"27/06/2026", tipo:"fix",   desc:"Migración a producción: API_URL apunta a donahora.appsud.net/eva. og:url actualizado."},
     {v:"v1.3.7", fecha:"27/06/2026", tipo:"ui",    desc:"Lunes eliminado del calendario público — los misioneros no trabajan ese día. El calendario ahora muestra Mar–Dom."},
     {v:"v1.3.6", fecha:"27/06/2026", tipo:"ui",    desc:"Confirmación muestra que la solicitud ya quedó guardada en el sistema. Botones WhatsApp separados por pareja de misioneros con aviso de que la notificación es opcional."},
     {v:"v1.3.5", fecha:"27/06/2026", tipo:"fix",   desc:"Corrección: el botón de WhatsApp ahora abre todos los chats de misioneros del barrio simultáneamente (sin setTimeout que era bloqueado por el navegador móvil)."},
@@ -3556,6 +3557,6 @@ function renderChangelog(){
   </div>`;
 }
 </script>
-<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.3.8</div>
+<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.3.9</div>
 </body>
 </html>
