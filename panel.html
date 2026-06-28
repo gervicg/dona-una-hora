@@ -130,7 +130,7 @@ tr:last-child td{border-bottom:none}
 
 /* ── Calendar ── */
 .admin-cal{overflow-x:auto}
-.admin-cal-grid{display:grid;grid-template-columns:50px repeat(7,minmax(60px,1fr));gap:2px;min-width:0;width:100%}
+.admin-cal-grid{display:grid;grid-template-columns:50px repeat(6,minmax(60px,1fr));gap:2px;min-width:0;width:100%}
 .acg-head{text-align:center;font-family:'Noto Sans',sans-serif;font-size:.67rem;font-weight:700;color:#003E6B;padding:.38rem 0 .52rem;text-transform:uppercase;letter-spacing:.06em}
 .acg-head-today{background:#EEF5FB;border-radius:4px 4px 0 0}
 .acg-head-date{font-size:.72rem;font-weight:400;color:#9CA3AF;letter-spacing:0;text-transform:none;margin-top:.15rem}
@@ -459,10 +459,9 @@ tr:last-child td{border-bottom:none}
 // DATOS
 // ═══════════════════════════════════════════════════════════════
 const BARRIOS = ["Todos","Olmué","Limache","Peñablanca 1","Peñablanca 2","Villa Alemana"];
-const DIAS    = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+const DIAS    = ["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 const DAY_CFG = {
-  Lunes:     {start:10, end:22, blocked:[10,11,12,13,14,15]},
   Martes:    {start:10, end:22, blocked:[]},
   Miércoles: {start:10, end:22, blocked:[]},
   Jueves:    {start:10, end:22, blocked:[]},
@@ -1108,6 +1107,16 @@ function renderDashboard(){
       <div class="stat-value" style="color:#065F46">${s.confirmadas}</div>
       <div class="stat-sub">Cita agendada</div>
     </div>
+    <div class="stat-card" style="border-left:3px solid #7C3AED">
+      <div class="stat-label">🙏 Citas realizadas</div>
+      <div class="stat-value" style="color:#5B21B6">${s.realizadas}</div>
+      <div class="stat-sub">Completadas</div>
+    </div>
+    <div class="stat-card" style="border-left:3px solid #DC2626">
+      <div class="stat-label">🚫 Canceladas</div>
+      <div class="stat-value" style="color:#991B1B">${s.canceladas}</div>
+      <div class="stat-sub">No realizadas</div>
+    </div>
   </div>`;
 
   if(pends.length>0){
@@ -1379,13 +1388,13 @@ function renderCalendario(){
   // Fecha de cada día de la semana
   const fechasDia = DIAS.map((_,i)=>{
     const d = new Date(lunes);
-    d.setDate(lunes.getDate() + i);
+    d.setDate(lunes.getDate() + i + 1); // +1: DIAS empieza en Martes
     return d;
   });
 
   // Rango de semana para el título
   const fechaIni = `${fechasDia[0].getDate()} ${MESES[fechasDia[0].getMonth()]}`;
-  const fechaFin = `${fechasDia[6].getDate()} ${MESES[fechasDia[6].getMonth()]} ${fechasDia[6].getFullYear()}`;
+  const fechaFin = `${fechasDia[5].getDate()} ${MESES[fechasDia[5].getMonth()]} ${fechasDia[5].getFullYear()}`;
 
   // ── Construir grid ────────────────────────────────────────
   let gridHTML=`<div class="admin-cal-grid">`;
@@ -3504,6 +3513,7 @@ function renderUsuarios(){
 
 function renderChangelog(){
   const VERSIONS = [
+    {v:"v1.4.6", fecha:"28/06/2026", tipo:"fix",   desc:"Dashboard: tarjetas de citas realizadas y canceladas agregadas. Calendario admin: Lunes eliminado (DIAS, grid repeat(6), offset fechas +1)."},
     {v:"v1.4.5", fecha:"27/06/2026", tipo:"ui",    desc:"Link a appsud.net en footer de index y panel."},
     {v:"v1.4.4", fecha:"27/06/2026", tipo:"ui",    desc:"'Creado por appsud.net' visible en footer del login del panel."},
     {v:"v1.4.3", fecha:"27/06/2026", tipo:"ui",    desc:"Footer actualizado en index y panel: se agrega 'Creado por appsud.net'."},
@@ -3563,6 +3573,6 @@ function renderChangelog(){
   </div>`;
 }
 </script>
-<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.4.5 · appsud.net</div>
+<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.4.6 · appsud.net</div>
 </body>
 </html>
