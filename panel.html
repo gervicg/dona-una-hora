@@ -462,12 +462,12 @@ const BARRIOS = ["Todos","Olmué","Limache","Peñablanca 1","Peñablanca 2","Vil
 const DIAS    = ["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 const DAY_CFG = {
-  Martes:    {start:10, end:22, blocked:[]},
-  Miércoles: {start:10, end:22, blocked:[]},
-  Jueves:    {start:10, end:22, blocked:[]},
-  Viernes:   {start:10, end:22, blocked:[]},
-  Sábado:    {start:10, end:22, blocked:[]},
-  Domingo:   {start:10, end:22, blocked:[10,11,12,13,14]},
+  Martes:    {start:10, end:21, blocked:[]},
+  Miércoles: {start:10, end:21, blocked:[]},
+  Jueves:    {start:10, end:21, blocked:[]},
+  Viernes:   {start:10, end:21, blocked:[]},
+  Sábado:    {start:10, end:21, blocked:[]},
+  Domingo:   {start:10, end:21, blocked:[10,11,12,13,14]},
 };
 
 let DONACIONES = [];
@@ -1092,6 +1092,11 @@ function renderDashboard(){
 
   let html=`
   <div class="stats-row">
+    <div class="stat-card" style="border-left:3px solid #006EB6">
+      <div class="stat-label">📋 Total solicitudes</div>
+      <div class="stat-value" style="color:#003E6B">${s.total}</div>
+      <div class="stat-sub">Todas las citas</div>
+    </div>
     <div class="stat-card" style="border-left:3px solid #D4A017">
       <div class="stat-label">⏳ Pendiente</div>
       <div class="stat-value" style="color:#92400E">${s.pendientes}</div>
@@ -2057,9 +2062,9 @@ function _genCoord(){
         </div>
         <div>
           <p style="font-family:'Noto Sans',sans-serif;font-size:.78rem;color:var(--color-text-secondary);margin-bottom:.6rem">Días más activos</p>
-          ${["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(dia=>{
+          ${["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(dia=>{
             const n = donacionesVis.filter(d=>d.dia===dia).length;
-            const maxD = Math.max(...["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(d2=>donacionesVis.filter(x=>x.dia===d2).length),1);
+            const maxD = Math.max(...["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map(d2=>donacionesVis.filter(x=>x.dia===d2).length),1);
             return `<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
               <span style="font-family:'Noto Sans',sans-serif;font-size:.76rem;color:#374151;width:65px">${dia.substring(0,3)}</span>
               <div style="flex:1;background:#F3F4F6;border-radius:3px;height:6px;overflow:hidden">
@@ -2109,7 +2114,7 @@ function renderInformes(){
     "cita-realizada":  "🙏 Cita realizada",
     "cita-cancelada":  "❌ Cita cancelada",
   };
-  const DIAS_LABEL = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+  const DIAS_LABEL = ["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
   // ── Cálculos globales (sobre datos visibles) ─────────────────
   const total     = donacionesVis.length;
@@ -2314,7 +2319,7 @@ function renderInformes(){
         ${barChart(
           porBarrio,
           b=>[{v:b.aprobadas,color:C.green},{v:b.espera,color:C.espera},{v:b.pendientes,color:C.yellow},{v:b.canceladas,color:C.red}],
-          b=>b.barrio.split(' ')[0],
+          b=>b.barrio.replace('Peñablanca','Peñabl.').replace('Alemana','A.'),
           ()=>'',
           maxBarrio
         )}
@@ -3513,6 +3518,7 @@ function renderUsuarios(){
 
 function renderChangelog(){
   const VERSIONS = [
+    {v:"v1.4.7", fecha:"28/06/2026", tipo:"fix",   desc:"Dashboard: tarjeta Total agregada. Horarios hasta 20:00. Lunes eliminado de informes y gráficos. Etiqueta 'Villa A.' en gráfico barrios."},
     {v:"v1.4.6", fecha:"28/06/2026", tipo:"fix",   desc:"Dashboard: tarjetas de citas realizadas y canceladas agregadas. Calendario admin: Lunes eliminado (DIAS, grid repeat(6), offset fechas +1)."},
     {v:"v1.4.5", fecha:"27/06/2026", tipo:"ui",    desc:"Link a appsud.net en footer de index y panel."},
     {v:"v1.4.4", fecha:"27/06/2026", tipo:"ui",    desc:"'Creado por appsud.net' visible en footer del login del panel."},
@@ -3573,6 +3579,6 @@ function renderChangelog(){
   </div>`;
 }
 </script>
-<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.4.6 · appsud.net</div>
+<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.4.7 · appsud.net</div>
 </body>
 </html>
