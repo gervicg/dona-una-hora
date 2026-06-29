@@ -343,7 +343,7 @@ tr:last-child td{border-bottom:none}
       <div id="pending-alert" style="display:none" class="alert-banner" onclick="showView('solicitudes')">
         🔔 <span id="pending-count"></span>
       </div>
-      <button onclick="cargarDonacionesAPI();toast('🔄 Sincronizando...');"
+      <button onclick="cargarDonacionesAPI().then(()=>toast('✅ Sincronizado'));"
         title="Recargar donaciones del front-end"
         style="margin-left:.5rem;background:#EEF5FB;border:1px solid #BFDBF7;color:#006EB6;border-radius:4px;padding:.4rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Noto Sans',sans-serif;display:flex;align-items:center;gap:.3rem">
         🔄 Sincronizar
@@ -463,12 +463,12 @@ const BARRIOS = ["Todos","Olmué","Limache","Peñablanca 1","Peñablanca 2","Vil
 const DIAS    = ["Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 
 const DAY_CFG = {
-  Martes:    {start:10, end:21, blocked:[]},
-  Miércoles: {start:10, end:21, blocked:[]},
-  Jueves:    {start:10, end:21, blocked:[]},
-  Viernes:   {start:10, end:21, blocked:[]},
-  Sábado:    {start:10, end:21, blocked:[]},
-  Domingo:   {start:10, end:21, blocked:[10,11,12,13,14]},
+  Martes:    {start:12, end:20, blocked:[13,14]},
+  Miércoles: {start:12, end:20, blocked:[13,14]},
+  Jueves:    {start:12, end:20, blocked:[13,14]},
+  Viernes:   {start:12, end:20, blocked:[13,14]},
+  Sábado:    {start:12, end:20, blocked:[13,14]},
+  Domingo:   {start:15, end:20, blocked:[]},
 };
 
 let DONACIONES = [];
@@ -1231,14 +1231,21 @@ function renderDashboard(){
 
 function tiempoRelativo(fechaStr){
   try {
-    const [fecha, hora] = fechaStr.split(' ');
-    const [d,m,y] = fecha.split('/').map(Number);
-    const [hh,mm] = hora.split(':').map(Number);
-    const then = new Date(y, m-1, d, hh, mm);
+    let then;
+    if(/^\d{4}-/.test(fechaStr)){
+      then = new Date(fechaStr); // ISO format
+    } else {
+      const [fecha, hora] = fechaStr.split(' ');
+      const [d,m,y] = fecha.split('/').map(Number);
+      const [hh,mm] = (hora||'00:00').split(':').map(Number);
+      then = new Date(y, m-1, d, hh, mm);
+    }
+    if(isNaN(then)) return fechaStr;
     const mins = Math.floor((Date.now() - then) / 60000);
+    if(mins < 1)  return 'Ahora';
     if(mins < 60) return `Hace ${mins} min`;
     const hrs = Math.floor(mins/60);
-    if(hrs < 24) return `Hace ${hrs}h`;
+    if(hrs < 24)  return `Hace ${hrs}h`;
     return `Hace ${Math.floor(hrs/24)}d`;
   } catch(e){ return fechaStr; }
 }
@@ -3519,6 +3526,7 @@ function renderUsuarios(){
 
 function renderChangelog(){
   const VERSIONS = [
+    {v:"v1.5.0", fecha:"28/06/2026", tipo:"fix",   desc:"Auditoría: DAY_CFG sincronizado (12–20h Mar–Sáb, 15–20h Dom), doble-submit referencia corregido, aviso si slots fallan, ocupados limpiado en reset(), validatePhone acepta más formatos, error localStorage visible, tiempoRelativo acepta ISO, toast sincronizar tras completar carga."},
     {v:"v1.4.9", fecha:"28/06/2026", tipo:"ui",    desc:"Favicon 🤝 agregado en index y panel."},
     {v:"v1.4.8", fecha:"28/06/2026", tipo:"ui",    desc:"Invitación '¿Conoces a alguien?' agrandada: padding, ícono y texto más grandes."},
     {v:"v1.4.7", fecha:"28/06/2026", tipo:"fix",   desc:"Dashboard: tarjeta Total agregada. Horarios hasta 20:00. Lunes eliminado de informes y gráficos. Etiqueta 'Villa A.' en gráfico barrios."},
@@ -3582,6 +3590,6 @@ function renderChangelog(){
   </div>`;
 }
 </script>
-<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.4.9 · appsud.net</div>
+<div style="position:fixed;bottom:0;right:0;padding:.3rem .7rem;font-family:'Noto Sans',sans-serif;font-size:.68rem;color:rgba(255,255,255,.35);background:rgba(0,0,0,.25);border-radius:4px 0 0 0;pointer-events:none;z-index:1">v1.5.0 · appsud.net</div>
 </body>
 </html>

@@ -340,7 +340,7 @@ body{background:#F0F2F4;font-family:'Noto Sans',sans-serif;color:#1A1A1A}
 
 <!-- Footer -->
 <div class="site-footer">
-  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.4.9 · Creado por <a href="https://appsud.net" target="_blank" style="color:inherit;text-decoration:underline">appsud.net</a></span>
+  🚧 Sitio en test · Misión Viña del Mar · Estaca de Villa Alemana &nbsp;·&nbsp; <span style="opacity:.5">v1.5.0 · Creado por <a href="https://appsud.net" target="_blank" style="color:inherit;text-decoration:underline">appsud.net</a></span>
 </div>
 
 <script>
@@ -387,8 +387,9 @@ async function cargarSlotsOcupados(barrio){
   try {
     const res = await fetch(`${API_URL}/donaciones.php?action=slots&barrio=${encodeURIComponent(barrio)}`);
     const data = await res.json();
-    ocupados = data.ok ? (data.data || []) : [];
-  } catch(e){ ocupados = []; }
+    if(!data.ok){ ocupados = []; console.warn('Slots API error:', data); }
+    else { ocupados = data.data || []; }
+  } catch(e){ ocupados = []; console.warn('Slots fetch error:', e); }
   // Cargar mapa de misioneros (para WA multi-pareja)
   try {
     if(!window._mapaBarriosAPI){
@@ -400,7 +401,7 @@ async function cargarSlotsOcupados(barrio){
 }
 function validatePhone(p){
   const c=p.replace(/\s/g,'');
-  return /^\+56[2-9]\d{8}$/.test(c)||/^56[2-9]\d{8}$/.test(c)||/^[2-9]\d{8}$/.test(c);
+  return /^\+56\d{9}$/.test(c)||/^56\d{9}$/.test(c)||/^\d{9}$/.test(c);
 }
 function pad(n){return String(n).padStart(2,'0');}
 function slotKey(day,h){return `${day}|${pad(h)}:00|${pad(h+1)}:00`;}
@@ -622,15 +623,10 @@ function guardarReferencia(){
   const dir    = document.getElementById('ref-direccion').value.trim();
   const tel    = document.getElementById('ref-telefono').value.trim();
   const obs    = document.getElementById('ref-observaciones').value.trim();
-  if(!nombre){
-    alert('Por favor ingresa el nombre completo.');
-    return;
-  }
-  if(!dir && !tel){
-    alert('Por favor ingresa al menos la dirección o el teléfono.');
-    return;
-  }
-  // Guardar localmente y enviar a API si existe
+  if(!nombre){ alert('Por favor ingresa el nombre completo.'); return; }
+  if(!dir && !tel){ alert('Por favor ingresa al menos la dirección o el teléfono.'); return; }
+  const btn = document.querySelector('#ref-form-inline .btn-primary');
+  if(btn){ btn.disabled = true; btn.textContent = 'Enviando…'; }
   const ref = { nombre, direccion: dir, telefono: tel, observaciones: obs,
                 referido_por: form.nombre || '', barrio: form.barrio || '' };
   try { localStorage.setItem('dona_hora_ref_pendiente', JSON.stringify(ref)); } catch(e){}
@@ -638,10 +634,20 @@ function guardarReferencia(){
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ref)
-  }).catch(()=>{});
-  const f = document.getElementById('ref-form-inline');
-  f.innerHTML = '<p style="color:#2D7A2D;font-weight:600">✅ Referencia enviada. ¡Gracias!</p>';
-  f.style.display = 'block';
+  }).then(r=>r.json()).then(data=>{
+    const f = document.getElementById('ref-form-inline');
+    if(data.ok){
+      f.innerHTML = '<p style="color:#2D7A2D;font-weight:600">✅ Referencia enviada. ¡Gracias!</p>';
+    } else {
+      f.innerHTML = '<p style="color:#DC2626;font-weight:600">⚠️ No se pudo enviar. Intenta nuevamente.</p>';
+    }
+    f.style.display = 'block';
+  }).catch(()=>{
+    const f = document.getElementById('ref-form-inline');
+    f.innerHTML = '<p style="color:#DC2626;font-weight:600">⚠️ Error de conexión. Intenta nuevamente.</p>';
+    f.style.display = 'block';
+    if(btn){ btn.disabled = false; btn.textContent = 'Enviar referencia →'; }
+  });
 }
 
 function goStep3(){
@@ -842,7 +848,10 @@ async function guardarDonacion(list){
         });
       });
       localStorage.setItem(KEY, JSON.stringify(existing));
-    } catch(e){ console.warn('Error localStorage:', e); }
+    } catch(e){
+      if(e instanceof DOMException) console.warn('localStorage lleno');
+      console.warn('Error localStorage:', e);
+    }
   }
 }
 
@@ -851,6 +860,7 @@ function reset(){
   form={nombre:'',telefono:'',modalidad:'',barrio:''};
   selected={};
   semanaOffset=0;
+  ocupados=[];
   // Limpiar también el calendario visualmente
   document.querySelectorAll('.cal-cell.sel').forEach(c=>{
     c.classList.remove('sel'); c.textContent='+';
